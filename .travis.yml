@@ -22,6 +22,7 @@ cache:
 before_install:
 - sudo apt-get update
 - sudo apt-get -y install docker-ce realpath
+- gem install travis -v 1.8.8 --no-rdoc --no-ri
 - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASS
 
 install: true
