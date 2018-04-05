@@ -79,6 +79,8 @@ after_success:
       docker push flywheel/core:$TRAVIS_TAG;
   fi
 - if [ "$TRAVIS_EVENT_TYPE" == "pull_request" ]; then
+    docker tag core:dist flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest;
+    docker push flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest;
     travis login --pro --no-interactive -g ${GITHUB_RELEASE_API_KEY};
     bin/trigger_build.sh;
   fi
