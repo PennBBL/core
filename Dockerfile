@@ -56,7 +56,7 @@ CMD ["uwsgi", "--ini=/var/scitran/config/uwsgi-config.ini", "--http=[::]:9000", 
 FROM base as dist
 COPY requirements.txt /var/scitran/code/api/requirements.txt
 RUN set -eux \
-    && pip install -qq --requirement /var/scitran/code/api/requirements.txt
+    && pip install -qq --ignore-installed --requirement /var/scitran/code/api/requirements.txt
 
 COPY . /var/scitran/code/api/
 RUN set -eux \
@@ -88,6 +88,6 @@ COPY --from=dist /usr/local /usr/local
 
 COPY tests/requirements.txt /var/scitran/code/api/tests/requirements.txt
 RUN set -eux \
-    && pip install -qq --requirement /var/scitran/code/api/tests/requirements.txt
+    && pip install -qq --ignore-installed --requirement /var/scitran/code/api/tests/requirements.txt
 
 COPY --from=dist /var/scitran /var/scitran
