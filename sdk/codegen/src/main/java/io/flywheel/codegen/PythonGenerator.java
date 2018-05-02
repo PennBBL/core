@@ -1,9 +1,6 @@
 package io.flywheel.codegen;
 
-import io.swagger.codegen.CodegenConfig;
-import io.swagger.codegen.CodegenModel;
-import io.swagger.codegen.CodegenProperty;
-import io.swagger.codegen.SupportingFile;
+import io.swagger.codegen.*;
 import io.swagger.codegen.languages.PythonClientCodegen;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Swagger;
@@ -62,6 +59,15 @@ public class PythonGenerator extends PythonClientCodegen implements CodegenConfi
         // PIP Files
         supportingFiles.add(new SupportingFile("LICENSE.mustache", "", "LICENSE.txt"));
         supportingFiles.add(new SupportingFile("setup-cfg.mustache", "", "setup.cfg"));
+
+        // Remove docs (We use sphinx)
+        additionalProperties.put(CodegenConstants.GENERATE_API_DOCS, false);
+        additionalProperties.put(CodegenConstants.GENERATE_MODEL_DOCS, false);
+
+        modelDocTemplateFiles.clear();
+        apiDocTemplateFiles.clear();
+
+        FlywheelCodegenSupport.removeSupportingFile(supportingFiles, "README.mustache");
     }
 
     @Override

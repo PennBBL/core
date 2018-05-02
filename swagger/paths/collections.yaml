@@ -8,7 +8,7 @@ $template_arguments:
   get:
     summary: List all collections.
     operationId: get_all_collections
-    tags: 
+    tags:
     - collections
     responses:
       '200':
@@ -21,7 +21,7 @@ $template_arguments:
   post:
     summary: Create a collection
     operationId: add_collection
-    tags: 
+    tags:
     - collections
     parameters:
       - name: body
@@ -44,7 +44,7 @@ $template_arguments:
   get:
     summary: List all curators of collections
     operationId: get_all_collections_curators
-    tags: 
+    tags:
     - collections
     responses:
       '200':
@@ -54,7 +54,7 @@ $template_arguments:
         examples:
           response:
             $ref: examples/output/collection-curators-list.json
-            
+
 /collections/{CollectionId}:
   parameters:
     - required: true
@@ -64,7 +64,7 @@ $template_arguments:
   get:
     summary: Retrieve a single collection
     operationId: get_collection
-    tags: 
+    tags:
     - collections
     responses:
       '200':
@@ -77,7 +77,7 @@ $template_arguments:
   put:
     summary: Update a collection and its contents
     operationId: modify_collection
-    tags: 
+    tags:
     - collections
     parameters:
       - name: body
@@ -93,7 +93,7 @@ $template_arguments:
   delete:
     summary: Delete a collection
     operationId: delete_collection
-    tags: 
+    tags:
     - collections
     responses:
       '200':
@@ -111,7 +111,7 @@ $template_arguments:
   get:
     summary: List sessions in a collection
     operationId: get_collection_sessions
-    tags: 
+    tags:
     - collections
     responses:
       '200':
@@ -126,7 +126,7 @@ $template_arguments:
   parameters:
     - name: CollectionId
       in: path
-      type: string      
+      type: string
       required: true
     - name: session
       in: query
@@ -135,7 +135,7 @@ $template_arguments:
   get:
     summary: List acquisitions in a collection
     operationId: get_collection_acquisitions
-    tags: 
+    tags:
     - collections
     responses:
       '200':
@@ -165,6 +165,8 @@ $template_arguments:
   $template: templates/permissions-user.yaml
 /collections/{CollectionId}/files/{FileName}/info:
   $template: templates/file-item-info.yaml
+/collections/{CollectionId}/files/{FileName}/classification:
+  $template: templates/file-item-classification.yaml
 
 # ===== Notes =====
 /collections/{CollectionId}/notes:
@@ -193,6 +195,7 @@ $template_arguments:
   $template: templates/analysis-files.yaml
   arguments:
     filegroup: outputs
+    allow_upload: true
 /collections/{CollectionId}/analyses/{AnalysisId}/files/{Filename}:
   $template: templates/analysis-files-create-ticket-filename.yaml
   arguments:

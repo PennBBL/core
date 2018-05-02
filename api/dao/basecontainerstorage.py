@@ -92,6 +92,15 @@ class ContainerStorage(object):
             parent_name = child_name
         return parent_tree
 
+    def format_id(self, _id):
+        if self.use_object_id:
+            try:
+                _id = bson.ObjectId(_id)
+            except bson.errors.InvalidId as e:
+                raise APIStorageException(e.message)
+        return _id
+
+
     def _fill_default_values(self, cont):
         if cont:
             defaults = BASE_DEFAULTS.copy()
@@ -137,15 +146,14 @@ class ContainerStorage(object):
             raise APIStorageException('Children cannot be listed from the {0} level'.format(self.cont_name))
         if not query:
             query = {}
-        if not self.use_object_id:
-            query[containerutil.singularize(self.cont_name)] = _id
-        else:
-            query[containerutil.singularize(self.cont_name)] = bson.ObjectId(_id)
+
+        query[containerutil.singularize(self.cont_name)] = self.format_id(_id)
 
         if uid:
             query['permissions'] = {'$elemMatch': {'_id': uid}}
         if not projection:
             projection = {'info': 0, 'files.info': 0, 'subject': 0, 'tags': 0}
+
         return ContainerStorage.factory(child_name).get_all_el(query, None, projection)
 
 
@@ -253,31 +261,26 @@ class ContainerStorage(object):
         if replace is not None:
             update['$set'].update(replace)
 
-        if self.use_object_id:
-            try:
-                _id = bson.ObjectId(_id)
-            except bson.errors.InvalidId as e:
-                raise APIStorageException(e.message)
+        _id = self.format_id(_id)
+
         if recursive and r_payload is not None:
             containerutil.propagate_changes(self.cont_name, _id, {}, {'$set': util.mongo_dict(r_payload)})
+
         return self.dbc.update_one({'_id': _id}, update)
 
+    def replace_el(self, _id, payload):
+        payload['_id'] = self.format_id(_id)
+        return self.dbc.replace_one({'_id': _id}, payload)
+
+
     def delete_el(self, _id):
-        if self.use_object_id:
-            try:
-                _id = bson.ObjectId(_id)
-            except bson.errors.InvalidId as e:
-                raise APIStorageException(e.message)
+        _id = self.format_id(_id)
         if self.use_delete_tag:
             return self.dbc.update_one({'_id': _id}, {'$set': {'deleted': datetime.datetime.utcnow()}})
         return self.dbc.delete_one({'_id':_id})
 
     def get_el(self, _id, projection=None, fill_defaults=False):
-        if self.use_object_id:
-            try:
-                _id = bson.ObjectId(_id)
-            except bson.errors.InvalidId as e:
-                raise APIStorageException(e.message)
+        _id = self.format_id(_id)
         cont = self.dbc.find_one({'_id': _id, 'deleted': {'$exists': False}}, projection)
         self._from_mongo(cont)
         if fill_defaults:
@@ -366,8 +369,7 @@ class ContainerStorage(object):
                 for k in delete_payload:
                     update['$unset'][info_key + '.' + k] = ''
 
-        if self.use_object_id:
-            _id = bson.objectid.ObjectId(_id)
+        _id = self.format_id(_id)
         query = {'_id': _id }
 
         if not update.get('$set'):

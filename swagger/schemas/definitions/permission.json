@@ -3,7 +3,8 @@
   "definitions": {
     "access": { 
       "type": "string",
-      "enum": ["ro", "rw", "admin"] 
+      "enum": ["ro", "rw", "admin"],
+      "description": "Access level"
     },
     "permission":{
       "type":"object",
@@ -22,7 +23,8 @@
     "permission-output-list": {
       "type": "array",
       "items": {"$ref": "#/definitions/permission-output-default-required"},
-      "uniqueItems": true
+      "uniqueItems": true,
+      "description": "Array of user roles"
     }
   }
 }

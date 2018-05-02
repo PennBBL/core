@@ -171,6 +171,15 @@ public class RestClient {
     }
 
     /**
+     * Add a header to be set on every request.
+     * @param name The header name
+     * @param value The header value
+     */
+    public void setDefaultHeader(String name, String value) {
+        defaultHeaders.put(name, value);
+    }
+
+    /**
      * Initializes method with the default headers, including authorization, and
      * sets the request entity, if a body is specified.
      * @param method The method instance

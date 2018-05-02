@@ -62,8 +62,10 @@ def add_suggest_info_to_files(gear, files):
 
     schemas = {}
     for x in gear['gear']['inputs']:
-        schema = gear_tools.isolate_file_invocation(invocation_schema, x)
-        schemas[x] = Draft4Validator(schema)
+        input_ = gear['gear']['inputs'][x]
+        if input_.get('base') == 'file':
+            schema = gear_tools.isolate_file_invocation(invocation_schema, x)
+            schemas[x] = Draft4Validator(schema)
 
     for f in files:
         f['suggested'] = {}
@@ -72,22 +74,40 @@ def add_suggest_info_to_files(gear, files):
 
     return files
 
-def suggest_for_files(gear, files):
+def suggest_for_files(gear, files, context=None):
 
     invocation_schema = get_invocation_schema(gear)
     schemas = {}
-    for x in gear['gear']['inputs']:
-        schema = gear_tools.isolate_file_invocation(invocation_schema, x)
-        schemas[x] = Draft4Validator(schema)
+    suggested_inputs = {}
 
-    suggested_files = {}
+    for x in gear['gear']['inputs']:
+        input_ = gear['gear']['inputs'][x]
+        if input_.get('base') == 'context':
+            if x in context:
+                suggested_inputs[x] = [{
+                    'base': 'context',
+                    'found': True,
+                    'value': context[x]['value']
+                }]
+            else:
+                suggested_inputs[x] = [{
+                    'base': 'context',
+                    'found': False
+                }]
+        else:
+            schema = gear_tools.isolate_file_invocation(invocation_schema, x)
+            schemas[x] = Draft4Validator(schema)
+
     for input_name, schema in schemas.iteritems():
-        suggested_files[input_name] = []
+        suggested_inputs[input_name] = []
         for f in files:
             if schema.is_valid(f):
-                suggested_files[input_name].append(f.get('name'))
+                suggested_inputs[input_name].append({
+                    'base': 'file',
+                    'name': f.get('name')
+                })
 
-    return suggested_files
+    return suggested_inputs
 
 def validate_gear_config(gear, config_):
     if len(gear.get('manifest', {}).get('config', {})) > 0:
@@ -123,6 +143,8 @@ def fill_gear_default_values(gear, config_):
 
     return config_
 
+def count_file_inputs(geardoc):
+    return len([inp for inp in geardoc['gear']['inputs'].values() if inp['base'] == 'file'])
 
 def insert_gear(doc):
     gear_tools.validate_manifest(doc['gear'])

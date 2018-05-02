@@ -3,6 +3,7 @@
   "definitions": {
     "text": {
       "type": "string",
+      "description": "The actual contents of the note",
       "x-sdk-positional": true
     },
     "note-input":{
@@ -28,7 +29,8 @@
       },
       "additionalProperties": false,
       "required":["_id", "text", "created", "modified", "user"],
-      "x-sdk-model": "note"
+      "x-sdk-model": "note",
+      "description": "A freeform note"
     },
     "notes-list-output":{
       "type":"array",

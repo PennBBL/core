@@ -5,25 +5,32 @@
                           "maxLength": 64,
                           "minLength": 1,
                           "title": "First Name",
-                          "type": "string"
+                          "type": "string",
+                          "description": "First name"
                         },
     "lastname":         {
                           "maxLength": 64,
                           "minLength": 1,
                           "title": "Last Name",
-                          "type": "string"
+                          "type": "string",
+                          "description": "Last name"
                         },
     "email":            {
                           "format": "email",
                           "title": "Email",
-                          "type": "string"
+                          "type": "string",
+                          "description": "Email address"
                         },
     "avatar":           {
                           "format": "uri",
                           "title": "Avatar",
-                          "type": "string"
+                          "type": "string",
+                          "description": "Avatar image URL"
                         },
-    "root":             { "type": "boolean"},
+    "root":             { 
+                          "type": "boolean",
+                          "description": "Super admin flag"
+                        },
     "disabled":         { "type": "boolean"},
     "preferences":      {
                           "title": "Preferences",

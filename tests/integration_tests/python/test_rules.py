@@ -42,7 +42,7 @@ def test_site_rules(randstr, data_builder, as_admin, as_user, as_public):
         'name': 'invalid-regex-rule',
         'any': [],
         'all': [
-            {'type': 'file.measurements', 'value': invalid_pattern, 'regex': True},
+            {'type': 'file.classification', 'value': invalid_pattern, 'regex': True},
         ]
     })
     assert r.status_code == 422
@@ -101,7 +101,7 @@ def test_site_rules(randstr, data_builder, as_admin, as_user, as_public):
     # attempt to modify site rule with invalid regex
     r = as_admin.put('/site/rules/' + rule_id, json={
         'all': [
-            {'type': 'file.measurements', 'value': invalid_pattern, 'regex': True},
+            {'type': 'file.classification', 'value': invalid_pattern, 'regex': True},
         ]
     })
     assert r.status_code == 422
@@ -359,10 +359,10 @@ def test_rules(randstr, data_builder, file_form, as_root, as_admin, with_user, a
     # NOTE this is a legacy rule
     r = as_admin.post('/projects/' + project + '/rules', json={
         'alg': gear_name,
-        'name': 'txt-job-trigger-rule-with-measurement',
+        'name': 'txt-job-trigger-rule-with-classification',
         'any': [
-            {'type': 'container.has-measurement', 'value': 'functional'},
-            {'type': 'container.has-measurement', 'value': 'anatomical'}
+            {'type': 'container.has-classification', 'value': 'functional'},
+            {'type': 'container.has-classification', 'value': 'anatomical'}
         ],
         'all': [
             {'type': 'file.type', 'value': 'text'},
@@ -379,14 +379,14 @@ def test_rules(randstr, data_builder, file_form, as_root, as_admin, with_user, a
     gear_jobs = [job for job in api_db.jobs.find({'gear_id': gear_2})]
     assert len(gear_jobs) == 1 # still 1 from before
 
-    # update test2.csv's metadata to include a valid measurement to spawn job
+    # update test2.csv's metadata to include a valid classification to spawn job
     metadata = {
         'project':{
             'label': 'rule project',
             'files': [
                 {
                     'name': 'test2.csv',
-                    'measurements': ['functional']
+                    'classification': {'intent': ['functional']}
                 }
             ]
         }
@@ -398,7 +398,7 @@ def test_rules(randstr, data_builder, file_form, as_root, as_admin, with_user, a
     )
     assert r.ok
 
-    # Ensure file without type or measurements does not cause issues with rule evalution
+    # Ensure file without type or classification does not cause issues with rule evalution
     # upload file that matches only part of rule
     r = as_admin.post('/projects/' + project + '/files', files=file_form('test3.notreal'))
     assert r.ok
@@ -417,7 +417,7 @@ def test_rules(randstr, data_builder, file_form, as_root, as_admin, with_user, a
     # NOTE this is a legacy rule
     r = as_admin.post('/projects/' + project + '/rules', json={
         'alg': gear_name,
-        'name': 'file-measurement-regex',
+        'name': 'file-classification-regex',
         'any': [],
         'all': [
             {'type': 'file.name', 'value': 'test\d+\.(csv|txt)', 'regex': True},
@@ -438,7 +438,97 @@ def test_rules(randstr, data_builder, file_form, as_root, as_admin, with_user, a
     r = as_admin.delete('/projects/' + project + '/rules/' + rule3)
     assert r.ok
 
-    # TODO add and test 'new-style' rules
+
+def test_context_input_rule(randstr, data_builder, default_payload, api_db, as_admin, as_root, file_form):
+    project = data_builder.create_project()
+    session = data_builder.create_session(project=project)
+    acquisition = data_builder.create_acquisition(session=session)
+
+    gear_name = randstr()
+    gear_doc = default_payload['gear']
+    gear_doc['gear']['name'] = gear_name
+    gear_doc['gear']['inputs'] = {
+        'test_context_value': {
+            'base': 'context'
+        },
+        'text-file': {
+            'base': 'file',
+            'type': {'enum': ['text']}
+        }
+    }
+
+    r = as_root.post('/gears/' + gear_name, json=gear_doc)
+    assert r.ok
+    gear = r.json()['_id']
+
+    r = as_admin.post('/projects/' + project + '/rules', json={
+        'alg': gear_name,
+        'name': 'context-input-trigger-rule',
+        'any': [],
+        'all': [{'type': 'file.type', 'value': 'text'}],
+    })
+    assert r.ok
+    rule = r.json()['_id']
+
+    # Create job with no context
+    r = as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('test.txt'))
+    assert r.ok
+
+    # Verify that job was created
+    gear_jobs = [job for job in api_db.jobs.find({'gear_id': gear})]
+    assert len(gear_jobs) == 1
+
+    job1 = gear_jobs[0]
+    job1_id = job1['_id']
+
+    assert 'test_context_value' in job1['config']['inputs']
+    assert job1['config']['inputs']['test_context_value']['found'] == False
+
+    # Create context value on session
+    r = as_admin.post('/sessions/' + session + '/info', json={
+        'set': {
+            'context': {
+                'test_context_value': 'session_context_value'
+            }
+        }
+    })
+    assert r.ok
+
+    # Create another job at acquisition level
+    r = as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('test2.txt'))
+    assert r.ok
+
+    # Create job at project level
+    r = as_admin.post('/projects/' + project + '/files', files=file_form('test3.txt'))
+    assert r.ok
+
+    session_job = None
+    project_job = None
+
+    gear_jobs = [job for job in api_db.jobs.find({'gear_id': gear})]
+    assert len(gear_jobs) == 3
+    for job in gear_jobs:
+        fname = job['config']['inputs']['text-file']['location']['name']
+        if fname == 'test2.txt':
+            session_job = job
+        elif fname == 'test3.txt':
+            project_job = job
+
+    assert session_job is not None
+    assert 'test_context_value' in session_job['config']['inputs']
+    assert session_job['config']['inputs']['test_context_value']['found'] == True
+    assert session_job['config']['inputs']['test_context_value']['value'] == 'session_context_value'
+
+    assert project_job is not None
+    assert 'test_context_value' in project_job['config']['inputs']
+    assert project_job['config']['inputs']['test_context_value']['found'] == False
+
+    # Cleanup
+    r = as_root.delete('/gears/' + gear)
+    assert r.ok
+
+    # must remove jobs manually because gears were added manually
+    api_db.jobs.remove({'gear_id': {'$in': [gear]}})
 
 
 def test_disabled_rules(randstr, data_builder, api_db, as_admin, file_form):
@@ -477,3 +567,4 @@ def test_disabled_rules(randstr, data_builder, api_db, as_admin, file_form):
     assert len(gear_jobs) == 1
     assert len(gear_jobs[0]['inputs']) == 1
     assert gear_jobs[0]['inputs'][0]['name'] == 'test2.csv'
+

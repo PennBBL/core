@@ -1,8 +1,10 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "definitions":{
-        "operator":     {"type": "string"},
-        "project":      {"type": "string"},
+        "operator":     {
+            "type": "string",
+            "description": "The name of the operator"
+        },
         "project_has_template":{"type":"boolean"},
         "satisfies_template":{"type":"boolean"},
         "session-input":{
@@ -12,7 +14,7 @@
                 "public":       {"$ref":"container.json#/definitions/public"},
                 "label":        {"$ref":"common.json#/definitions/label"},
                 "info":         {"$ref":"container.json#/definitions/info"},
-                "project":      {"$ref":"#/definitions/project"},
+                "project":      {"$ref":"common.json#/definitions/objectid"},
                 "uid":          {"$ref":"container.json#/definitions/uid"},
                 "timestamp":    {"$ref":"container.json#/definitions/timestamp"},
                 "timezone":     {"$ref":"container.json#/definitions/timezone"},
@@ -37,7 +39,7 @@
                     "items": {"$ref": "file.json#/definitions/file-input"}
                 }
             },
-            "additionalProperties": false            
+            "additionalProperties": false
         },
         "session-output":{
             "type": "object",
@@ -48,7 +50,7 @@
                 "info":         {"$ref":"container.json#/definitions/info"},
                 "info_exists":  {"$ref":"container.json#/definitions/info_exists"},
                 "operator":     {"$ref":"#/definitions/operator"},
-                "project":      {"$ref":"#/definitions/project"},
+                "project":      {"$ref":"common.json#/definitions/objectid"},
                 "uid":          {"$ref":"container.json#/definitions/uid"},
                 "timestamp":    {"$ref":"container.json#/definitions/timestamp"},
                 "timezone":     {"$ref":"container.json#/definitions/timezone"},
@@ -56,7 +58,7 @@
                 "created":      {"$ref":"created-modified.json#/definitions/created"},
                 "modified":     {"$ref":"created-modified.json#/definitions/modified"},
                 "permissions":  {"$ref":"permission.json#/definitions/permission-output-list"},
-                "group":                {"$ref":"common.json#/definitions/string-id"},
+                "group":                {"$ref":"common.json#/definitions/lowercase-string-id"},
                 "project_has_template": {"$ref":"#/definitions/project_has_template"},
                 "satisfies_template":   {"$ref":"#/definitions/satisfies_template"},
                 "files":{
@@ -89,7 +91,7 @@
                     }
                 }
             },
-            "additionalProperties":false            
+            "additionalProperties":false
         },
         "session-template-recalc-output": {
             "type": "object",
@@ -102,7 +104,7 @@
                 }
             },
             "additionalProperties":false,
-            "required":["sessions_changed"]            
+            "required":["sessions_changed"]
         }
     }
 }

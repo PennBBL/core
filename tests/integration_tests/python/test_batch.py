@@ -384,4 +384,229 @@ def test_no_input_batch(data_builder, default_payload, randstr, as_admin, as_roo
     # must remove jobs manually because gears were added manually
     api_db.jobs.remove({'gear_id': {'$in': [gear, gear2]}})
 
+def test_no_input_context_batch(data_builder, default_payload, as_admin, as_root, file_form, randstr, api_db):
+    project = data_builder.create_project()
+    session = data_builder.create_session(project=project)
+    session2 = data_builder.create_session(project=project)
+    acquisition = data_builder.create_acquisition(session=session)
+    acquisition2 = data_builder.create_acquisition(session=session2)
+
+    gear_name = randstr()
+    gear_doc = default_payload['gear']
+    gear_doc['gear']['name'] = gear_name
+    gear_doc['gear']['inputs'] = {
+        'test_context_value': {
+            'base': 'context'
+        }
+    }
+
+    r = as_root.post('/gears/' + gear_name, json=gear_doc)
+    assert r.ok
+    gear = r.json()['_id']
+
+    # create a batch w/o inputs targeting sessions
+    r = as_admin.post('/batch', json={
+        'gear_id': gear,
+        'targets': [{'type': 'session', 'id': session}, {'type': 'session', 'id': session2}]
+    })
+    assert r.ok
+    batch1 = r.json()
+
+    assert len(batch1['matched']) == 2
+    assert batch1['matched'][0]['id'] == session
+    assert batch1['matched'][1]['id'] == session2
+
+    batch_id = batch1['_id']
+
+    # run batch with no context values
+    r = as_admin.post('/batch/' + batch_id + '/run')
+    assert r.ok
+
+    # Check job configs for inputs
+    jobs = r.json()
+    job1_inputs = jobs[0]['config']['inputs']
+    assert 'test_context_value' in job1_inputs
+    assert job1_inputs['test_context_value']['found'] == False
+
+    job2_inputs = jobs[1]['config']['inputs']
+    assert 'test_context_value' in job2_inputs
+    assert job2_inputs['test_context_value']['found'] == False
+
+    # Set context at project level
+    r = as_admin.post('/projects/' + project + '/info', json={
+        'set': {
+            'test_context_value': 3,
+            'context': {
+                'test_context_value': 'project_context_value'
+            }
+        }
+    })
+    assert r.ok
+
+    # Override context at session level
+    r = as_admin.post('/sessions/' + session + '/info', json={
+        'set': {
+            'context': {
+                'test_context_value': 'session_context_value'
+            }
+        }
+    })
+    assert r.ok
+
+    # create a batch w/o inputs targeting sessions
+    r = as_admin.post('/batch', json={
+        'gear_id': gear,
+        'targets': [{'type': 'session', 'id': session}, {'type': 'session', 'id': session2}]
+    })
+    assert r.ok
+    batch_id = r.json()['_id']
+
+    # run batch with no context values
+    r = as_admin.post('/batch/' + batch_id + '/run')
+    assert r.ok
+
+    # Check job configs for inputs
+    jobs = r.json()
+    assert jobs[0]['config']['destination']['id'] == session
+    job1_inputs = jobs[0]['config']['inputs']
+    assert 'test_context_value' in job1_inputs
+    assert job1_inputs['test_context_value']['found'] == True
+    assert job1_inputs['test_context_value']['value'] == 'session_context_value'
+
+    job2_inputs = jobs[1]['config']['inputs']
+    assert jobs[1]['config']['destination']['id'] == session2
+    assert 'test_context_value' in job2_inputs
+    assert job2_inputs['test_context_value']['found'] == True
+    assert job2_inputs['test_context_value']['value'] == 'project_context_value'
+
+    # Cleanup
+    r = as_root.delete('/gears/' + gear)
+    assert r.ok
+
+    # must remove jobs manually because gears were added manually
+    api_db.jobs.remove({'gear_id': {'$in': [gear]}})
+
+def test_file_input_context_batch(data_builder, default_payload, as_admin, as_root, file_form, randstr, api_db):
+    project = data_builder.create_project()
+    session = data_builder.create_session(project=project)
+    session2 = data_builder.create_session(project=project)
+    acquisition = data_builder.create_acquisition(session=session)
+    acquisition2 = data_builder.create_acquisition(session=session2)
+
+    as_admin.post('/acquisitions/' + acquisition + '/files', files={
+        'file': ('test.txt', 'test\ncontent\n')})
+
+    as_admin.post('/acquisitions/' + acquisition2 + '/files', files={
+        'file': ('test2.txt', 'test\ncontent2\n')})
+
+    gear_name = randstr()
+    gear_doc = default_payload['gear']
+    gear_doc['gear']['name'] = gear_name
+    gear_doc['gear']['inputs'] = {
+        'test_context_value': {
+            'base': 'context'
+        },
+        'text-file': {
+            'base': 'file',
+            'type': {'enum': ['text']}
+        }
+    }
+
+    r = as_root.post('/gears/' + gear_name, json=gear_doc)
+    assert r.ok
+    gear = r.json()['_id']
+
+    # create a batch w/o inputs targeting sessions
+    r = as_admin.post('/batch', json={
+        'gear_id': gear,
+        'targets': [{'type': 'session', 'id': session}, {'type': 'session', 'id': session2}]
+    })
+    assert r.ok
+    batch1 = r.json()
+
+    assert len(batch1['matched']) == 2
+    assert batch1['matched'][0]['_id'] == acquisition
+    assert 'inputs' not in batch1['matched'][0]
+    assert batch1['matched'][1]['_id'] == acquisition2
+    assert 'inputs' not in batch1['matched'][1]
+
+    batch_id = batch1['_id']
+
+    # run batch with no context values
+    r = as_admin.post('/batch/' + batch_id + '/run')
+    assert r.ok
+
+    # Check job configs for inputs
+    jobs = r.json()
+    job1_inputs = jobs[0]['config']['inputs']
+    assert 'test_context_value' in job1_inputs
+    assert job1_inputs['test_context_value']['found'] == False
+
+    job2_inputs = jobs[1]['config']['inputs']
+    assert 'test_context_value' in job2_inputs
+    assert job2_inputs['test_context_value']['found'] == False
+
+    # try to cancel non-running batch
+    r = as_admin.post('/batch/' + batch_id + '/cancel')
+    assert r.ok
+
+    # Set context at project level
+    r = as_admin.post('/projects/' + project + '/info', json={
+        'set': {
+            'test_context_value': 3,
+            'context': {
+                'test_context_value': 'project_context_value'
+            }
+        }
+    })
+    assert r.ok
+
+    # Override context at session level
+    r = as_admin.post('/sessions/' + session + '/info', json={
+        'set': {
+            'context': {
+                'test_context_value': 'session_context_value'
+            }
+        }
+    })
+    assert r.ok
+
+    # create a batch w/o inputs targeting sessions
+    r = as_admin.post('/batch', json={
+        'gear_id': gear,
+        'targets': [{'type': 'acquisition', 'id': acquisition}, {'type': 'acquisition', 'id': acquisition2}]
+    })
+    assert r.ok
+    batch_id = r.json()['_id']
+
+    # run batch with no context values
+    r = as_admin.post('/batch/' + batch_id + '/run')
+    assert r.ok
+
+    # Check job configs for inputs
+    jobs = r.json()
+
+    assert jobs[0]['config']['destination']['id'] == acquisition
+    job1_inputs = jobs[0]['config']['inputs']
+    assert 'test_context_value' in job1_inputs
+    assert job1_inputs['test_context_value']['found'] == True
+    assert job1_inputs['test_context_value']['value'] == 'session_context_value'
+
+    job2_inputs = jobs[1]['config']['inputs']
+    assert jobs[1]['config']['destination']['id'] == acquisition2
+    assert 'test_context_value' in job2_inputs
+    assert job2_inputs['test_context_value']['found'] == True
+    assert job2_inputs['test_context_value']['value'] == 'project_context_value'
+
+    # test batch.state after calling run
+    r = as_admin.get('/batch/' + batch_id)
+    assert r.json()['state'] == 'running'
+
+    # Cleanup
+    r = as_root.delete('/gears/' + gear)
+    assert r.ok
+
+    # must remove jobs manually because gears were added manually
+    api_db.jobs.remove({'gear_id': {'$in': [gear]}})
+
 

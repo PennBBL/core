@@ -1,9 +1,9 @@
 {
-	"notes": [{
-	    "text": "some text"
-	}],
-	"description": "This is an analysis description",
-	"job": {
+    "notes": [{
+        "text": "some text"
+    }],
+    "description": "This is an analysis description",
+    "job": {
         "gear_id": "aex",
         "inputs": {
             "dicom": {
@@ -16,5 +16,5 @@
             "two-digit multiple of ten": 20
         }
     },
-	"label": "Analysis label"
+    "label": "Analysis label"
 }

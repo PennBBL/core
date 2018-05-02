@@ -132,23 +132,49 @@ class SessionsTestCases(SdkTestCase):
 
         # Test file attributes
         self.assertEqual(r_session.files[0].modality, None)
-        self.assertEqual(len(r_session.files[0].measurements), 0)
+        self.assertEmpty(r_session.files[0].classification)
         self.assertEqual(r_session.files[0].type, 'text')
 
         resp = fw.modify_session_file(session_id, 'yeats.txt', flywheel.FileEntry(
             modality='modality',
-            measurements=['measurement'],
             type='type'
         ))
 
         # Check that no jobs were triggered, and attrs were modified
-        self.assertEqual(resp.jobs_triggered, 0)
+        self.assertEqual(resp.jobs_spawned, 0)
 
         r_session = fw.get_session(session_id)
         self.assertEqual(r_session.files[0].modality, "modality")
-        self.assertEqual(len(r_session.files[0].measurements), 1)
-        self.assertEqual(r_session.files[0].measurements[0], 'measurement')
+        self.assertEmpty(r_session.files[0].classification)
         self.assertEqual(r_session.files[0].type, 'type')
+
+        # Test classifications
+        resp = fw.replace_session_file_classification(session_id, 'yeats.txt', {
+            'Custom': ['measurement1', 'measurement2'],
+        })
+        self.assertEqual(resp.modified, 1)
+        self.assertEqual(resp.jobs_spawned, 0)
+
+        r_session = fw.get_session(session_id)
+        self.assertEqual(r_session.files[0].classification, {
+            'Custom': ['measurement1', 'measurement2']
+        });
+
+        resp = fw.modify_session_file_classification(session_id, 'yeats.txt', {
+            'add': {
+                'Custom': ['HelloWorld'],
+            },
+            'delete': {
+                'Custom': ['measurement2']
+            }
+        })
+        self.assertEqual(resp.modified, 1)
+        self.assertEqual(resp.jobs_spawned, 0)
+
+        r_session = fw.get_session(session_id)
+        self.assertEqual(r_session.files[0].classification, {
+            'Custom': ['measurement1', 'HelloWorld'],
+        });
 
         # Test file info
         self.assertEmpty(r_session.files[0].info)
@@ -205,6 +231,45 @@ class SessionsTestCases(SdkTestCase):
             self.fail('Expected ApiException retrieving invalid session!')
         except flywheel.ApiException as e:
             self.assertEqual(e.status, 404)
+
+    def test_session_analysis(self):
+        fw = self.fw
+        
+        session = flywheel.Session(project=self.project_id, label=self.rand_string()) 
+
+        # Add
+        session_id = fw.add_session(session)
+        self.assertNotEmpty(session_id)
+
+        poem = 'When a vast image out of Spiritus Mundi'
+        fw.upload_file_to_session(session_id, flywheel.FileSpec('yeats.txt', poem))
+
+        file_ref = flywheel.FileReference(
+            id=session_id,
+            type='session',
+            name='yeats.txt'
+        )
+
+        analysis = flywheel.AnalysisInput(label=self.rand_string(), description=self.rand_string(), inputs=[file_ref])
+
+        # Add
+        analysis_id = fw.add_session_analysis(session_id, analysis)
+        self.assertNotEmpty(analysis_id)
+
+        # Get the list of analyses in the session
+        analyses = fw.get_session_analyses(session_id)
+        self.assertEqual(len(analyses), 1)
+        
+        r_analysis = analyses[0]
+
+        self.assertEqual(r_analysis.id, analysis_id)
+        self.assertEmpty(r_analysis.job)
+
+        self.assertTimestampBeforeNow(r_analysis.created)
+        self.assertGreaterEqual(r_analysis.modified, r_analysis.created)
+
+        self.assertEqual(len(r_analysis.inputs), 1)
+        self.assertEqual(r_analysis.inputs[0].name, 'yeats.txt')
 
     def sanitize_for_collection(self, session, info_exists=True):
         # workaround: all-container endpoints skip some fields, single-container does not. this sets up the equality check 

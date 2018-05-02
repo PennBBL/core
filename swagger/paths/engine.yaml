@@ -20,8 +20,9 @@
           example:
             $ref: examples/file_info_list.json
     parameters:
-      - in: body
-        name: body
+      - name: body
+        in: body
+        required: true        
         description: >
           Object encoded as a JSON string.
 

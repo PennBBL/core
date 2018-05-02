@@ -12,7 +12,7 @@
         examples:
           response:
             $ref: examples/output/gear-list.json
-        
+
 # TODO: Can we make the parameter here consistent, or split
 # this into two separate APIs?
 /gears/{GearIdOrName}:
@@ -50,7 +50,7 @@
       - name: body
         in: body
         required: true
-        schema: 
+        schema:
           $ref: schemas/input/gear.json
     tags:
     - gears
@@ -91,5 +91,35 @@
           description: The gear invocation schema.
           schema:
             type: object
+
+/gears/{GearId}/context/{ContainerType}/{ContainerId}:
+    parameters:
+      - name: GearId
+        in: path
+        type: string
+        required: true
+        description: Id of the gear to interact with
+      - name: ContainerType
+        in: path
+        type: string
+        required: true
+        description: Type of the container to interact with
+      - name: ContainerId
+        in: path
+        type: string
+        required: true
+        description: Id of the container to interact with
+    get:
+      summary: Get context values for the given gear and container.
+      description: |
+        Ref: https://github.com/flywheel-io/gears/tree/master/spec#contextual-values
+      operationId: get_gear_context
+      tags:
+      - gears
+      responses:
+        '200':
+          description: The gear context values.
+          schema:
+            $ref: schemas/output/gear-context.json
 
 

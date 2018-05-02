@@ -1,10 +1,10 @@
 swagger: '2.0'
 info:
   version: 0.0.1
-  title: Flywheel 
+  title: Flywheel
 host: 'dev.flywheel.io'
 basePath: '/api'
-schemes: 
+schemes:
 - 'https'
 produces:
 - 'application/json'
@@ -30,6 +30,8 @@ tags:
     description: File upload/download operations
   - name: devices
     description: Device operations
+  - name: modalities
+    description: Modality operations
   - name: gears
     description: Gear operations
   - name: rules
@@ -43,7 +45,7 @@ tags:
   - name: default
 
 paths:
-  $include: 
+  $include:
     - paths/login.yaml
     - paths/download.yaml
     - paths/upload-by-label.yaml
@@ -59,6 +61,7 @@ paths:
     - paths/jobs.yaml
     - paths/gears.yaml
     - paths/devices.yaml
+    - paths/modalities.yaml
     - paths/groups.yaml
     - paths/collections.yaml
     - paths/sessions.yaml
@@ -80,10 +83,10 @@ securityDefinitions:
     description: |
       Your API key is available on your Profile page from within the Flywheel Application.
       **NOTE:** The API key should be prefixed with `scitran-user` if you're testing APIs on this page.
-      
+
       e.g. `scitran-user dev.flywheel.io:DFCAds356sdvd`.
 
-security: 
+security:
   - ApiKey: []
 
 responses:

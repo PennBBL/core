@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "modality":{
+        "type": "object",
+        "properties": {
+          "_id":               {"$ref":"common.json#/definitions/string-id"},
+          "classification":    {"$ref":"common.json#/definitions/classification"}
+        },
+        "additionalProperties": false
+    }
+  }
+}

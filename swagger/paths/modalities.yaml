@@ -1,0 +1,77 @@
+/modalities:
+  get:
+    summary: List all modalities.
+    description: Requires login.
+    operationId: get_all_modalities
+    tags:
+    - modalities
+    responses:
+      '200':
+        description: ''
+        schema:
+          $ref: schemas/output/modality-list.json
+  post:
+    summary: Create a new modality.
+    operationId: add_modality
+    tags:
+    - modalities
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: schemas/input/modality.json
+    responses:
+      '200':
+        description: ''
+        schema:
+          $ref: schemas/output/container-new.json
+      '400':
+        $ref: '#/responses/400:invalid-body-json'
+
+/modalities/{ModalityId}:
+  parameters:
+    - required: true
+      type: string
+      in: path
+      name: ModalityId
+  get:
+    summary: Get a modality's classification specification
+    operationId: get_modality
+    tags:
+    - modalities
+    responses:
+      '200':
+        description: ''
+        schema:
+          $ref: schemas/output/modality.json
+      '404':
+        description: ModalityId not found
+  put:
+    summary: Replace modality
+    operationId: replace_modality
+    tags:
+    - modalities
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: schemas/input/modality.json
+    responses:
+      '200':
+        description: ''
+      '400':
+        $ref: '#/responses/400:invalid-body-json'
+      '404':
+        description: ModalityId not found
+  delete:
+    summary: Delete a modality
+    operationId: delete_modality
+    tags:
+    - modalities
+    responses:
+      '200':
+        description: ''
+      '404':
+        description: ModalityId not found

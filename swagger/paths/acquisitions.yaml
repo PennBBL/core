@@ -33,6 +33,8 @@ $template_arguments:
   $template: templates/file-item.yaml
 /acquisitions/{AcquisitionId}/files/{FileName}/info:
   $template: templates/file-item-info.yaml
+/acquisitions/{AcquisitionId}/files/{FileName}/classification:
+  $template: templates/file-item-classification.yaml
 
 # ===== Notes =====
 /acquisitions/{AcquisitionId}/notes:
@@ -61,6 +63,7 @@ $template_arguments:
   $template: templates/analysis-files.yaml
   arguments:
     filegroup: outputs
+    allow_upload: true
 /acquisitions/{AcquisitionId}/analyses/{AnalysisId}/files/{Filename}:
   $template: templates/analysis-files-create-ticket-filename.yaml
   arguments:

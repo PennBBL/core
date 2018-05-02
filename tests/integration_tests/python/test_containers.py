@@ -63,6 +63,8 @@ def test_project_template(data_builder, file_form, as_admin):
     assert as_admin.post('/acquisitions/' + acquisition_2 + '/files', files=file_form('non-compliant.txt')).ok
     assert as_admin.post('/acquisitions/' + acquisition_2 + '/files', files=file_form('compliant1.csv')).ok
     assert as_admin.post('/acquisitions/' + acquisition_2 + '/files', files=file_form('compliant2.csv')).ok
+    assert as_admin.post('/acquisitions/' + acquisition_2 + '/files/compliant1.csv/classification', json={'add': {'custom': ['diffusion']}})
+    assert as_admin.post('/acquisitions/' + acquisition_2 + '/files/compliant2.csv/classification', json={'add': {'custom': ['diffusion']}})
 
     # test the session before setting the template
     r = as_admin.get('/sessions/' + session)
@@ -79,6 +81,7 @@ def test_project_template(data_builder, file_form, as_admin):
             'files': [{
                 'minimum': 2,
                 'mimetype': 'text/csv',
+                'classification': 'diffusion'
             }]
         }]
     })
@@ -95,6 +98,7 @@ def test_project_template(data_builder, file_form, as_admin):
             'files': [{
                 'minimum': 2,
                 'mimetype': 'text/csv',
+                'classification': 'diffusion'
             }]
         }]
     })
@@ -152,6 +156,8 @@ def test_project_template(data_builder, file_form, as_admin):
     assert as_admin.delete('/acquisitions/' + acquisition_2 + '/files/compliant2.csv').ok
     assert not satisfies_template()
     assert as_admin.post('/acquisitions/' + acquisition_2 + '/files', files=file_form('compliant2.csv')).ok
+    assert not satisfies_template()
+    assert as_admin.post('/acquisitions/' + acquisition_2 + '/files/compliant2.csv/classification', json={'add': {'custom': ['diffusion']}})
 
     # acquisitions.minimum
     assert satisfies_template()
@@ -296,11 +302,6 @@ def test_get_container(data_builder, default_payload, file_form, as_drone, as_ad
     # get container
     r = as_public.get('/projects/' + project)
     assert r.ok
-
-    # get container w/ ?paths=true
-    r = as_public.get('/projects/' + project, params={'paths': 'true'})
-    assert r.ok
-    assert all('path' in f for f in r.json()['files'])
 
     # get container w/ ?join=origin&join=origin_job_gear_name
     r = as_public.get('/projects/' + project, params={'join': ['origin', 'origin_job_gear_name']})
@@ -613,8 +614,7 @@ def test_edit_file_attributes(data_builder, as_admin, file_form):
 
     payload = {
         'type': 'new type',
-        'modality': 'new modality',
-        'measurements': ['measurement']
+        'modality': 'new_modality'
     }
 
     assert as_admin.put('/projects/' + project + '/files/' + file_name, json=payload).ok
@@ -624,7 +624,6 @@ def test_edit_file_attributes(data_builder, as_admin, file_form):
 
     file_object = r.json()
     assert file_object['type'] == payload['type']
-    assert file_object['measurements'] == payload['measurements']
     assert file_object['modality'] == payload['modality']
 
 
@@ -790,6 +789,7 @@ def test_edit_container_info(data_builder, as_admin, as_user):
 def test_edit_file_info(data_builder, as_admin, file_form):
     project = data_builder.create_project()
     file_name = 'test_file.txt'
+    file_name_fwd = 'test/file.txt'
 
 
     # Assert getting file info 404s properly
@@ -800,8 +800,14 @@ def test_edit_file_info(data_builder, as_admin, file_form):
 
     r = as_admin.post('/projects/' + project + '/files', files=file_form(file_name))
     assert r.ok
+    r = as_admin.post('/projects/' + project + '/files', files=file_form(file_name_fwd))
+    assert r.ok
 
     r = as_admin.get('/projects/' + project + '/files/' + file_name + '/info')
+    assert r.ok
+    assert r.json()['info'] == {}
+
+    r = as_admin.get('/projects/' + project + '/files/' + file_name_fwd + '/info')
     assert r.ok
     assert r.json()['info'] == {}
 
@@ -845,11 +851,23 @@ def test_edit_file_info(data_builder, as_admin, file_form):
     })
     assert r.ok
 
+    r = as_admin.post('/projects/' + project + '/files/' + file_name_fwd + '/info', json={
+        'replace': file_info
+    })
+    assert r.ok
+
     r = as_admin.get('/projects/' + project + '/files/' + file_name + '/info')
     assert r.ok
     assert r.json()['info'] == file_info
+
     postmodified_time = r.json().get('modified')
     assert postmodified_time != premodified_time
+
+
+    r = as_admin.get('/projects/' + project + '/files/' + file_name_fwd + '/info')
+    assert r.ok
+    assert r.json()['info'] == file_info
+
 
     # Use 'set' to add new key
     r = as_admin.post('/projects/' + project + '/files/' + file_name + '/info', json={
@@ -1387,4 +1405,3 @@ def test_container_delete_tag(data_builder, default_payload, as_root, as_admin, 
 
     # test that the (now) empty group can be deleted
     assert as_root.delete('/groups/' + group).ok
-

@@ -1,0 +1,38 @@
+parameters:
+  - name: resource
+    type: string
+    required: true
+  - name: parameter
+    type: string
+    required: true
+  - name: tag
+    type: string
+    required: true
+template: |
+  parameters:
+    - required: true
+      type: string
+      in: path
+      name: '{{parameter}}'
+    - required: true
+      type: string
+      in: path
+      name: FileName
+  post:
+    summary: Update classification for a particular file.
+    description: If replacing a file's classification, the modality can optionally be modified as well.
+    operationId: modify_{{resource}}_file_classification
+    x-sdk-modify-classification: true
+    tags:
+    - '{{tag}}'
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: schemas/input/classification-update.json
+    responses:
+      '200':
+        $ref: '#/responses/200:modified-with-count-and-jobs'
+
+

@@ -30,6 +30,7 @@
     parameters:
       - name: body
         in: body
+        required: true
         schema:
           $ref: schemas/input/device.json
 /devices/self:

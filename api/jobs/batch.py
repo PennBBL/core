@@ -11,6 +11,7 @@ from .jobs import Job
 from .queue import Queue
 from ..web.errors import APINotFoundException, APIStorageException
 from . import gears
+from . import job_util
 
 log = config.log
 
@@ -50,7 +51,7 @@ def get(batch_id, projection=None, get_jobs=False):
 
     return batch_job
 
-def find_matching_conts(gear, containers, container_type):
+def find_matching_conts(gear, containers, container_type, context_inputs=False, uid=None):
     """
     Give a gear and a list of containers, find files that:
       - have no solution to the gear's input schema (not matched)
@@ -64,11 +65,15 @@ def find_matching_conts(gear, containers, container_type):
     matched_conts = []
     not_matched_conts = []
     ambiguous_conts = []
+    context = None
 
     for c in containers:
+        if context_inputs:
+            context = job_util.get_context_for_destination(container_type, str(c['_id']), uid)
+
         files = c.get('files')
         if files:
-            suggestions = gears.suggest_for_files(gear, files)
+            suggestions = gears.suggest_for_files(gear, files, context=context)
 
             # Determine if any of the inputs are ambiguous or not satisfied
             ambiguous = False # Are any of the inputs ambiguous?
@@ -88,8 +93,11 @@ def find_matching_conts(gear, containers, container_type):
             else:
                 # Create input map of file refs
                 inputs = {}
-                for input_name, files in suggestions.iteritems():
-                    inputs[input_name] = {'type': container_type, 'id': str(c['_id']), 'name': files[0]}
+                for input_name, suggested_inputs in suggestions.iteritems():
+                    if suggested_inputs[0]['base'] == 'file':
+                        inputs[input_name] = {'type': container_type, 'id': str(c['_id']), 'name': suggested_inputs[0]['name']}
+                    else:
+                        inputs[input_name] = suggested_inputs[0]
                 c['inputs'] = inputs
                 matched_conts.append(c)
         else:
@@ -132,10 +140,9 @@ def run(batch_job):
     """
 
     proposal = batch_job.get('proposal')
-    if not proposal:
+    if not proposal or not 'jobs' in proposal:
         raise APIStorageException('The batch job is not formatted correctly.')
-    proposed_inputs = proposal.get('inputs', [])
-    proposed_destinations = proposal.get('destinations', [])
+    proposed_jobs = proposal.get('jobs', [])
 
     gear_id = batch_job['gear_id']
     gear = gears.get_gear(gear_id)
@@ -165,47 +172,28 @@ def run(batch_job):
         'inputs':   {}
     }
 
-    for inputs in proposed_inputs:
-
+    for proposed_job in proposed_jobs:
         job_map = copy.deepcopy(job_defaults)
-        job_map['inputs'] = inputs
+        if 'inputs' in proposed_job:
+            job_map['inputs'] = proposed_job['inputs']
+
+        if 'destination' not in proposed_job:
+            raise APIStorageException('Destination is required for all proposed jobs')
+        job_map['destination'] = proposed_job['destination']
 
         if gear.get('category') == 'analysis':
-
             analysis = copy.deepcopy(analysis_base)
 
             # Create analysis
-            acquisition_id = inputs.values()[0].get('id')
-            session_id = acq_storage.get_container(acquisition_id, projection={'session': 1}).get('session')
+            # NOTE: Batch destinations *MUST* be a session or acquisition
+            if job_map['destination']['type'] == 'acquisition':
+                acquisition_id = job_map['destination']['id']
+                session_id = acq_storage.get_container(acquisition_id, projection={'session': 1}).get('session')
+            else:
+                session_id = bson.ObjectId(job_map['destination']['id'])
+
             analysis['job'] = job_map
-            result = an_storage.create_el(analysis, 'sessions', session_id, origin, None)
-
-            analysis = an_storage.get_el(result.inserted_id)
-            an_storage.inflate_job_info(analysis)
-            job = analysis.get('job')
-            job_id = bson.ObjectId(job.id_)
-
-        else:
-
-            job = Queue.enqueue_job(job_map, origin)
-            job_id = job.id_
-
-
-        jobs.append(job)
-        job_ids.append(job_id)
-
-    for dest in proposed_destinations:
-
-        job_map = copy.deepcopy(job_defaults)
-        job_map['destination'] = dest
-
-        if gear.get('category') == 'analysis':
-
-            analysis = copy.deepcopy(analysis_base)
-
-            # Create analysis
-            analysis['job'] = job_map
-            result = an_storage.create_el(analysis, 'sessions', bson.ObjectId(dest['id']), origin, None)
+            result = an_storage.create_el(analysis, 'sessions', session_id, origin, None) 
 
             analysis = an_storage.get_el(result.inserted_id)
             an_storage.inflate_job_info(analysis)

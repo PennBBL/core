@@ -4,31 +4,51 @@
     	"label": {
     		"type": "string",
     		"minLength": 1,
-    		"maxLength": 256
+    		"maxLength": 256,
+            "description": "Application-specific label"
     	},
     	"description": {
     		"type": "string"
     	},
     	"objectid": {
 		    "type": "string",
-		    "pattern": "^[a-fA-F0-9]{24}$"
+		    "pattern": "^[a-fA-F0-9]{24}$",
+            "description": "Unique database ID"
 		},
 		"string-id": {
 			"type": "string",
-			"maxLength": 64,
-			"minLength": 2,
-			"pattern": "^[0-9a-z][0-9a-z.@_-]{0,30}[0-9a-z]$"			
+			"pattern": "^[0-9a-zA-Z_-]{2,64}$",
+            "description": "Unique database ID"
 		},
+        "lowercase-string-id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 2,
+            "pattern": "^[0-9a-z][0-9a-z.@_-]{0,30}[0-9a-z]$"
+        },
 		"user-id": {
 			"type": "string",
-			"format": "email"
+			"format": "email",
+            "description": "Database ID of a user"
 		},
         "info": {
-            "type": "object"
+            "type": "object",
+            "description": "Free-form information storage"
         },
         "timestamp": {
-        	"type": ["string", "null"], 
+        	"type": ["string", "null"],
         	"format": "date-time"
+        },
+        "classification": {
+          "type": "object",
+          "patternProperties": {
+            "^[0-9a-zA-Z_-]*$":{
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
         },
         "deleted-count": {
             "type":"object",
@@ -36,10 +56,10 @@
                 "deleted": {
                     "type": "integer"
                 }
-            }            
+            }
         },
         "modified-count": {
-            "type": "object", 
+            "type": "object",
             "properties": {
                 "modified": {
                     "type": "integer"

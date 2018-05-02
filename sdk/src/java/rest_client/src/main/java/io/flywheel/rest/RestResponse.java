@@ -26,6 +26,13 @@ public interface RestResponse {
     String getBodyAsString() throws IOException;
 
     /**
+     * Gets the http response body in the given format. Conversion will be done from
+     * uint8 bytes to output format
+     * @param format The format, one of 'int8', 'int16', 'int32', 'int64', 'double' or 'char'
+     */
+    Object getBodyData(String format) throws IOException;
+
+    /**
      * Saves the http response body to the given path.
      * @param path The path to save the response body at
      */

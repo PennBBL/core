@@ -9,12 +9,15 @@
         },
         "database": {
           "type": "integer"
+        },
+        "release": {
+          "type": "string"
         }
       },
       "required": [
         "_id",
         "database"
-      ]      
+      ]
     }
   }
 }

@@ -22,7 +22,8 @@ from api.jobs import gears
 from api.types import Origin
 from api.jobs import batch
 
-CURRENT_DATABASE_VERSION = 44 # An int that is bumped when a new schema change is made
+
+CURRENT_DATABASE_VERSION = 46 # An int that is bumped when a new schema change is made
 
 def get_db_version():
 
@@ -1408,6 +1409,163 @@ def upgrade_to_44():
             query = {'_id': {'$in': subject['sids']}}
             update = {'$set': {'subject._id': subject_id}}
             config.db.sessions.update_many(query, update)
+
+
+
+def upgrade_files_to_45(cont, context):
+    """
+    if the file has a modality, we try to find a matching classification
+    key and value for each measurement in the modality's classification map
+
+    if there is no modality or the modality cannot be found in the modalities
+    collection, all measurements are added to the custom key
+    """
+    conversionTable = {
+        "anatomy_inplane":  { "Contrast": ["T1"],               "Intent": ["Structural"],    "Features": ["In-Plane"] },
+        "anatomy_ir":       {                                   "Intent": ["Structural"]                              },
+        "anatomy_pd":       { "Contrast": ["PD"],               "Intent": ["Structural"]                              },
+        "anatomy_t1w":      { "Contrast": ["T1"],               "Intent": ["Structural"]                              },
+        "anatomy_t2w":      { "Contrast": ["T2"],               "Intent": ["Structural"]                              },
+        "calibration":      {                                   "Intent": ["Calibration"]                             },
+        "coil_survey":      { "Contrast": ["B1"],               "Intent": ["Calibration"]                             },
+        "diffusion":        { "Contrast": ["Diffusion"],        "Intent": ["Structural"]                              },
+        "diffusion_map":    { "Contrast": ["Diffusion"],        "Intent": ["Structural"],     "Features": ["Derived"] },
+        "field_map":        { "Contrast": ["B0"],               "Intent": ["Fieldmap"]                                },
+        "functional":       { "Contrast": ["T2*"],              "Intent": ["Functional"]                              },
+        "functional_map":   {                                   "Intent": ["Functional"],     "Features": ["Derived"] },
+        "high_order_shim":  {                                   "Intent": ["Shim"]                                    },
+        "localizer":        { "Contrast": ["T2"],               "Intent": ["Localizer"]                               },
+        "non-image":        {                                   "Intent": ["Non-Image"]                               },
+        "perfusion":        { "Contrast": ["Perfusion"],                                                              },
+        "spectroscopy":     { "Contrast": ["Spectroscopy"]                                                            },
+        "screenshot":       {                                   "Intent": ["Screenshot"]                              }
+    }
+
+    files = cont['files']
+    mr_modality = context['mr_modality']
+    cont_name = context['cont_name']
+
+    for f in cont['files']:
+        modality = f.get('modality')
+        measurements = f.pop('measurements', None)
+
+        # If the file's modality is MR or if they have a measurement in the conversion table above, this is a special case
+        if (modality and modality.upper() == 'MR') or any([conversionTable.get(measurement) for measurement in measurements]):
+
+            f['modality'] = modality = 'MR' # Ensure uppercase for storage
+            classification = {}
+            m_class = mr_modality['classification']
+
+            for m in measurements:
+                if conversionTable.get(m):
+
+                    # If the measurement is in the left side of the conversion table, apply those settings
+                    for k, v in conversionTable[m].iteritems():
+                        classification[k] = classification.get(k,[]) + v
+
+                else:
+                    # Otherwise try to find it's case insensitive match in MR's classification
+                    for k, v_array in m_class.iteritems():
+                        for v in v_array:
+                            if v.lower() == m.lower():
+                                classification[k] = classification.get(k,[]) + [v]
+
+
+            # Make sure every value is only in the list once
+            for k, v_array in classification.iteritems():
+                classification[k] = list(set(v_array))
+
+            f['classification'] = classification
+
+
+        # No matter what put the file's measurements in to the custom field if it has any
+        if measurements:
+            if not f.get('classification'):
+                f['classification'] = {}
+            f['classification']['Custom'] = measurements
+
+
+    config.db[cont_name].update_one({'_id': cont['_id']}, {'$set': {'files': files}})
+
+    return True
+
+def upgrade_rules_to_45(rule):
+
+    def adjust_type(r):
+        if r['type'] == 'file.measurements':
+            r['type'] = 'file.classification'
+        elif r['type'] == 'container.has-measurements':
+            r['type'] = 'container.has-classification'
+
+    for r in rule.get('any', []):
+        adjust_type(r)
+
+    for r in rule.get('all', []):
+        adjust_type(r)
+
+    config.db.project_rules.replace_one({'_id': rule['_id']}, rule)
+
+    return True
+
+def upgrade_templates_to_45(project):
+    """
+    Set any measurements keys to classification
+    """
+
+    template = project['template']
+
+    for a in template.get('acquisitions', []):
+        for f in a.get('files', []):
+            if 'measurements' in f:
+                cl = f.pop('measurements')
+                f['classification'] = cl
+
+    config.db.projects.update_one({'_id': project['_id']}, {'$set': {'template': template}})
+
+    return True
+
+def upgrade_to_45():
+    """
+    Update classification for all files with existing measurements field
+    """
+
+    # Seed modality collection:
+    mr_modality = {
+            "_id": "MR",
+            "classification": {
+                "Contrast": ["B0", "B1", "T1", "T2", "T2*", "PD", "MT", "ASL", "Perfusion", "Diffusion", "Spectroscopy", "Susceptibility", "Velocity", "Fingerprinting"],
+                "Intent": ["Localizer", "Shim", "Calibration", "Fieldmap", "Structural", "Functional", "Screenshot", "Non-Image"],
+                "Features": ["Quantitative", "Multi-Shell", "Multi-Echo", "Multi-Flip", "Multi-Band", "Steady-State", "3D", "Compressed-Sensing", "Eddy-Current-Corrected", "Fieldmap-Corrected", "Gradient-Unwarped", "Motion-Corrected", "Physio-Corrected", "Derived", "In-Plane", "Phase", "Magnitude"]
+            }
+        }
+    if not config.db.modalities.find_one({'_id': 'MR'}):
+        config.db.modalities.insert(mr_modality)
+
+    for cont_name in ['groups', 'projects', 'collections', 'sessions', 'acquisitions', 'analyses']:
+
+        cursor = config.db[cont_name].find({'files.measurements': {'$exists': True }})
+        context = {'cont_name':cont_name, 'mr_modality':mr_modality}
+        process_cursor(cursor, upgrade_files_to_45, context=context)
+
+
+    cursor = config.db.project_rules.find({'$or': [
+        {'all.type': {'$in': ['file.measurements', 'container.has-measurements']}},
+        {'any.type': {'$in': ['file.measurements', 'container.has-measurements']}}
+    ]})
+
+    process_cursor(cursor, upgrade_rules_to_45)
+
+    cursor = config.db.projects.find({'template': {'$exists': True }})
+    process_cursor(cursor, upgrade_templates_to_45)
+
+def upgrade_to_46():
+    """
+    Update gears to ensure they all have the created timestamp, will be set
+    to EPOCH if they don't have it
+    """
+    config.db.gears.update_many({"created":{"$exists":False}}, {'$set': {'created': datetime.datetime(1970,1,1), 'modified': datetime.datetime.utcnow()}})
+
+
 
 
 ###

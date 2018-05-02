@@ -9,7 +9,7 @@ SciTran Core is a RESTful HTTP API, written in Python and backed by MongoDB. It 
 
 ##### Versioning
 
-This project uses [Semantic Versioning 2.0.0](https://semver.org/#semantic-versioning-200). 
+This project uses [Semantic Versioning 2.0.0](https://semver.org/#semantic-versioning-200).
 Alpha, Beta and RC builds will use the pre-release tags `alpha`, `beta` and `rc`, respectively. (e.g. `2.1.0-alpha.1`)
 
 
@@ -34,3 +34,9 @@ docker run \
     -p 9000:9000 \
     flywheel/core
 ```
+
+### Continuous Deployment
+
+To enable continuous delivery for a branch, add it to the list in variable CD_BRANCH_NAMES (separated by '|', no spaces)
+of the CI configuration (https://travis-ci.org/flywheel-io/core/settings).
+Builds for those branches will be pushed to dockerhub at flywheel/core:{BRANCH_NAME}.latest

@@ -49,6 +49,11 @@ classdef FileSpec
         function param = parametrize(obj)
             if isempty(obj)
                param = {};
+            elseif iscell(obj)
+                param = {};
+                for i = 1:numel(obj)
+                    param = [param, flywheel.FileSpec.parametrize(obj{i})];
+                end
             else
                 if ~isa(obj, '{{packageName}}.FileSpec')
                     obj = {{packageName}}.FileSpec(obj);

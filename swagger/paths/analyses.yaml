@@ -1,5 +1,5 @@
 $template_arguments:
-  tag: 'analyses'
+  tag: analyses
 
 /analyses/{AnalysisId}:
   $template: templates/analysis-item.yaml
@@ -20,12 +20,47 @@ $template_arguments:
   $template: templates/analysis-files.yaml
   arguments:
     filegroup: outputs
+    allow_upload: true
 
 /analyses/{AnalysisId}/files/{Filename}:
   $template: templates/analysis-files-create-ticket-filename.yaml
   arguments:
     filegroup: outputs
-  
+
+# ===== Info ===== 
+/analyses/{AnalysisId}/info:
+  $template: templates/container-item-info.yaml
+  arguments:
+    resource: analysis
+    parameter: AnalysisId
+
+
+# ===== Tags =====
+/analyses/{AnalysisId}/tags:
+  $template: templates/tags.yaml
+  arguments:
+    resource: analysis
+    parameter: AnalysisId
+/analyses/{AnalysisId}/tags/{TagValue}:
+  $template: templates/tags-tag.yaml
+  arguments:
+    resource: analysis
+    parameter: AnalysisId
+
+
+# ===== Notes =====
+/analyses/{AnalysisId}/notes:
+  $template: templates/notes.yaml
+  arguments:
+    resource: analysis
+    parameter: AnalysisId
+/analyses/{AnalysisId}/notes/{NoteId}:
+  $template: templates/notes-note.yaml
+  arguments:
+    resource: analysis
+    parameter: AnalysisId
+
+
 /{ContainerName}/{ContainerId}/{SubcontainerName}/analyses:
   parameters:
     - name: ContainerName

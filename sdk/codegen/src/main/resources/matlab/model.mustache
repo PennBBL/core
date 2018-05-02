@@ -227,7 +227,7 @@ classdef {{classname}} < {{packageName}}.ModelBase
                 obj.props_(name) =  {{modelPackage}}.{{complexType}}.fromJson(json.(name));
                 {{/isListContainer}}
                 {{#isListContainer}}
-                obj.props_(name) = arrayfun(@(x)  {{modelPackage}}.{{complexType}}.fromJson(x), json.(name), 'UniformOutput', false);
+                obj.props_(name) = {{packageName}}.ModelBase.cellmap(@{{modelPackage}}.{{complexType}}.fromJson, json.(name));
                 {{/isListContainer}}
                 {{/isPrimitiveType}}
                 {{/vendorExtensions.x-matlab-additionalProperties}}

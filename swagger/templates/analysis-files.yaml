@@ -9,6 +9,7 @@ parameters:
   - name: filegroup
     type: string
     required: true
+  - name: allow_upload
 template: |
   parameters:
     {{#parameter}}
@@ -54,3 +55,26 @@ template: |
         examples:
           response:
             $ref: examples/output/analysis-files-create-ticket.json
+  {{#allow_upload}}
+  post:
+    summary: Upload an output file to analysis.
+    {{#resource}}
+    operationId: upload_output_to_{{resource}}_analysis
+    {{/resource}}
+    {{^resource}}
+    operationId: upload_output_to_analysis
+    {{/resource}}
+    tags: 
+    - '{{tag}}'
+    consumes:
+      - multipart/form-data
+    parameters:
+      - name: file
+        in: formData
+        type: file
+        required: true
+        description: The file to upload
+    responses:
+      '200':
+        description: ''
+  {{/allow_upload}}

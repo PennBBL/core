@@ -4,24 +4,34 @@
         "info-add-remove": {
             "type": "object",
             "properties": {
-                "set":      {"type": "object", "minProperties": 1},
+                "set":      {
+                    "type": "object", 
+                    "minProperties": 1,
+                    "description": "Key/value pairs of properties to set"
+                },
                 "delete":   {
                     "type": "array",
                     "uniqueItems": true,
                     "minItems": 1,
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "description": "A list of properties to remove"
                 }
             }, 
-            "additionalProperties": false            
+            "additionalProperties": false,
+            "description": "Indicates properties to update and a list of properties to remove"
         },
         "info-replace": {
             "type": "object",
             "properties": {
-                "replace": {"type": "object"}
+                "replace": {
+                    "type": "object",
+                    "description": "The new set of properties for the info"
+                }
             },
-            "additionalProperties": false
+            "additionalProperties": false,
+            "description": "Indicates that info should be replaced with the properties in this document"
         },
         "info-update-input": {
             "description": "Helper endpoint for editing an object's info key",

@@ -303,4 +303,44 @@ public class RestUtils {
         return result;
     }
 
+    // Hooray java generics!
+    public static short[] convertByteArrayToShort(byte[] src) {
+        short[] dst = new short[src.length];
+        for( int i = 0; i < src.length; i++ ) {
+            dst[i] = (short)(src[i] & 0xFF);
+        }
+        return dst;
+    }
+
+    public static int[] convertByteArrayToInt(byte[] src) {
+        int[] dst = new int[src.length];
+        for( int i = 0; i < src.length; i++ ) {
+            dst[i] = src[i] & 0xFF;
+        }
+        return dst;
+    }
+
+    public static long[] convertByteArrayToLong(byte[] src) {
+        long[] dst = new long[src.length];
+        for( int i = 0; i < src.length; i++ ) {
+            dst[i] = (long)(src[i] & 0xFF);
+        }
+        return dst;
+    }
+
+    public static double[] convertByteArrayToDouble(byte[] src) {
+        double[] dst = new double[src.length];
+        for( int i = 0; i < src.length; i++ ) {
+            dst[i] = (double)(src[i] & 0xFF);
+        }
+        return dst;
+    }
+
+    public static char[] convertByteArrayToChar(byte[] src) {
+        char[] dst = new char[src.length];
+        for( int i = 0; i < src.length; i++ ) {
+            dst[i] = (char)(src[i] & 0xFF);
+        }
+        return dst;
+    }
 }

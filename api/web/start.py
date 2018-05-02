@@ -82,6 +82,9 @@ def dispatcher(router, request, response):
     try:
         rv = router.default_dispatcher(request, response)
         if rv is not None:
+            # Bypass webapp2 handler, rv will be called with (environ, start_response)
+            if callable(rv):
+                return rv
             response.write(json.dumps(rv, default=encoder.custom_json_serializer))
             response.headers['Content-Type'] = 'application/json; charset=utf-8'
     except webapp2.HTTPException as e:

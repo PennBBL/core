@@ -206,9 +206,9 @@ FACET_QUERY = {
             "filter": {"term": {"container_type": "file"}},
             "aggs": {
 
-                "file.measurements" : {
+                "file.classification_list" : {
                     "terms" : {
-                        "field" : "file.measurements.raw",
+                        "field" : "file.classification_list.raw",
                         "size" : 15,
                         "missing": "null"
                     }
@@ -278,7 +278,7 @@ SOURCE_ANALYSIS = SOURCE_SESSION + [
 
 SOURCE_FILE = SOURCE_ANALYSIS + [
     "file.created",
-    "file.measurements",
+    "file.classification",
     "file.name",
     "file.size",
     "file.type",

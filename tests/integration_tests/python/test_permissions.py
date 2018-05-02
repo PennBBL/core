@@ -11,6 +11,13 @@ def test_permissions(data_builder, as_admin):
     r = as_admin.get(permissions_path)
     assert r.status_code == 405
 
+    # Try to add permission for unknown user
+    r = as_admin.post(permissions_path, json={
+        '_id': 'fake_user@yahoo.com',
+        'access': 'admin'
+        })
+    assert r.status_code == 402
+
     # Add permissions for user 1
     r = as_admin.post(permissions_path, json={
         '_id': user_1,

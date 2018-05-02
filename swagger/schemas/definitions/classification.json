@@ -1,0 +1,29 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": {
+        "classification-add-delete": {
+            "type": "object",
+            "properties": {
+                "add":      {"$ref":"common.json#/definitions/classification"},
+                "delete":   {"$ref":"common.json#/definitions/classification"}
+            },
+            "additionalProperties": false
+        },
+        "classification-replace": {
+            "type": "object",
+            "properties": {
+                "modality": {"$ref":"file.json#/definitions/modality"},
+                "replace": {"type": "object"}
+            },
+            "additionalProperties": false
+        },
+        "classification-update-input": {
+            "description": "Helper endpoint for editing an object's classification key",
+            "type": "object",
+            "oneOf": [
+                {"$ref":"#/definitions/classification-add-delete"},
+                {"$ref":"#/definitions/classification-replace"}
+            ]
+        }
+    }
+}

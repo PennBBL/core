@@ -8,7 +8,7 @@
                 "label":        {"$ref":"common.json#/definitions/label"},
                 "info":         {"$ref":"container.json#/definitions/info"},
                 "description":  {"$ref":"common.json#/definitions/description"},
-                "group":        {"$ref":"common.json#/definitions/string-id"}
+                "group":        {"$ref":"common.json#/definitions/lowercase-string-id"}
             },
             "additionalProperties": false,
             "x-sdk-model": "project"
@@ -35,7 +35,7 @@
                 "info":        {"$ref":"container.json#/definitions/info"},
                 "info_exists": {"$ref":"container.json#/definitions/info_exists"},
                 "description": {"$ref":"common.json#/definitions/description"},
-                "group":       {"$ref":"common.json#/definitions/string-id"},
+                "group":       {"$ref":"common.json#/definitions/lowercase-string-id"},
                 "created":     {"$ref":"created-modified.json#/definitions/created"},
                 "modified":    {"$ref":"created-modified.json#/definitions/modified"},
                 "template":    {"type":"object"},

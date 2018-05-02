@@ -110,23 +110,53 @@ class AcquisitionsTestCases(SdkTestCase):
 
         # Test file attributes
         self.assertEqual(r_acquisition.files[0].modality, None)
-        self.assertEqual(len(r_acquisition.files[0].measurements), 0)
+        self.assertEmpty(r_acquisition.files[0].classification)
         self.assertEqual(r_acquisition.files[0].type, 'text')
 
         resp = fw.modify_acquisition_file(acquisition_id, 'yeats.txt', flywheel.FileEntry(
             modality='modality',
-            measurements=['measurement'],
             type='type'
         ))
 
         # Check that no jobs were triggered, and attrs were modified
-        self.assertEqual(resp.jobs_triggered, 0)
+        self.assertEqual(resp.jobs_spawned, 0)
 
         r_acquisition = fw.get_acquisition(acquisition_id)
         self.assertEqual(r_acquisition.files[0].modality, "modality")
-        self.assertEqual(len(r_acquisition.files[0].measurements), 1)
-        self.assertEqual(r_acquisition.files[0].measurements[0], 'measurement')
+        self.assertEmpty(r_acquisition.files[0].classification)
         self.assertEqual(r_acquisition.files[0].type, 'type')
+
+        # Test classifications
+        resp = fw.modify_acquisition_file_classification(acquisition_id, 'yeats.txt', {
+            'modality': 'modality2',
+            'replace': {
+                'Custom': ['measurement1', 'measurement2'],
+            }
+        })
+        self.assertEqual(resp.modified, 1)
+        self.assertEqual(resp.jobs_spawned, 0)
+
+        r_acquisition = fw.get_acquisition(acquisition_id)
+        self.assertEqual(r_acquisition.files[0].modality, 'modality2')
+        self.assertEqual(r_acquisition.files[0].classification, {
+            'Custom': ['measurement1', 'measurement2']
+        });
+
+        resp = fw.modify_acquisition_file_classification(acquisition_id, 'yeats.txt', {
+            'add': {
+                'Custom': ['HelloWorld'],
+            },
+            'delete': {
+                'Custom': ['measurement2']
+            }
+        })
+        self.assertEqual(resp.modified, 1)
+        self.assertEqual(resp.jobs_spawned, 0)
+
+        r_acquisition = fw.get_acquisition(acquisition_id)
+        self.assertEqual(r_acquisition.files[0].classification, {
+            'Custom': ['measurement1', 'HelloWorld'],
+        });
 
         # Test file info
         self.assertEmpty(r_acquisition.files[0].info)
@@ -183,6 +213,45 @@ class AcquisitionsTestCases(SdkTestCase):
             self.fail('Expected ApiException retrieving invalid acquisition!')
         except flywheel.ApiException as e:
             self.assertEqual(e.status, 404)
+
+    def test_acquisition_analysis(self):
+        fw = self.fw
+        
+        acquisition = flywheel.Acquisition(session=self.session_id, label=self.rand_string()) 
+
+        # Add
+        acquisition_id = fw.add_acquisition(acquisition)
+        self.assertNotEmpty(acquisition_id)
+
+        poem = 'Troubles my sight: a waste of desert sand;'
+        fw.upload_file_to_acquisition(acquisition_id, flywheel.FileSpec('yeats.txt', poem))
+
+        file_ref = flywheel.FileReference(
+            id=acquisition_id,
+            type='acquisition',
+            name='yeats.txt'
+        )
+
+        analysis = flywheel.AnalysisInput(label=self.rand_string(), description=self.rand_string(), inputs=[file_ref])
+
+        # Add
+        analysis_id = fw.add_acquisition_analysis(acquisition_id, analysis)
+        self.assertNotEmpty(analysis_id)
+
+        # Get the list of analyses in the acquisition
+        analyses = fw.get_acquisition_analyses(acquisition_id)
+        self.assertEqual(len(analyses), 1)
+        
+        r_analysis = analyses[0]
+
+        self.assertEqual(r_analysis.id, analysis_id)
+        self.assertEmpty(r_analysis.job)
+
+        self.assertTimestampBeforeNow(r_analysis.created)
+        self.assertGreaterEqual(r_analysis.modified, r_analysis.created)
+
+        self.assertEqual(len(r_analysis.inputs), 1)
+        self.assertEqual(r_analysis.inputs[0].name, 'yeats.txt')
 
     def sanitize_for_collection(self, acquisition, info_exists=True):
         # workaround: all-container endpoints skip some fields, single-container does not. this sets up the equality check 

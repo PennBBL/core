@@ -13,3 +13,4 @@ bootstrap.json
 coverage.xml
 endpoints.json
 node_modules
+api_version.txt

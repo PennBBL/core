@@ -68,6 +68,7 @@ main() {
     if [ "$LINT_TOGGLE" != true ]; then
         log "INFO: Staring core ..."
         export SCITRAN_CORE_DRONE_SECRET=${SCITRAN_CORE_DRONE_SECRET:-change-me}
+        export SCITRAN_PERSISTENT_DATA_PATH=$(mktemp -d)
         uwsgi --ini /var/scitran/config/uwsgi-config.ini --http [::]:9000 \
             --env SCITRAN_COLLECT_ENDPOINTS=true \
             --env SCITRAN_CORE_ACCESS_LOG_ENABLED=true \
@@ -103,7 +104,7 @@ main() {
         coverage report --skip-covered --show-missing
 
         touch tests/artifacts
-        chown -R $(stat -c %u:%g tests) .
+        chown -R $(stat -c %u:%g .) .
     fi
 
     if [ "$LINT_TOGGLE" != false ]; then
@@ -129,7 +130,7 @@ allow_skip_all() {
 tail_logs_and_exit() {
     local PYTEST_EXIT_CODE=$?
     log "INFO: Tailing core logs ..."
-    tail --lines=10 /tmp/core.log
+    tail --lines=50 /tmp/core.log
     exit $PYTEST_EXIT_CODE
 }
 

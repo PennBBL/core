@@ -13,6 +13,7 @@ AccessType = util.Enum('AccessType', {
     'view_subject':             'view_subject',
     'view_file':                'view_file',
     'download_file':            'download_file',
+    'replace_file':             'replace_file',
     'delete_file':              'delete_file',
     'delete_analysis':          'delete_analysis',
     'user_login':               'user_login',

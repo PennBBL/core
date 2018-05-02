@@ -55,7 +55,7 @@
     {{#apis}}
     {{#operations}}
     {{#operation}}
-    {{#vendorExtensions.x-sdk-modify-info}}
+    {{#vendorExtensions.x-sdk-modify-wrapper}}
     def {{wrapperId}}(self, {{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}**kwargs):
         """{{summary}}
 
@@ -65,9 +65,9 @@
         :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
         """
         body = { '{{key}}': body }
-        self.{{classVarName}}.{{operationId}}({{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}**kwargs)
+        return self.{{classVarName}}.{{operationId}}({{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}**kwargs)
 
-    {{/vendorExtensions.x-sdk-modify-info}}
+    {{/vendorExtensions.x-sdk-modify-wrapper}}
     {{#vendorExtensions.x-sdk-download-file-param}}
     def {{operationId}}_as_data(self, {{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}**kwargs):
         """{{#summary}}{{.}}{{/summary}}{{^summary}}{{operationId}}{{/summary}}

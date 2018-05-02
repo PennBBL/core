@@ -17,6 +17,17 @@ public class FlywheelCodegenSupport {
         removeExtraOperationTags(swagger);
     }
 
+    public static void removeSupportingFile(List<SupportingFile> supportingFiles, String name) {
+        Iterator<SupportingFile> itr = supportingFiles.iterator();
+        while(itr.hasNext()) {
+            SupportingFile file = itr.next();
+            if( file.templateFile.equals(name) ) {
+                itr.remove();
+                break;
+            }
+        }
+    }
+
     private static void preprocessSwaggerModels(Swagger swagger) {
         Map<String, Model> models = swagger.getDefinitions();
         for( String name : models.keySet() ) {
@@ -106,7 +117,10 @@ public class FlywheelCodegenSupport {
                     }
                 } else if( op.vendorExtensions.containsKey("x-sdk-modify-info") ) {
                     // Convert to an array of the 3 operations
-                    op.vendorExtensions.put("x-sdk-modify-info", makeModifyInfoWrappers(op.operationIdSnakeCase, gen));
+                    op.vendorExtensions.put("x-sdk-modify-wrapper", makeModifyInfoWrappers(op.operationIdSnakeCase, gen));
+                } else if( op.vendorExtensions.containsKey("x-sdk-modify-classification") ) {
+                    // Convert to an array of the 3 operations
+                    op.vendorExtensions.put("x-sdk-modify-wrapper", makeModifyClassificationWrappers(op.operationIdSnakeCase, gen));
                 } else if( op.vendorExtensions.containsKey("x-sdk-download-file-param") ) {
                     String paramName = op.vendorExtensions.get("x-sdk-download-file-param").toString();
                     op.vendorExtensions.put("x-sdk-download-file-param", gen.toParamName(paramName));
@@ -184,13 +198,21 @@ public class FlywheelCodegenSupport {
     }
 
     private static List<Map<String, Object>> makeModifyInfoWrappers(String operationId, DefaultCodegen gen) {
+        return makeModifyWrappers(operationId, gen, "info");
+    }
+
+    private static List<Map<String, Object>> makeModifyClassificationWrappers(String operationId, DefaultCodegen gen) {
+        return makeModifyWrappers(operationId, gen, "classification");
+    }
+
+    private static List<Map<String, Object>> makeModifyWrappers(String operationId, DefaultCodegen gen, String name) {
         List<Map<String, Object>> result = new ArrayList<>();
 
         // Set
         String opId = operationId.replace("modify_", "set_");
         Map<String, Object> detail = new HashMap<>();
         detail.put("wrapperId", gen.toOperationId(opId));
-        detail.put("summary", "Update info with the provided fields.");
+        detail.put("summary", "Update " + name + " with the provided fields.");
         detail.put("key", "set");
         result.add(detail);
 
@@ -198,7 +220,7 @@ public class FlywheelCodegenSupport {
         opId = operationId.replace("modify_", "replace_");
         detail = new HashMap<>();
         detail.put("wrapperId", gen.toOperationId(opId));
-        detail.put("summary", "Entirely replace info with the provided fields.");
+        detail.put("summary", "Entirely replace " + name + " with the provided fields.");
         detail.put("key", "replace");
         result.add(detail);
 
@@ -206,7 +228,7 @@ public class FlywheelCodegenSupport {
         opId = operationId.replace("modify_", "delete_") + "_fields";
         detail = new HashMap<>();
         detail.put("wrapperId", gen.toOperationId(opId));
-        detail.put("summary", "Delete the specified fields from info.");
+        detail.put("summary", "Delete the specified fields from  + name + .");
         detail.put("key", "delete");
         result.add(detail);
 

@@ -80,7 +80,11 @@ classdef ModelBase < matlab.mixin.CustomDisplay
                         else
                             if isKey(obj.propMap_, subs)
                                 propName = obj.propMap_(subs);
-                                result = {{packageName}}.ModelBase.recursiveRef(obj.props_(propName), s(2:end));
+                                if isKey(obj.props_, propName)
+                                    result = {{packageName}}.ModelBase.recursiveRef(obj.props_(propName), s(2:end));
+                                else
+                                    result = [];
+                                end
                             else
                                 result = builtin('subsref', obj, s);
                             end
@@ -105,6 +109,8 @@ classdef ModelBase < matlab.mixin.CustomDisplay
                 result = arrayfun(pred, list, 'UniformOutput', false);
             elseif iscell(list)
                 result = cellfun(pred, list, 'UniformOutput', false);
+            elseif isempty(list)
+                result = [];
             else
                 result = { pred(list) };
             end

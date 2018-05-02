@@ -289,6 +289,8 @@ def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_ro
     r = as_admin.post('/jobs/add', json=job6)
     assert r.status_code == 500
 
+    assert as_root.delete('/gears/' + gear3).ok
+
     # Attempt to set a malformed file reference as input
     job7 = copy.deepcopy(job_data)
     job7['inputs'] = {
@@ -362,7 +364,8 @@ def test_failed_job_output(data_builder, default_payload, as_user, as_admin, as_
     project = data_builder.create_project()
     session = data_builder.create_session()
     acquisition = data_builder.create_acquisition()
-    assert as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('test.zip')).ok
+    r = as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('test.zip'))
+    assert r.ok
 
     # create rule for text files
     r = as_admin.post('/projects/' + project + '/rules', json={
@@ -391,8 +394,7 @@ def test_failed_job_output(data_builder, default_payload, as_user, as_admin, as_
     })
     assert r.ok
     job = r.json()['_id']
-
-    api_db.jobs.update_one({'_id': bson.ObjectId(job)}, {'$set':{'state': 'running'}})
+    api_db.jobs.update_one({'_id': bson.ObjectId(job)}, {'$set': {'state': 'running'}})
 
     # prepare completion (send success status before engine upload)
     r = as_drone.post('/jobs/' + job + '/prepare-complete', json={'success': False, 'elapsed': -1})
@@ -403,35 +405,35 @@ def test_failed_job_output(data_builder, default_payload, as_user, as_admin, as_
     assert job_ticket['success'] == False
 
     # engine upload
-    metadata = {
-        'project':{
-            'label': 'engine project',
-            'info': {'test': 'p'}
-        },
-        'session':{
-            'label': 'engine session',
-            'subject': {'code': 'engine subject'},
-            'info': {'test': 's'}
-        },
-        'acquisition':{
-            'label': 'engine acquisition',
-            'timestamp': '2016-06-20T21:57:36+00:00',
-            'info': {'test': 'a'},
-            'files': [{
-                'name': 'result.txt',
-                'type': 'text',
-                'info': {'test': 'f0'}
-            }]
-        }
-    }
-
-    api_db.jobs.update_one({'_id': bson.ObjectId(job)}, {'$set':{'state': 'running'}})
-
     r = as_drone.post('/engine',
         params={'level': 'acquisition', 'id': acquisition, 'job': job, 'job_ticket': job_ticket['_id']},
-        files=file_form('result.txt', meta=metadata)
+        files=file_form('result.txt', meta={
+            'project': {
+                'label': 'engine project',
+                'info': {'test': 'p'}
+            },
+            'session': {
+                'label': 'engine session',
+                'subject': {'code': 'engine subject'},
+                'info': {'test': 's'}
+            },
+            'acquisition': {
+                'label': 'engine acquisition',
+                'timestamp': '2016-06-20T21:57:36+00:00',
+                'info': {'test': 'a'},
+                'files': [{
+                    'name': 'result.txt',
+                    'type': 'text',
+                    'info': {'test': 'f0'}
+                }]
+            }
+        })
     )
     assert r.ok
+
+    # verify job was transitioned to failed state
+    job_doc = as_admin.get('/jobs/' + job).json()
+    assert job_doc['state'] == 'failed'
 
     # verify metadata wasn't applied
     acq = as_admin.get('/acquisitions/' + acquisition).json()
@@ -470,6 +472,100 @@ def test_failed_job_output(data_builder, default_payload, as_user, as_admin, as_
     # verify that a job was spawned for accepted files
     jobs = [j for j in api_db.jobs.find({'gear_id': gear2})]
     assert len(jobs) == 1
+
+
+def test_job_state_transition_from_ticket(data_builder, default_payload, as_admin, as_drone, api_db, file_form):
+    # create gear
+    gear_doc = default_payload['gear']['gear']
+    gear_doc['inputs'] = {'dicom': {'base': 'file'}}
+    gear = data_builder.create_gear(gear=gear_doc)
+
+    # create acq with file (for input)
+    acquisition = data_builder.create_acquisition()
+    r = as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('test.zip'))
+    assert r.ok
+
+    # create job
+    r = as_admin.post('/jobs/add', json={
+        'gear_id': gear,
+        'config': {},
+        'inputs': {'dicom': {'type': 'acquisition', 'id': acquisition, 'name': 'test.zip'}},
+        'destination': {'type': 'acquisition', 'id': acquisition}
+    })
+    assert r.ok
+    job = r.json()['_id']
+    api_db.jobs.update_one({'_id': bson.ObjectId(job)}, {'$set': {'state': 'running'}})
+
+    # prepare completion (send success status before engine upload)
+    r = as_drone.post('/jobs/' + job + '/prepare-complete', json={'success': True, 'elapsed': 3})
+    assert r.ok
+    job_ticket = r.json()['ticket']
+
+    # engine upload (should trigger state transition based on ticket)
+    r = as_drone.post('/engine',
+        params={'level': 'acquisition', 'id': acquisition, 'job': job, 'job_ticket': job_ticket},
+        files=file_form('result.txt', meta={
+            'acquisition': {'files': [{'name': 'result.txt', 'type': 'text'}]}
+        })
+    )
+    assert r.ok
+
+    # verify job was transitioned to complete state
+    job_doc = as_admin.get('/jobs/' + job).json()
+    assert job_doc['state'] == 'complete'
+
+    # test with success: False
+    api_db.jobs.update_one({'_id': bson.ObjectId(job)}, {'$set': {'state': 'running'}})
+    api_db.job_tickets.update_one({'_id': bson.ObjectId(job_ticket)}, {'$set': {'success': False}})
+    r = as_drone.post('/engine',
+        params={'level': 'acquisition', 'id': acquisition, 'job': job, 'job_ticket': job_ticket},
+        files=file_form('result.txt', meta={
+            'acquisition': {'files': [{'name': 'result.txt', 'type': 'text'}]}
+        })
+    )
+    assert r.ok
+    job_doc = as_admin.get('/jobs/' + job).json()
+    assert job_doc['state'] == 'failed'
+
+    # create session, analysis and job
+    session = data_builder.create_session()
+    r = as_admin.post('/sessions/' + session + '/analyses', json={
+        'label': 'online',
+        'job': {'gear_id': gear,
+                'inputs': {'dicom': {'type': 'acquisition', 'id': acquisition, 'name': 'test.zip'}}}
+    })
+    assert r.ok
+    analysis = r.json()['_id']
+
+    r = as_admin.get('/analyses/' + analysis)
+    assert r.ok
+    job = r.json().get('job')
+    api_db.jobs.update_one({'_id': bson.ObjectId(job)}, {'$set': {'state': 'running'}})
+
+    # prepare completion (send success status before engine upload)
+    r = as_drone.post('/jobs/' + job + '/prepare-complete', json={'success': True, 'elapsed': 3})
+    assert r.ok
+    job_ticket = r.json()['ticket']
+
+    r = as_drone.post('/engine',
+        params={'level': 'analysis', 'id': analysis, 'job': job, 'job_ticket': job_ticket},
+        files=file_form('result.txt', meta={'type': 'text'}))
+    assert r.ok
+
+    # verify job was transitioned to complete state
+    job_doc = as_admin.get('/jobs/' + job).json()
+    assert job_doc['state'] == 'complete'
+
+    # test with success: False
+    api_db.jobs.update_one({'_id': bson.ObjectId(job)}, {'$set': {'state': 'running'}})
+    api_db.job_tickets.update_one({'_id': bson.ObjectId(job_ticket)}, {'$set': {'success': False}})
+    r = as_drone.post('/engine',
+        params={'level': 'analysis', 'id': analysis, 'job': job, 'job_ticket': job_ticket},
+        files=file_form('result.txt', meta={'type': 'text'}))
+    assert r.ok
+    job_doc = as_admin.get('/jobs/' + job).json()
+    assert job_doc['state'] == 'failed'
+
 
 def test_analysis_job_creation_errors(data_builder, default_payload, as_admin, file_form):
     project = data_builder.create_project()
@@ -511,3 +607,99 @@ def test_analysis_job_creation_errors(data_builder, default_payload, as_admin, f
     })
     assert r.status_code == 400
     assert len(as_admin.get('/sessions/' + session).json().get('analyses', [])) == 0
+
+def test_job_context(data_builder, default_payload, as_admin, as_root, file_form):
+    # Dupe of test_queue.py
+    gear_doc = default_payload['gear']['gear']
+    gear_doc['inputs'] = {
+        'zip': {
+            'base': 'file'
+        },
+        'test_context_value': {
+            'base': 'context'
+        }
+    }
+    gear = data_builder.create_gear(gear=gear_doc)
+    project = data_builder.create_project()
+    session = data_builder.create_session()
+    acquisition = data_builder.create_acquisition()
+    assert as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('test.zip')).ok
+
+    job_data = {
+        'gear_id': gear,
+        'inputs': {
+            'zip': {
+                'type': 'acquisition',
+                'id': acquisition,
+                'name': 'test.zip'
+            }
+        },
+        'tags': [ 'test-tag' ]
+    }
+
+    # add job without context value
+    r = as_admin.post('/jobs/add', json=job_data)
+    assert r.ok
+    job1_id = r.json()['_id']
+
+    # get job
+    r = as_root.get('/jobs/' + job1_id)
+    assert r.ok
+    r_job = r.json()
+    r_inputs = r_job['config']['inputs']
+    assert 'test_context_value' in r_inputs
+    assert r_inputs['test_context_value']['base'] == 'context'
+    assert r_inputs['test_context_value']['found'] == False
+
+    # Set context at project level
+    r = as_admin.post('/projects/' + project + '/info', json={
+        'set': {
+            'test_context_value': 3,
+            'context': {
+                'test_context_value': 'project_context_value'
+            }
+        }
+    })
+    assert r.ok
+
+    # add job with project context value
+    r = as_admin.post('/jobs/add', json=job_data)
+    assert r.ok
+    job2_id = r.json()['_id']
+
+    # get job
+    r = as_root.get('/jobs/' + job2_id)
+    assert r.ok
+    r_job = r.json()
+    r_inputs = r_job['config']['inputs']
+    assert 'test_context_value' in r_inputs
+    assert r_inputs['test_context_value']['base'] == 'context'
+    assert r_inputs['test_context_value']['found'] == True
+    assert r_inputs['test_context_value']['value'] == 'project_context_value'
+
+    # Override context at session level
+    r = as_admin.post('/sessions/' + session + '/info', json={
+        'set': {
+            'context': {
+                'test_context_value': {
+                    'session_value': 3
+                }
+            }
+        }
+    })
+    assert r.ok
+
+    # add job with session context value
+    r = as_admin.post('/jobs/add', json=job_data)
+    assert r.ok
+    job3_id = r.json()['_id']
+
+    # get job
+    r = as_root.get('/jobs/' + job3_id)
+    assert r.ok
+    r_job = r.json()
+    r_inputs = r_job['config']['inputs']
+    assert 'test_context_value' in r_inputs
+    assert r_inputs['test_context_value']['base'] == 'context'
+    assert r_inputs['test_context_value']['found'] == True
+    assert r_inputs['test_context_value']['value'] == { 'session_value': 3 }

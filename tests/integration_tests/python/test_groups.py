@@ -6,6 +6,7 @@ def test_groups(as_user, as_admin, data_builder):
     assert r.status_code == 404
 
     group = data_builder.create_group()
+    user_id = data_builder.create_user(_id='test-user@user.com')
 
     # Able to find new group
     r = as_admin.get('/groups/' + group)
@@ -66,7 +67,7 @@ def test_groups(as_user, as_admin, data_builder):
     assert d5 > d4
 
     # Add a permission to the group
-    user = {'access': 'rw', '_id': 'newUser@fakeuser.com'}
+    user = {'access': 'rw', '_id': user_id}
     r = as_admin.post('/groups/' + group + '/permissions', json=user)
     assert r.ok
 
@@ -78,7 +79,7 @@ def test_groups(as_user, as_admin, data_builder):
     assert d6 > d5
 
     # Edit a permission in the group
-    user = {'access': 'ro', '_id': 'newUser@fakeuser.com'}
+    user = {'access': 'ro', '_id': user_id}
     r = as_admin.put('/groups/' + group + '/permissions/' + user['_id'], json=user)
     assert r.ok
 

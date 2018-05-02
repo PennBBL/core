@@ -12,7 +12,9 @@ from .. import config
 from .basecontainerstorage import ContainerStorage
 from ..auth import has_access
 from ..web.errors import APIStorageException, APINotFoundException, APIPermissionException
+from ..web.request import AccessType
 from . import containerutil
+
 
 log = config.log
 
@@ -143,7 +145,15 @@ def is_session_compliant(session, template):
         """
         Return True if container satisfies specific requirement.
         """
-        cont_v = cont.get(req_k)
+
+        # If looking at classification, translate to list rather than dictionary
+        if req_k == 'classification':
+            cont_v = []
+            for v in cont.get('classification', {}).itervalues():
+                cont_v.extend(v)
+        else:
+            cont_v = cont.get(req_k)
+
         if cont_v:
             if isinstance(req_v, dict):
                 for k,v in req_v.iteritems():
@@ -222,7 +232,7 @@ def is_session_compliant(session, template):
                 return False
     return True
 
-def upsert_fileinfo(cont_name, _id, fileinfo):
+def upsert_fileinfo(cont_name, _id, fileinfo, access_logger):
 
     cont_name = containerutil.pluralize(cont_name)
     _id = bson.ObjectId(_id)
@@ -249,6 +259,10 @@ def upsert_fileinfo(cont_name, _id, fileinfo):
         fileinfo['created'] = fileinfo['modified']
         container_after = add_fileinfo(cont_name, _id, fileinfo)
     else:
+        if fileinfo.get('hash') and file_before.get('hash') != fileinfo.get('hash'):
+            # We are replacing the file object itself, log the action
+            access_logger(AccessType.replace_file, cont_name=cont_name, cont_id=_id, filename=fileinfo['name'])
+
         container_after = update_fileinfo(cont_name, _id, fileinfo)
 
     return container_before, container_after
@@ -260,8 +274,7 @@ def update_fileinfo(cont_name, _id, fileinfo):
             fileinfo['size'] = int(fileinfo['size'])
 
     update_set = {'files.$.modified': datetime.datetime.utcnow()}
-    # in this method, we are overriding an existing file.
-    # update_set allows to update all the fileinfo like size, hash, etc.
+
     for k,v in fileinfo.iteritems():
         update_set['files.$.' + k] = v
     return config.db[cont_name].find_one_and_update(

@@ -1,11 +1,12 @@
 import os
 import copy
-import glob
 import json
 import logging
 import pymongo
 import datetime
 import elasticsearch
+
+from fs import open_fs
 
 from . import util
 from .dao.dbutil import try_replace_one
@@ -21,7 +22,7 @@ logging.getLogger('MARKDOWN').setLevel(logging.WARNING) # silence Markdown libra
 logging.getLogger('requests').setLevel(logging.WARNING) # silence Requests library
 logging.getLogger('paste.httpserver').setLevel(logging.WARNING) # silence Paste library
 logging.getLogger('elasticsearch').setLevel(logging.WARNING) # silence Elastic library
-
+logging.getLogger('urllib3').setLevel(logging.WARNING) # silence urllib3 library
 
 # NOTE: Keep in sync with environment variables in sample.config file.
 DEFAULT_CONFIG = {
@@ -63,6 +64,8 @@ DEFAULT_CONFIG = {
         'db_server_selection_timeout': '3000',
         'data_path': os.path.join(os.path.dirname(__file__), '../persistent/data'),
         'elasticsearch_host': 'localhost:9200',
+        'fs_url': None,
+        'support_legacy_fs': True
     },
 }
 
@@ -106,6 +109,13 @@ __last_update = datetime.datetime.utcfromtimestamp(0)
 
 if not os.path.exists(__config['persistent']['data_path']):
     os.makedirs(__config['persistent']['data_path'])
+log.debug('Persistent data path: %s', __config['persistent']['data_path'])
+
+if not __config['persistent']['fs_url']:
+    _path = os.path.join(__config['persistent']['data_path'], 'v1')
+    if not os.path.exists(_path):
+        os.makedirs(_path)
+    __config['persistent']['fs_url'] = 'osfs://' + _path
 
 log.setLevel(getattr(logging, __config['core']['log_level'].upper()))
 
@@ -131,84 +141,6 @@ es = elasticsearch.Elasticsearch([__config['persistent']['elasticsearch_host']])
 
 # validate the lists of json schemas
 schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../swagger/schemas')
-
-expected_mongo_schemas = set([
-    'acquisition.json',
-    'analysis.json',
-    'collection.json',
-    'container.json',
-    'file.json',
-    'group.json',
-    'note.json',
-    'permission.json',
-    'project.json',
-    'session.json',
-    'subject.json',
-    'user.json',
-    'avatars.json',
-    'tag.json'
-])
-expected_input_schemas = set([
-    'acquisition.json',
-    'acquisition-update.json',
-    'analysis.json',
-    'analysis-legacy.json',
-    'analysis-update.json',
-    'avatars.json',
-    'collection.json',
-    'collection-update.json',
-    'device.json',
-    'file.json',
-    'file-list.json',
-    'file-update.json',
-    'gear.json',
-    'group-new.json',
-    'group-update.json',
-    'info_update.json',
-    'job-logs.json',
-    'job-new.json',
-    'note.json',
-    'packfile.json',
-    'permission.json',
-    'project.json',
-    'project-template.json',
-    'project-update.json',
-    'propose-batch.json',
-    'resolver.json',
-    'rule-new.json',
-    'rule-update.json',
-    'search-query.json',
-    'session.json',
-    'session-update.json',
-    'subject.json',
-    'user-new.json',
-    'user-update.json',
-    'download.json',
-    'tag.json',
-    'enginemetadata.json',
-    'labelupload.json',
-    'uidupload.json',
-    'uidmatchupload.json'
-])
-mongo_schemas = set()
-input_schemas = set()
-
-# check that the lists of schemas are correct
-for schema_filepath in glob.glob(schema_path + '/mongo/*.json'):
-    schema_file = os.path.basename(schema_filepath)
-    mongo_schemas.add(schema_file)
-    with open(schema_filepath, 'rU') as f:
-        pass
-
-assert mongo_schemas == expected_mongo_schemas, '{} is different from {}'.format(mongo_schemas, expected_mongo_schemas)
-
-for schema_filepath in glob.glob(schema_path + '/input/*.json'):
-    schema_file = os.path.basename(schema_filepath)
-    input_schemas.add(schema_file)
-    with open(schema_filepath, 'rU') as f:
-        pass
-
-assert input_schemas == expected_input_schemas, '{} is different from {}'.format(input_schemas, expected_input_schemas)
 
 def create_or_recreate_ttl_index(coll_name, index_name, ttl):
     if coll_name in db.collection_names():
@@ -306,7 +238,13 @@ def get_public_config():
     }
 
 def get_version():
-    return db.singletons.find_one({'_id': 'version'})
+    version_object = db.singletons.find_one({'_id': 'version'})
+    if not version_object:
+        return version_object
+
+    version_object['release'] = get_release_version()
+    return version_object
+
 
 def get_item(outer, inner):
     return get_config()[outer][inner]
@@ -328,3 +266,23 @@ def mongo_pipeline(table, pipeline):
 
 def get_auth(auth_type):
     return get_config()['auth'][auth_type]
+
+# Application version file path
+release_version_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../api_version.txt')
+release_version = ''
+
+def get_release_version():
+    """Get the semantic application release version (may be none)"""
+    global release_version #pylint: disable=global-statement
+    if not release_version and os.path.isfile(release_version_file_path):
+        try:
+            with open(release_version_file_path, 'r') as f:
+                release_version = f.read().strip()
+        except IOError:
+            pass
+    return release_version
+
+# Storage configuration
+fs = open_fs(__config['persistent']['fs_url'])
+local_fs = open_fs('osfs://' + __config['persistent']['data_path'])
+support_legacy_fs = __config['persistent']['support_legacy_fs']

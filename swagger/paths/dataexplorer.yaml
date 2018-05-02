@@ -7,7 +7,7 @@
         in: query
         type: boolean
         x-sdk-default: 'true'
-      - name: limit
+      - name: size
         in: query
         type: integer
         x-sdk-default: 100

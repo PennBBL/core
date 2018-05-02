@@ -1,11 +1,23 @@
 {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "definitions": {
-        "_id":          {"type": "string"},
-        "public":       {"type": "boolean"},
+        "_id":          {
+          "type": "string",
+          "description": "Unique database ID"
+        },
+        "public":       {
+          "type": "boolean",
+          "description": "Indicates whether or not a container is public"
+        },
         "info":         {"$ref": "common.json#/definitions/info"},
-        "info_exists":  {"type": "boolean"},
-        "uid":          {"type": "string"},
+        "info_exists":  {
+          "type": "boolean",
+          "description": "Flag that indicates whether or not info exists on this container"
+        },
+        "uid":          {
+          "type": "string",
+          "description": "A user database ID"
+        },
         "timestamp":    {"type": ["string", "null"], "format": "date-time"},
         "timezone":     {"type": "string"},
         "container-type": {

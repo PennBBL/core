@@ -26,11 +26,11 @@ classdef ApiClient
     end
     methods(Static)
         function json = encodeJson(data)
-            json = jsonencode(data);
+            json = jsonio.jsonwrite(data, struct('ReplacementStyle', 'hex'));
         end
         function json = getResponseJson(resp)
             body = resp.getBodyAsString().toCharArray';
-            json = jsonread(body, struct('ReplacementStyle', 'hex'));
+            json = jsonio.jsonread(body, struct('ReplacementStyle', 'hex'));
         end
         function params = formatParamCollection(params, name, value, format)
             if iscell(value)

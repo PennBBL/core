@@ -88,6 +88,8 @@ template: |
         $ref: '#/responses/200:modified-with-count'
   put:
     summary: Modify a file's attributes
+    description: |
+      Note: If modifying a file's modality, the current classification will be cleared (except for items in the "Custom" list)
     operationId: modify_{{resource}}_file
     tags:
     - '{{tag}}'

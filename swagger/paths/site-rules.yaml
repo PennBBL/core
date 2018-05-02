@@ -18,8 +18,9 @@
       default:
         description: ''
     parameters:
-    - in: body
-      name: body
+    - name: body
+      in: body
+      required: true
       schema:
         $ref: schemas/input/rule-new.json
 
@@ -48,8 +49,9 @@
       default:
         description: ''
     parameters:
-    - in: body
-      name: body
+    - name: body
+      in: body
+      required: true
       schema:
         $ref: schemas/input/rule-update.json
   delete:

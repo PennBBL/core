@@ -92,8 +92,9 @@ $template_arguments:
       default:
         description: ''
     parameters:
-      - in: body
-        name: body
+      - name: body
+        in: body
+        required: true
         schema:
           $ref: schemas/input/rule-new.json
 
@@ -128,10 +129,11 @@ $template_arguments:
       default:
         description: ''
     parameters:
-      - in: body
-        name: body
+      - name: body
+        in: body
+        required: true
         schema:
-          $ref: schemas/input/rule-update.json        
+          $ref: schemas/input/rule-update.json
   delete:
     summary: Remove a project rule.
     operationId: remove_project_rule
@@ -154,8 +156,9 @@ $template_arguments:
     tags:
     - projects
     parameters:
-      - in: body
-        name: body
+      - name: body
+        in: body
+        required: true
         schema:
           $ref: schemas/input/project-template.json
     responses:
@@ -236,6 +239,8 @@ $template_arguments:
   $template: templates/file-item.yaml
 /projects/{ProjectId}/files/{FileName}/info:
   $template: templates/file-item-info.yaml
+/projects/{ProjectId}/files/{FileName}/classification:
+  $template: templates/file-item-classification.yaml
 
 # ===== Permissions =====
 /projects/{ProjectId}/permissions:
@@ -270,6 +275,7 @@ $template_arguments:
   $template: templates/analysis-files.yaml
   arguments:
     filegroup: outputs
+    allow_upload: true
 /projects/{ProjectId}/analyses/{AnalysisId}/files/{Filename}:
   $template: templates/analysis-files-create-ticket-filename.yaml
   arguments:

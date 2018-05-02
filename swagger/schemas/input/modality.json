@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Modality",
+    "type": "object",
+    "allOf": [{"$ref": "../definitions/modality.json#/definitions/modality"}],
+    "required": ["classification"],
+    "example": {
+        "_id": "MR",
+        "classification": {
+            "Intent": ["Functional", "Diffusion"]
+        }
+    }
+}

@@ -32,6 +32,25 @@ module.exports = function(grunt) {
 			+ formatInner(err);
 	}
 
+	function validateParameters(root, result) {
+		_.forEach(root.paths, function(pathDef, path) {
+			// Method
+			_.forEach(pathDef, function(method, methodName) {
+				// Parameters
+				var params = method.parameters||[];
+				_.forEach(params, function(param, paramIdx) {
+					if( param['in'] === 'body' && !param.required ) {
+						result.errors.push({
+							path: [ path, methodName, 'parameters', '' + paramIdx ],
+							code: 'OPTIONAL_BODY',
+							message: 'Body parameters MUST be required!'
+						});
+					}
+				});
+			});
+		});
+	}
+
 	/**
 	 * This task simply runs swagger-tools validation on the final swagger doc. 
 	 * @param {object} data Task data
@@ -57,6 +76,7 @@ module.exports = function(grunt) {
 				return;
 			}
 
+			validateParameters(root, result);
 
 			if( ignoreWarnings && ignoreWarnings.length ) {
 				result.warnings = _.filter(result.warnings, function(err) {

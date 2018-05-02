@@ -8,15 +8,13 @@ import uuid
 import zipfile
 
 from ..web import base
-from .. import config
-from .. import upload
-from .. import util
-from .. import validators
+from .. import config, files, upload, util, validators
 from ..auth import listauth, always_ok
 from ..dao import noop
 from ..dao import liststorage
 from ..dao import containerutil
-from ..web.errors import APIStorageException, APIPermissionException
+from ..dao import containerstorage
+from ..web.errors import APIStorageException, APIPermissionException, APIUnknownUserException
 from ..web.request import AccessType
 
 
@@ -195,7 +193,7 @@ class ListHandler(base.RequestHandler):
             else:
                 permchecker = permchecker(self, container)
         else:
-            self.abort(404, 'Element {} not found in container {}'.format(_id, storage.cont_name))
+            self.abort(404, 'Element {} not found in {} {}'.format(query_params.values()[0], containerutil.singularize(storage.cont_name), _id))
 
         mongo_schema_uri = validators.schema_uri('mongo', conf.get('storage_schema_file'))
         mongo_validator = validators.decorator_from_schema_path(mongo_schema_uri)
@@ -211,8 +209,12 @@ class PermissionsListHandler(ListHandler):
     """
     def post(self, cont_name, list_name, **kwargs):
         _id = kwargs.get('cid')
-        result = super(PermissionsListHandler, self).post(cont_name, list_name, **kwargs)
+
         payload = self.request.json_body
+        if not self._user_exists(payload.get('_id')):
+            raise APIUnknownUserException('Cannot add permission for unknown user {}'.format(payload.get('_id')))
+
+        result = super(PermissionsListHandler, self).post(cont_name, list_name, **kwargs)
 
         if cont_name == 'groups' and self.request.params.get('propagate') =='true':
             self._propagate_permissions(cont_name, _id, query={'permissions._id' : payload['_id']}, update={'$set': {'permissions.$.access': payload['access']}})
@@ -263,6 +265,11 @@ class PermissionsListHandler(ListHandler):
             except APIStorageException:
                 self.abort(500, 'permissions not propagated from {} {} down hierarchy'.format(cont_name, _id))
 
+    def _user_exists(self, uid):
+        """
+        Checks if user exists
+        """
+        return bool(containerstorage.ContainerStorage('users', use_object_id=False).get_all_el({'_id': uid}, None, {'_id':1}))
 
 class NotesListHandler(ListHandler):
     """
@@ -360,24 +367,25 @@ class FileListHandler(ListHandler):
         return ticket
 
     @staticmethod
-    def build_zip_info(filepath):
+    def build_zip_info(file_path, file_system):
         """
         Builds a json response containing member and comment info for a zipfile
         """
-        with zipfile.ZipFile(filepath) as zf:
-            info = {}
-            info['comment'] = zf.comment
-            info['members'] = []
-            for zi in zf.infolist():
-                m = {}
-                m['path']      = zi.filename
-                m['size']      = zi.file_size
-                m['timestamp'] = datetime.datetime(*zi.date_time)
-                m['comment']   = zi.comment
+        with file_system.open(file_path, 'rb') as f:
+            with zipfile.ZipFile(f) as zf:
+                info = {
+                    'comment': zf.comment,
+                    'members': []
+                }
+                for zi in zf.infolist():
+                    info['members'].append({
+                        'path': zi.filename,
+                        'size': zi.file_size,
+                        'timestamp': datetime.datetime(*zi.date_time),
+                        'comment': zi.comment
+                    })
 
-                info['members'].append(m)
-
-            return info
+                return info
 
     def get(self, cont_name, list_name, **kwargs):
         _id = kwargs.pop('cid')
@@ -406,7 +414,8 @@ class FileListHandler(ListHandler):
         hash_ = self.get_param('hash')
         if hash_ and hash_ != fileinfo['hash']:
             self.abort(409, 'file exists, hash mismatch')
-        filepath = os.path.join(config.get_item('persistent', 'data_path'), util.path_from_hash(fileinfo['hash']))
+
+        file_path, file_system = files.get_valid_file(fileinfo)
 
         # Request for download ticket
         if self.get_param('ticket') == '':
@@ -416,18 +425,19 @@ class FileListHandler(ListHandler):
         # Request for info about zipfile
         elif self.is_true('info'):
             try:
-                info = self.build_zip_info(filepath)
+                info = self.build_zip_info(file_path, file_system)
+                return info
             except zipfile.BadZipfile:
                 self.abort(400, 'not a zip file')
-            return info
 
         # Request to download zipfile member
         elif self.get_param('member') is not None:
             zip_member = self.get_param('member')
             try:
-                with zipfile.ZipFile(filepath) as zf:
-                    self.response.headers['Content-Type'] = util.guess_mimetype(zip_member)
-                    self.response.write(zf.open(zip_member).read())
+                with file_system.open(file_path, 'rb') as f:
+                    with zipfile.ZipFile(f) as zf:
+                        self.response.headers['Content-Type'] = util.guess_mimetype(zip_member)
+                        self.response.write(zf.open(zip_member).read())
             except zipfile.BadZipfile:
                 self.abort(400, 'not a zip file')
             except KeyError:
@@ -442,67 +452,74 @@ class FileListHandler(ListHandler):
 
         # Authenticated or ticketed download request
         else:
-            range_header = self.request.headers.get('Range', '')
-            try:
-                if not self.is_true('view'):
-                    raise util.RangeHeaderParseError('Feature flag not set')
-
-                ranges = util.parse_range_header(range_header)
-                for first, last in ranges:
-                    if first > fileinfo['size'] - 1:
-                        self.abort(416, 'Invalid range')
-
-                    if last > fileinfo['size'] - 1:
-                        raise util.RangeHeaderParseError('Invalid range')
-
-            except util.RangeHeaderParseError:
-                self.response.app_iter = open(filepath, 'rb')
-                self.response.headers['Content-Length'] = str(fileinfo['size'])  # must be set after setting app_iter
-
-                if self.is_true('view'):
-                    self.response.headers['Content-Type'] = str(fileinfo.get('mimetype', 'application/octet-stream'))
-                else:
-                    self.response.headers['Content-Type'] = 'application/octet-stream'
-                    self.response.headers['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+            signed_url = files.get_signed_url(file_path, file_system,
+                                              filename=filename,
+                                              attachment=(not self.is_true('view')),
+                                              response_type=str(fileinfo.get('mimetype', 'application/octet-stream')))
+            if signed_url:
+                self.redirect(signed_url)
             else:
-                self.response.status = 206
-                if len(ranges) > 1:
-                    self.response.headers['Content-Type'] = 'multipart/byteranges; boundary=%s' % self.request.id
-                else:
-                    self.response.headers['Content-Type'] = str(
-                        fileinfo.get('mimetype', 'application/octet-stream'))
-                    self.response.headers['Content-Range'] = 'bytes %s-%s/%s' % (str(ranges[0][0]),
-                                                                                 str(ranges[0][1]),
-                                                                                 str(fileinfo['size']))
-                with open(filepath, 'rb') as f:
+                range_header = self.request.headers.get('Range', '')
+                try:
+                    if not self.is_true('view'):
+                        raise util.RangeHeaderParseError('Feature flag not set')
+
+                    ranges = util.parse_range_header(range_header)
                     for first, last in ranges:
-                        mode = os.SEEK_SET
-                        if first < 0:
-                            mode = os.SEEK_END
-                            length = abs(first)
-                        elif last is None:
-                            length = fileinfo['size'] - first
-                        else:
-                            if last > fileinfo['size']:
+                        if first > fileinfo['size'] - 1:
+                            self.abort(416, 'Invalid range')
+
+                        if last > fileinfo['size'] - 1:
+                            raise util.RangeHeaderParseError('Invalid range')
+
+                except util.RangeHeaderParseError:
+                    self.response.app_iter = file_system.open(file_path, 'rb')
+                    self.response.headers['Content-Length'] = str(fileinfo['size'])  # must be set after setting app_iter
+
+                    if self.is_true('view'):
+                        self.response.headers['Content-Type'] = str(fileinfo.get('mimetype', 'application/octet-stream'))
+                    else:
+                        self.response.headers['Content-Type'] = 'application/octet-stream'
+                        self.response.headers['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+                else:
+                    self.response.status = 206
+                    if len(ranges) > 1:
+                        self.response.headers['Content-Type'] = 'multipart/byteranges; boundary=%s' % self.request.id
+                    else:
+                        self.response.headers['Content-Type'] = str(
+                            fileinfo.get('mimetype', 'application/octet-stream'))
+                        self.response.headers['Content-Range'] = 'bytes %s-%s/%s' % (str(ranges[0][0]),
+                                                                                     str(ranges[0][1]),
+                                                                                     str(fileinfo['size']))
+                    with file_system.open(file_path, 'rb') as f:
+                        for first, last in ranges:
+                            mode = os.SEEK_SET
+                            if first < 0:
+                                mode = os.SEEK_END
+                                length = abs(first)
+                            elif last is None:
                                 length = fileinfo['size'] - first
                             else:
-                                length = last - first + 1
+                                if last > fileinfo['size']:
+                                    length = fileinfo['size'] - first
+                                else:
+                                    length = last - first + 1
 
-                        f.seek(first, mode)
-                        data = f.read(length)
+                            f.seek(first, mode)
+                            data = f.read(length)
 
-                        if len(ranges) > 1:
-                            self.response.write('--%s\n' % self.request.id)
-                            self.response.write('Content-Type: %s\n' % str(
-                                fileinfo.get('mimetype', 'application/octet-stream')))
-                            self.response.write('Content-Range: %s' % 'bytes %s-%s/%s\n' % (str(first),
-                                                                                            str(last),
-                                                                                            str(fileinfo['size'])))
-                            self.response.write('\n')
-                            self.response.write(data)
-                            self.response.write('\n')
-                        else:
-                            self.response.write(data)
+                            if len(ranges) > 1:
+                                self.response.write('--%s\n' % self.request.id)
+                                self.response.write('Content-Type: %s\n' % str(
+                                    fileinfo.get('mimetype', 'application/octet-stream')))
+                                self.response.write('Content-Range: %s' % 'bytes %s-%s/%s\n' % (str(first),
+                                                                                                str(last),
+                                                                                                str(fileinfo['size'])))
+                                self.response.write('\n')
+                                self.response.write(data)
+                                self.response.write('\n')
+                            else:
+                                self.response.write(data)
 
             # log download if we haven't already for this ticket
             if ticket:
@@ -536,11 +553,20 @@ class FileListHandler(ListHandler):
             result = storage.modify_info(_id, kwargs, payload)
         except APIStorageException as e:
             self.abort(400, e.message)
-        # abort if the query of the update wasn't able to find any matching documents
-        if result.matched_count == 0:
-            self.abort(404, 'Element not updated in list {} of container {} {}'.format(storage.list_name, storage.cont_name, _id))
-        else:
-            return {'modified':result.modified_count}
+        return result
+
+
+    def modify_classification(self, cont_name, list_name, **kwargs):
+        _id = kwargs.pop('cid')
+        permchecker, storage, _, _, _ = self._initialize_request(cont_name, list_name, _id, query_params=kwargs)
+
+        payload = self.request.json_body
+
+        validators.validate_data(payload, 'classification-update.json', 'input', 'POST')
+
+        permchecker(noop)('PUT', _id=_id, query_params=kwargs, payload=payload)
+        return storage.modify_classification(_id, kwargs, payload)
+
 
     def post(self, cont_name, list_name, **kwargs):
         _id = kwargs.pop('cid')
@@ -548,7 +574,7 @@ class FileListHandler(ListHandler):
         permchecker, _, _, _, _ = self._initialize_request(containerutil.pluralize(cont_name), list_name, _id)
         permchecker(noop)('POST', _id=_id)
 
-        return upload.process_upload(self.request, upload.Strategy.targeted, container_type=containerutil.singularize(cont_name), id_=_id, origin=self.origin)
+        return upload.process_upload(self.request, upload.Strategy.targeted, self.log_user_access, container_type=containerutil.singularize(cont_name), id_=_id, origin=self.origin)
 
     @validators.verify_payload_exists
     def put(self, cont_name, list_name, **kwargs):
@@ -560,6 +586,7 @@ class FileListHandler(ListHandler):
 
         result = permchecker(storage.exec_op)('PUT', _id=_id, query_params=kwargs, payload=payload)
         return result
+
 
     def delete(self, cont_name, list_name, **kwargs):
         # Overriding base class delete to audit action before completion
@@ -672,7 +699,7 @@ class FileListHandler(ListHandler):
         token_id = self.request.GET.get('token')
         self._check_packfile_token(project_id, token_id)
 
-        return upload.process_upload(self.request, upload.Strategy.token, origin=self.origin, context={'token': token_id})
+        return upload.process_upload(self.request, upload.Strategy.token, self.log_user_access, origin=self.origin, context={'token': token_id})
 
     def packfile_end(self, **kwargs):
         """
@@ -686,4 +713,4 @@ class FileListHandler(ListHandler):
         # Because this is an SSE endpoint, there is no form-post. Instead, read JSON data from request param
         metadata = json.loads(self.request.GET.get('metadata'))
 
-        return upload.process_upload(self.request, upload.Strategy.packfile, origin=self.origin, context={'token': token_id}, response=self.response, metadata=metadata)
+        return upload.process_upload(self.request, upload.Strategy.packfile, self.log_user_access, origin=self.origin, context={'token': token_id}, response=self.response, metadata=metadata)

@@ -10,7 +10,11 @@ import datetime
 from .. import config
 from .jobs import Job, Logs, JobTicket
 from .gears import get_gear, validate_gear_config, fill_gear_default_values
-from ..dao.containerutil import create_filereference_from_dictionary, create_containerreference_from_dictionary, create_containerreference_from_filereference
+from ..dao.containerutil import (
+    create_filereference_from_dictionary, create_containerreference_from_dictionary, 
+    create_containerreference_from_filereference, FileReference
+)
+from .job_util import resolve_context_inputs 
 from ..web.errors import InputValidationException
 
 
@@ -163,11 +167,20 @@ class Queue(object):
         # Translate maps to FileReferences
         inputs = {}
         for x in job_map.get('inputs', {}).keys():
+
+            # Ensure input is in gear manifest
+            if x not in gear['gear']['inputs']:
+                raise InputValidationException('Job input {} is not listed in gear manifest'.format(x))
+
             input_map = job_map['inputs'][x]
-            try:
-                inputs[x] = create_filereference_from_dictionary(input_map)
-            except KeyError:
-                raise InputValidationException('Input {} does not have a properly formatted file reference.'.format(x))
+            
+            if gear['gear']['inputs'][x]['base'] == 'file':
+                try:
+                    inputs[x] = create_filereference_from_dictionary(input_map)
+                except KeyError:
+                    raise InputValidationException('Input {} does not have a properly formatted file reference.'.format(x))
+            else:
+                inputs[x] = input_map
 
         # Add job tags, config, attempt number, and/or previous job ID, if present
         tags            = job_map.get('tags', [])
@@ -180,16 +193,20 @@ class Queue(object):
         if job_map.get('destination', None) is not None:
             destination = create_containerreference_from_dictionary(job_map['destination'])
         else:
-            if len(inputs.keys()) < 1:
+            destination = None
+            for key in inputs.keys():
+                if isinstance(inputs[key], FileReference):
+                    destination = create_containerreference_from_filereference(inputs[key])
+                    break
+            
+            if not destination:
                 raise InputValidationException('Must specify destination if gear has no inputs.')
-
-            key = inputs.keys()[0]
-            destination = create_containerreference_from_filereference(inputs[key])
 
         # Permission check
         if perm_check_uid:
             for x in inputs:
-                inputs[x].check_access(perm_check_uid, 'ro')
+                if hasattr(inputs[x], 'check_access'):
+                    inputs[x].check_access(perm_check_uid, 'ro')
             destination.check_access(perm_check_uid, 'rw')
 
         # Config options are stored on the job object under the "config" key
@@ -216,11 +233,6 @@ class Queue(object):
         # So option #2 is potentially more convenient, but unintuitive and prone to user confusion.
 
         for x in inputs:
-
-            # Ensure input is in gear manifest
-            if x not in gear['gear']['inputs']:
-                raise InputValidationException('Job input {} is not listed in gear manifest'.format(x))
-
             input_type = gear['gear']['inputs'][x]['base']
             if input_type == 'file':
 
@@ -228,8 +240,19 @@ class Queue(object):
                 cr = create_containerreference_from_filereference(inputs[x])
 
                 # Whitelist file fields passed to gear to those that are scientific-relevant
-                whitelisted_keys = ['info', 'tags', 'measurements', 'mimetype', 'type', 'modality', 'size']
+                whitelisted_keys = ['info', 'tags', 'classification', 'mimetype', 'type', 'modality', 'size']
                 obj_projection = { key: obj.get(key) for key in whitelisted_keys }
+
+                ###
+                # recreate `measurements` list on object
+                # Can be removed when `classification` key has been adopted everywhere
+
+                obj_projection['measurements'] = []
+                if obj_projection.get('classification'):
+                    for v in obj_projection['classification'].itervalues():
+                        obj_projection['measurements'].extend(v)
+                #
+                ###
 
                 config_['inputs'][x] = {
                     'base': 'file',
@@ -240,9 +263,14 @@ class Queue(object):
                     },
                     'object': obj_projection,
                 }
+            elif input_type == 'context':
+                config_['inputs'][x] = inputs[x]
             else:
                 # Note: API key inputs should not be passed as input
                 raise Exception('Non-file input base type')
+
+        # Populate any context inputs for the gear
+        resolve_context_inputs(config_, gear, destination.type, destination.id, perm_check_uid)
 
         gear_name = gear['gear']['name']
 

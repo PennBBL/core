@@ -7,8 +7,12 @@ import flywheel
 class ProjectsTestCases(SdkTestCase):
     def setUp(self):
         self.group_id = create_test_group()
+        self.project_id = None
 
     def tearDown(self):
+        if self.project_id:
+            self.fw.delete_project(self.project_id)
+
         self.fw.delete_group(self.group_id)
 
     def test_projects(self):
@@ -19,7 +23,7 @@ class ProjectsTestCases(SdkTestCase):
             description="This is a description", info = { 'some-key': 37 })
 
         # Add
-        project_id = fw.add_project(project)
+        self.project_id = project_id = fw.add_project(project)
         self.assertNotEmpty(project_id)
 
         # Get
@@ -89,6 +93,7 @@ class ProjectsTestCases(SdkTestCase):
 
         # Delete
         fw.delete_project(project_id)
+        self.project_id = None
 
         projects = fw.get_all_projects()
         self.assertNotIn(r_project, projects)
@@ -97,7 +102,7 @@ class ProjectsTestCases(SdkTestCase):
         fw = self.fw
         
         project = flywheel.Project(label=self.rand_string(), group=self.group_id)
-        project_id = fw.add_project(project)
+        self.project_id = project_id = fw.add_project(project)
 
         # Upload a file
         poem = 'The ceremony of innocence is drowned;'
@@ -118,23 +123,51 @@ class ProjectsTestCases(SdkTestCase):
 
         # Test file attributes
         self.assertEqual(r_project.files[0].modality, None)
-        self.assertEqual(len(r_project.files[0].measurements), 0)
+        self.assertEmpty(r_project.files[0].classification)
         self.assertEqual(r_project.files[0].type, 'text')
 
         resp = fw.modify_project_file(project_id, 'yeats.txt', flywheel.FileEntry(
             modality='modality',
-            measurements=['measurement'],
             type='type'
         ))
 
         # Check that no jobs were triggered, and attrs were modified
-        self.assertEqual(resp.jobs_triggered, 0)
+        self.assertEqual(resp.jobs_spawned, 0)
 
         r_project = fw.get_project(project_id)
         self.assertEqual(r_project.files[0].modality, "modality")
-        self.assertEqual(len(r_project.files[0].measurements), 1)
-        self.assertEqual(r_project.files[0].measurements[0], 'measurement')
+        self.assertEmpty(r_project.files[0].classification)
         self.assertEqual(r_project.files[0].type, 'type')
+
+        # Test classifications
+        resp = fw.modify_project_file_classification(project_id, 'yeats.txt', {
+            'replace': {
+                'Custom': ['measurement1', 'measurement2'],
+            }
+        })
+        self.assertEqual(resp.modified, 1)
+        self.assertEqual(resp.jobs_spawned, 0)
+
+        r_project = fw.get_project(project_id)
+        self.assertEqual(r_project.files[0].classification, {
+            'Custom': ['measurement1', 'measurement2']
+        });
+
+        resp = fw.modify_project_file_classification(project_id, 'yeats.txt', {
+            'add': {
+                'Custom': ['HelloWorld'],
+            },
+            'delete': {
+                'Custom': ['measurement2']
+            }
+        })
+        self.assertEqual(resp.modified, 1)
+        self.assertEqual(resp.jobs_spawned, 0)
+
+        r_project = fw.get_project(project_id)
+        self.assertEqual(r_project.files[0].classification, {
+            'Custom': ['measurement1', 'HelloWorld'],
+        });
 
         # Test file info
         self.assertEmpty(r_project.files[0].info)
@@ -170,9 +203,6 @@ class ProjectsTestCases(SdkTestCase):
         fw.delete_project_file(project_id, 'yeats.txt')
         r_project = fw.get_project(project_id)
         self.assertEmpty(r_project.files)
-
-        # Delete project
-        fw.delete_project(project_id)
 
     def test_create_project_in_root_mode(self):
         fw = self.fw
@@ -248,6 +278,45 @@ class ProjectsTestCases(SdkTestCase):
             self.fail('Expected ApiException retrieving invalid project!')
         except flywheel.ApiException as e:
             self.assertEqual(e.status, 404)
+
+    def test_project_analysis(self):
+        fw = self.fw
+        
+        project = flywheel.Project(group=self.group_id, label=self.rand_string()) 
+
+        # Add
+        self.project_id = project_id = fw.add_project(project)
+        self.assertNotEmpty(project_id)
+
+        poem = 'The Second Coming! Hardly are those words out'
+        fw.upload_file_to_project(project_id, flywheel.FileSpec('yeats.txt', poem))
+
+        file_ref = flywheel.FileReference(
+            id=project_id,
+            type='project',
+            name='yeats.txt'
+        )
+
+        analysis = flywheel.AnalysisInput(label=self.rand_string(), description=self.rand_string(), inputs=[file_ref])
+
+        # Add
+        analysis_id = fw.add_project_analysis(project_id, analysis)
+        self.assertNotEmpty(analysis_id)
+
+        # Get the list of analyses in the project
+        analyses = fw.get_project_analyses(project_id)
+        self.assertEqual(len(analyses), 1)
+        
+        r_analysis = analyses[0]
+
+        self.assertEqual(r_analysis.id, analysis_id)
+        self.assertEmpty(r_analysis.job)
+
+        self.assertTimestampBeforeNow(r_analysis.created)
+        self.assertGreaterEqual(r_analysis.modified, r_analysis.created)
+
+        self.assertEqual(len(r_analysis.inputs), 1)
+        self.assertEqual(r_analysis.inputs[0].name, 'yeats.txt')
 
 def create_test_project():
     group_id = create_test_group()

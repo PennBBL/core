@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type":"object",
+    "allOf":[{"$ref":"../definitions/gear.json#/definitions/gear-context-lookup"}],
+    "example": {
+      "X": {
+        "found": true,
+        "container_type": "project",
+        "label": "Project Bob",
+        "id": "58063f24e5dc5b001657a93c",
+        "value": "some super important value"
+      },
+      "Y": {
+        "found": false
+      }
+    }
+}
+
+

@@ -37,8 +37,9 @@ template: |
     tags:
     - '{{tag}}'
     parameters:
-      - in: body
-        name: body
+      - name: body
+        in: body
+        required: true        
         schema:
           $ref: schemas/input/permission.json
     responses:

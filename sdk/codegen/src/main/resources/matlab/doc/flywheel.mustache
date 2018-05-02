@@ -1,0 +1,39 @@
+Flywheel Class
+--------------
+Global namespace for API calls.
+
+.. class:: Flywheel
+
+{{#apiInfo}}
+{{#apis}}
+    {{#operations}}
+    {{#operation}}
+    .. method:: {{operationId}}
+
+    {{#summary}}
+        {{{.}}}
+
+    {{/summary}}
+    {{#notes}}
+        {{{.}}}
+
+    {{/notes}}
+    {{#sortParamsByRequiredFlag}}
+    {{#allParams}}
+    {{#required}}
+        :param {{#isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}{{modelPackage}}.{{dataType}}{{/isPrimitiveType}} {{paramName}}: (required) {{{description}}}
+    {{/required}}
+    {{#vendorExtensions.x-sdk-download-file-param}}
+        :param char {{.}}: - (required) Destination file path
+    {{/vendorExtensions.x-sdk-download-file-param}}
+    {{^required}}
+        :param {{dataType}} {{paramName}}: (optional) {{{description}}}
+    {{/required}}
+    {{/allParams}}
+    {{/sortParamsByRequiredFlag}}
+        :return: [{{#returnType}}:class:`~{{modelPackage}}.{{returnType}}`{{/returnType}}{{^returnType}}none{{/returnType}}, resp]
+
+    {{/operation}}
+    {{/operations}}
+{{/apis}}
+{{/apiInfo}}

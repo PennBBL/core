@@ -250,3 +250,130 @@ def test_gear_invocation_and_suggest(data_builder, file_form, as_admin):
 
     assert len(r.json()['files']) == 1
     assert len(r.json()['parents']) == 3
+
+def test_gear_context(data_builder, default_payload, as_admin, as_root, randstr):
+    project_label = randstr()
+    project_info = {
+        'test_context_value': 3,
+        'context': {
+            'test_context_value': 'project_context_value'
+        }
+    }
+    project = data_builder.create_project(label=project_label, info=project_info)
+
+    session_label = randstr()
+    session = data_builder.create_session(project=project, label=session_label)
+
+    acquisition_label = randstr()
+    acquisition_info = {
+        'context': {
+            'test_context_value2': 'acquisition_context_value'
+        }
+    }
+    acquisition = data_builder.create_acquisition(session=session, label=acquisition_label, info=acquisition_info)
+
+    gear_name = randstr()
+    gear_doc = default_payload['gear']
+    gear_doc['gear']['name'] = gear_name
+    gear_doc['gear']['inputs'] = {
+        'test_context_value': {
+            'base': 'context'
+        },
+        'test_context_value2': {
+            'base': 'context'
+        },
+        'test_context_value3': {
+            'base': 'context'
+        },
+        'text-file': {
+            'base': 'file',
+            'type': {'enum': ['text']}
+        }
+    }
+
+    r = as_root.post('/gears/' + gear_name, json=gear_doc)
+    assert r.ok 
+    gear = r.json()['_id']
+
+    # Get session level
+    r = as_admin.get('/gears/' + gear + '/context/sessions/' + session)
+    assert r.ok
+    result = r.json()
+
+    assert 'text-file' not in result
+
+    assert 'test_context_value' in result
+    assert result['test_context_value'] == {
+        'found': True,
+        'value': 'project_context_value',
+        'container_type': 'project',
+        'id': project,
+        'label': project_label
+    }
+
+    assert 'test_context_value2' in result
+    assert result['test_context_value2'] == { 'found': False }
+
+    assert 'test_context_value3' in result
+    assert result['test_context_value3'] == { 'found': False }
+
+    # Override context at session level
+    r = as_admin.post('/sessions/' + session + '/info', json={
+        'set': {
+            'context': {
+                'test_context_value': 'session_context_value',
+                'test_context_value3': 'session_context_value3'
+            }
+        }
+    })
+    assert r.ok
+
+    # Get acquisition level
+    r = as_admin.get('/gears/' + gear + '/context/acquisitions/' + acquisition)
+    assert r.ok
+    result = r.json()
+
+    assert result['test_context_value'] == {
+        'found': True,
+        'value': 'session_context_value',
+        'container_type': 'session',
+        'id': session,
+        'label': session_label
+    }
+
+    assert result['test_context_value2'] == {
+        'found': True,
+        'value': 'acquisition_context_value',
+        'container_type': 'acquisition',
+        'id': acquisition,
+        'label': acquisition_label 
+    }
+
+    assert result['test_context_value3'] == {
+        'found': True,
+        'value': 'session_context_value3',
+        'container_type': 'session',
+        'id': session,
+        'label': session_label
+    }
+
+    # Get session level
+    r = as_admin.get('/gears/' + gear + '/context/projects/' + project)
+    assert r.ok
+    result = r.json()
+
+    assert result['test_context_value'] == {
+        'found': True,
+        'value': 'project_context_value',
+        'container_type': 'project',
+        'id': project,
+        'label': project_label
+    }
+    assert result['test_context_value2'] == { 'found': False }
+    assert result['test_context_value3'] == { 'found': False }
+
+    # Cleanup
+    r = as_root.delete('/gears/' + gear)
+    assert r.ok
+
+

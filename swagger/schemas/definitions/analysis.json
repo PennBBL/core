@@ -6,13 +6,15 @@
 			"properties":{
 				"inputs": {
 					"type": "array",
-					"items": {"$ref":"file.json#/definitions/file-reference"}
+					"items": {"$ref":"file.json#/definitions/file-reference"},
+					"description": "The set of inputs that this analysis is based on"
 				},
 				"notes":       {"$ref":"note.json#/definitions/notes-list-input"},
 				"description": {"$ref":"common.json#/definitions/description"},
 				"label":       {"$ref":"common.json#/definitions/label"}
 			},
 		    "additionalProperties": false,
+		    "description": "Analysis input for creating ad-hoc analyses",
 		    "x-sdk-model": "analysis-input"
 		},
 		"analysis-input-job":{
@@ -24,6 +26,7 @@
 				"label":       {"$ref":"common.json#/definitions/label"}
 			},
 		    "additionalProperties": false,
+		    "description": "Analysis input for creating job based analyses",
 		    "x-sdk-model": "analysis-input"
 		},
 		"analysis-input-legacy":{
@@ -31,7 +34,8 @@
 			"properties":{
 				"inputs": {
 					"type": "array",
-					"items": {"$ref":"file.json#/definitions/file-input"}
+					"items": {"$ref":"file.json#/definitions/file-input"},
+					"description": "The set of inputs that this analysis is based on"
 				},
 				"outputs": {
 					"type": "array",
@@ -79,6 +83,8 @@
 					}
 				},
 				"notes":       {"$ref":"note.json#/definitions/notes-list-output"},
+				"tags":        {"$ref":"tag.json#/definitions/tag-list"},
+				"info":        {"$ref":"container.json#/definitions/info"},
 				"description": {"$ref":"common.json#/definitions/description"},
 				"label":       {"$ref":"common.json#/definitions/label"},
 				"created":     {"$ref":"created-modified.json#/definitions/created"},

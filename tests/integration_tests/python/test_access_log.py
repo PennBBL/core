@@ -1,6 +1,14 @@
 import time
+import pytest
 
 from api.web.request import AccessType
+
+from api.access_log import create_entry, bulk_log_access 
+
+class MockRequest:
+    def __init__(self, method, path):
+        self.method = method
+        self.path = path
 
 
 # NOTE these tests assume they are not running in parallel w/ other tests
@@ -272,6 +280,29 @@ def test_access_log_succeeds(data_builder, as_admin, log_db):
 
 
     ###
+    # Test file replacement is logged
+    ###
+
+    log_records_count_before = log_db.access_log.count({})
+
+    # Replace existing file
+    r = as_admin.post('/projects/' + project + '/files', files={
+        'file': (file_name, 'different-content')
+    })
+    assert r.ok
+
+    log_records_count_after = log_db.access_log.count({})
+    assert log_records_count_before+1 == log_records_count_after
+
+    most_recent_log = log_db.access_log.find({}).sort([('_id', -1)]).limit(1)[0]
+
+    assert most_recent_log['context']['project']['id'] == project
+    assert most_recent_log['context']['file']['name'] == file_name
+    assert most_recent_log['access_type'] == AccessType.replace_file.value
+    assert most_recent_log['origin']['id'] == 'admin@user.com'
+
+
+    ###
     # Test file delete is logged
     ###
 
@@ -373,3 +404,82 @@ def test_access_log_fails(data_builder, as_admin, log_db):
     r = as_admin.get('/projects/' + project)
     assert r.ok
     assert r.json()['files']
+
+def test_create_entry_validation():
+    # Could be a unit test?
+    req = MockRequest('GET', '/test')
+    origin = { 'type': 'user', 'id': 'admin@user.com' }
+
+    try:
+        # Invalid access type
+        create_entry(req, 'view_subject', origin, { 'group': { 'id': 'test' } }) 
+        pytest.fail('Expected exception!')
+    except Exception:
+        pass
+
+    try:
+        # Missing context
+        create_entry(req, AccessType.view_subject, origin, context=None)
+        pytest.fail('Expected exception!')
+    except Exception:
+        pass
+
+    try:
+        # Missing file entry
+        create_entry(req, AccessType.view_file, origin, context={ 'group': { 'id': 'test' }})
+        pytest.fail('Expected exception!')
+    except Exception:
+        pass
+
+    #Valid
+    create_entry(req, AccessType.view_file, origin, context={ 'group': { 'id': 'test' }, 'file': {'name': 'test.txt'} })
+
+
+def test_bulk_access(data_builder, as_admin, log_db):
+    project = data_builder.create_project(label='Test Project')
+
+    log_records_count_before = log_db.access_log.count({})
+
+    req = MockRequest('GET', '/test/bulk_log_access')
+    origin = { 'type': 'user', 'id': 'admin@user.com' }
+
+    entries = [
+        (AccessType.view_container, { 
+            'group': { 'id': 'test', 'label': 'Test Group' } 
+        }),
+        (AccessType.view_file, { 
+            'group': { 'id': 'test', 'label': 'Test Group' },
+            'project': { 'id': project, 'label': 'Test Project' },
+            'file': { 'name': 'example.csv' }
+        })
+    ]
+
+    bulk_log_access(req, origin, entries)
+
+    log_records_count_after = log_db.access_log.count({})
+    assert log_records_count_before+2 == log_records_count_after
+
+    most_recent_logs = log_db.access_log.find({}).sort([('timestamp', -1)]).limit(2)
+
+    from pprint import pprint
+    pprint(most_recent_logs)
+    if most_recent_logs[0]['access_type'] == 'view_file':
+        log1 = most_recent_logs[1]
+        log2 = most_recent_logs[0]
+    else:
+        log1 = most_recent_logs[0]
+        log2 = most_recent_logs[1]
+
+    assert log1['access_type'] == AccessType.view_container.value
+    assert log1['origin']['id'] == 'admin@user.com'
+    assert log1['request_method'] == 'GET'
+    assert log1['request_path'] == '/test/bulk_log_access'
+    assert log1['context']['group']['id'] == 'test'
+
+    assert log2['access_type'] == AccessType.view_file.value
+    assert log2['origin']['id'] == 'admin@user.com'
+    assert log2['request_method'] == 'GET'
+    assert log2['request_path'] == '/test/bulk_log_access'
+    assert log2['context']['file']['name'] == 'example.csv'
+
+

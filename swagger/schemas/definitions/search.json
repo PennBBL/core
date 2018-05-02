@@ -72,11 +72,11 @@
     	"search-file-response": {
     		"type": "object",
     		"properties": {
-                "measurements": {"$ref":"file.json#/definitions/measurements"},
-                "created":      {"$ref":"created-modified.json#/definitions/created"},
-	            "type":         {"$ref":"file.json#/definitions/file-type"},
-	            "name":         {"$ref":"file.json#/definitions/name"},
-	            "size":         {"$ref":"file.json#/definitions/size"}
+                "classification": {"$ref":"common.json#/definitions/classification"},
+                "created":        {"$ref":"created-modified.json#/definitions/created"},
+	            "type":           {"$ref":"file.json#/definitions/file-type"},
+	            "name":           {"$ref":"file.json#/definitions/name"},
+	            "size":           {"$ref":"file.json#/definitions/size"}
     		},
     		"description": "Fields for file search response"
     	},
@@ -96,7 +96,7 @@
                 "_id":         {"$ref":"container.json#/definitions/_id"},
                 "type":        {"$ref":"container.json#/definitions/container-type"}
             },
-			"description": "Fields for parent search response"  
+			"description": "Fields for parent search response"
     	},
     	"search-collection-response": {
     		"type": "object",

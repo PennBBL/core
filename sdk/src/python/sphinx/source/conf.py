@@ -14,6 +14,11 @@
 #
 import os
 import sys
+import sphinx_rtd_theme
+
+ext_path = os.path.abspath('../../../sphinx-ext')
+sys.path.append(ext_path)
+
 fw_path = os.path.abspath('../../gen')
 sys.path.insert(0, fw_path) 
 
@@ -43,6 +48,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.coverage',
+    'statichtml'
 ]
 
 autosummary_generate = True
@@ -103,6 +109,7 @@ html_static_path = ['_static']
 #
 # html_sidebars = {}
 
+html_copy_source = False
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
@@ -162,6 +169,9 @@ texinfo_documents = [
 
 
 # -- Extension configuration -------------------------------------------------
+
+statichtml_path = 'static/theme/sphinx_rtd/{}'.format(sphinx_rtd_theme.__version__)
+statichtml_prefix = '../../../'
 
 # Ignore docs for some of the scaffold methods/attributes
 ignored_members = [ 'positional_to_model', 'return_value', 'attribute_map', 'rattribute_map', 'swagger_types' ]

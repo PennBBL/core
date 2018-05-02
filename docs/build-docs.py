@@ -5,7 +5,10 @@ import json
 import logging
 import os
 
-import pip
+try:
+    from pip import main as pipmain
+except:
+    from pip._internal import main as pipmain
 
 SRC_DIR = os.path.abspath(os.path.dirname(__file__))
 TMPL_DIR = os.path.join(SRC_DIR, 'tmpl')
@@ -27,11 +30,21 @@ def render_tmpl(name, dst_path, context):
     with open(dst_path, 'w') as f:
         f.write(rendered)
 
-def gen_main_page(target_dir):
+def gen_main_page(target_dir, is_root):
     context = {}
 
+    src_dir = os.path.join(GH_PAGES_DIR, target_dir)
+
+    if is_root:
+        context['prefix'] = target_dir + '/'
+        target_dir = GH_PAGES_DIR
+    else:
+        target_dir = src_dir
+    
+    log.info('Target directory is: %s', target_dir)
+
     # Read version from swagger
-    swagger_src = os.path.join(target_dir, 'swagger', 'swagger.json')
+    swagger_src = os.path.join(src_dir, 'swagger', 'swagger.json')
     try:
         with open(swagger_src, 'r') as f:
             swagger = json.load(f)
@@ -60,6 +73,7 @@ def gen_index_file(title, dest_dir):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate documentation pages for core')
     parser.add_argument('target_dir', nargs='?', default='.', help='The target directory')
+    parser.add_argument('--root', action='store_true', help='Whether or not to put the main page at gh-pages root')
     parser.add_argument('--log-level', default='info', help='log level [INFO]')
     args = parser.parse_args()
 
@@ -69,12 +83,10 @@ if __name__ == '__main__':
 
     # Install required packages
     log.info('Installing required packages...')
-    pip.main(['install', '-qq', '-r', os.path.join(SRC_DIR, 'requirements.txt')])
+    pipmain(['install', '-qq', '-r', os.path.join(SRC_DIR, 'requirements.txt')])
     
     # Generate main template
-    target_dir = os.path.join(GH_PAGES_DIR, args.target_dir)
-    log.info('Target directory is: %s', target_dir)
-    gen_main_page(target_dir)
+    gen_main_page(args.target_dir, args.root)
 
     # Generate branches and tags index
     gen_index_file('Branches', os.path.join(GH_PAGES_DIR, 'branches'))

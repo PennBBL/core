@@ -47,6 +47,27 @@ public class HttpMethodRestResponse implements RestResponse {
     }
 
     @Override
+    public Object getBodyData(String format) throws IOException {
+        byte[] data = method.getResponseBody();
+
+        if( format.equals("int8") ) {
+            return data;
+        } else if( format.equals("int16") ) {
+            return RestUtils.convertByteArrayToShort(data);
+        } else if( format.equals("int32") ) {
+            return RestUtils.convertByteArrayToInt(data);
+        } else if( format.equals("int64") ) {
+            return RestUtils.convertByteArrayToLong(data);
+        } else if( format.equals("double") ) {
+            return RestUtils.convertByteArrayToDouble(data);
+        } else if( format.equals("char") ) {
+            return RestUtils.convertByteArrayToChar(data);
+        }
+
+        throw new IllegalArgumentException("Unknown body format: " + format);
+    }
+
+    @Override
     public void saveResponseBodyToFile(String path) throws IOException {
         InputStream in = null;
         OutputStream out = null;

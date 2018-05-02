@@ -1,0 +1,47 @@
+{{packageName}} package
+================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    {{apiPackage}}
+    {{modelPackage}}
+
+FileSpec Class
+--------------
+Wrapper for specifying input file data.
+
+.. class:: FileSpec(pathOrName, data, contentType)
+
+    .. attribute:: name
+
+        The name of the file.
+
+        :return: The name of the file.
+        :rtype: char
+
+    .. attribute:: path
+
+        The path to the file on disk.
+
+        :return: The path of the file on disk.
+        :rtype: char
+
+    .. attribute:: data
+
+        The file data (as binary or string).
+
+        :return: The file data.
+        :rtype: char
+
+    .. attribute:: contentType
+
+        The optional content type to set for the file.
+
+        :return: The content type.
+        :rtype: char
+
+
+{{>doc/flywheel}}

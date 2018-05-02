@@ -3,15 +3,15 @@ API request handlers for the jobs module
 """
 import bson
 import copy
-import os
 import StringIO
 from jsonschema import ValidationError
 from urlparse import urlparse
 
 from . import batch
+from .job_util import resolve_context_inputs, get_context_for_destination
 from .. import config
 from .. import upload
-from .. import util
+from .. import files
 from ..auth import require_drone, require_login, require_admin, has_access
 from ..auth.apikeys import JobApiKey
 from ..dao import hierarchy
@@ -24,12 +24,16 @@ from ..web.encoder import pseudo_consistent_json_encode
 from ..web.errors import APIPermissionException, APINotFoundException, InputValidationException
 from ..web.request import AccessType
 
-from .gears import validate_gear_config, get_gears, get_gear, get_invocation_schema, remove_gear, upsert_gear, get_gear_by_name, check_for_gear_insertion, add_suggest_info_to_files
+from .gears import (
+    validate_gear_config, get_gears, get_gear, get_invocation_schema,
+    remove_gear, upsert_gear, get_gear_by_name, check_for_gear_insertion,
+    add_suggest_info_to_files, count_file_inputs
+)
+
 from .jobs import Job, JobTicket, Logs
 from .batch import check_state, update
 from .queue import Queue
 from .rules import create_jobs, validate_regexes
-
 
 class GearsHandler(base.RequestHandler):
 
@@ -43,7 +47,7 @@ class GearsHandler(base.RequestHandler):
         filters = self.request.GET.getall('filter')
 
         if 'single_input' in filters:
-            gears = list(filter(lambda x: len(x["gear"]["inputs"].keys()) <= 1, gears))
+            gears = list(filter(lambda x: count_file_inputs(x) <= 1, gears))
 
         return gears
 
@@ -142,15 +146,46 @@ class GearHandler(base.RequestHandler):
 
         response['parents'] = [{'cont_type': singularize(p['cont_type']), '_id': p['_id'], 'label': p.get('label', '')} for p in parents]
 
-        files = add_suggest_info_to_files(gear, container.get('files', []))
-        response['files'] = [{'name': f['name'], 'suggested': f['suggested']} for f in files]
+        _files = add_suggest_info_to_files(gear, container.get('files', []))
+        response['files'] = [{'name': f['name'], 'suggested': f['suggested']} for f in _files]
 
         return response
 
+    @require_login
+    def get_context(self, _id, cont_name, cid):
+        """
+        Given a container reference, return the set of context values that are found,
+        along with container type and label.
+        """
+
+        # Do all actions that could result in a 404 first
+        gear = get_gear(_id)
+        if not gear:
+            raise APINotFoundException('Gear with id {} not found.'.format(_id))
+
+        storage = cs_factory(cont_name)
+        container = storage.get_container(cid)
+        if not self.user_is_admin and not has_access(self.uid, container, 'ro'):
+            raise APIPermissionException('User does not have access to container {}.'.format(cid))
+
+        # Only check permissions if the user is not admin
+        check_uid = None if self.user_is_admin else self.uid
+        context = get_context_for_destination(cont_name, cid, check_uid, storage=storage, cont=container)
+
+        result = {}
+        for name, inp in gear['gear']['inputs'].iteritems():
+            if inp['base'] == 'context':
+                if name in context:
+                    result[name] = context[name]
+                    result[name].update({'found': True})
+                else:
+                    result[name] = {'found': False}
+
+        return result
 
     @require_admin
     def upload(self): # pragma: no cover
-        r = upload.process_upload(self.request, upload.Strategy.gear, container_type='gear', origin=self.origin, metadata=self.request.headers.get('metadata'))
+        r = upload.process_upload(self.request, upload.Strategy.gear, self.log_user_access, container_type='gear', origin=self.origin, metadata=self.request.headers.get('metadata'))
         gear_id = upsert_gear(r[1])
 
         config.db.gears.update_one({'_id': gear_id}, {'$set': {
@@ -163,10 +198,12 @@ class GearHandler(base.RequestHandler):
         """Download gear tarball file"""
         dl_id = kwargs.pop('cid')
         gear = get_gear(dl_id)
-        hash_ = gear['exchange']['rootfs-hash']
-        filepath = os.path.join(config.get_item('persistent', 'data_path'), util.path_from_hash('v0-' + hash_.replace(':', '-')))
+        file_path, file_system = files.get_valid_file({
+            '_id': gear['exchange'].get('rootfs-id', ''),
+            'hash': 'v0-' + gear['exchange']['rootfs-hash'].replace(':', '-')
+        })
 
-        stream = open(filepath, 'rb')
+        stream = file_system.open(file_path, 'rb')
         set_for_download(self.response, stream=stream, filename='gear.tar')
 
     @require_admin
@@ -460,7 +497,8 @@ class JobHandler(base.RequestHandler):
         if not self.superuser_request:
             if job.inputs is not None:
                 for x in job.inputs:
-                    job.inputs[x].check_access(self.uid, 'ro')
+                    if hasattr(job.inputs[x], 'check_access'):
+                        job.inputs[x].check_access(self.uid, 'ro')
                 # Unlike jobs-add, explicitly not checking write access to destination.
 
     def get_logs(self, _id):
@@ -509,7 +547,8 @@ class JobHandler(base.RequestHandler):
         # Permission check
         if not self.superuser_request:
             for x in j.inputs:
-                j.inputs[x].check_access(self.uid, 'ro')
+                if hasattr(j.inputs[x], 'check_access'):
+                    j.inputs[x].check_access(self.uid, 'ro')
             j.destination.check_access(self.uid, 'rw')
 
         new_id = Queue.retry(j, force=True)
@@ -630,10 +669,12 @@ class BatchHandler(base.RequestHandler):
 
         # Determine if gear is no-input gear
         file_inputs = False
+        context_inputs = False
         for input_ in gear['gear'].get('inputs', {}).itervalues():
             if input_['base'] == 'file':
                 file_inputs = True
-                break
+            if input_['base'] == 'context':
+                context_inputs = True
 
         if not file_inputs:
             # Grab sessions rather than acquisitions
@@ -660,6 +701,12 @@ class BatchHandler(base.RequestHandler):
         if not perm_checked_conts:
             self.abort(403, 'User does not have write access to targets.')
 
+        # For superuser requests, don't check permissions when building context
+        if self.superuser_request:
+            context_uid = None
+        else:
+            context_uid = self.uid
+
         if not file_inputs:
             # All containers become matched destinations
 
@@ -669,7 +716,7 @@ class BatchHandler(base.RequestHandler):
 
         else:
             # Look for file matches in each acquisition
-            results = batch.find_matching_conts(gear, perm_checked_conts, 'acquisition')
+            results = batch.find_matching_conts(gear, perm_checked_conts, 'acquisition', context_inputs=context_inputs, uid=context_uid)
 
         matched = results['matched']
         batch_proposal = {}
@@ -685,14 +732,30 @@ class BatchHandler(base.RequestHandler):
                 'origin': self.origin,
                 'proposal': {
                     'analysis': analysis_data,
-                    'tags': tags
+                    'tags': tags,
+                    'jobs': []
                 }
             }
 
             if not file_inputs:
-                batch_proposal['proposal']['destinations'] = matched
+                # Resolve context inputs for container
+                for match in matched:
+                    job_map = {
+                        'inputs': {},
+                        'destination': match
+                    }
+
+                    if context_inputs:
+                        resolve_context_inputs(job_map, gear, match['type'], match['id'], context_uid)
+
+                    batch_proposal['proposal']['jobs'].append(job_map)
             else:
-                batch_proposal['proposal']['inputs'] = [c.pop('inputs') for c in matched]
+                # Convert from container + inputs to proposed job
+                for match in matched:
+                    batch_proposal['proposal']['jobs'].append({
+                        'inputs': match.pop('inputs'),
+                        'destination': { 'id': str(match['_id']), 'type': 'acquisition' }
+                    })
 
             batch.insert(batch_proposal)
             batch_proposal.pop('proposal')

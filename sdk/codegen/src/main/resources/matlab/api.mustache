@@ -54,6 +54,7 @@ classdef {{classname}}
             {{/sortParamsByRequiredFlag}}
             {{#vendorExtensions.x-sdk-download-file-param}}
             addRequired(x__inp, '{{.}}');
+            addParameter(x__inp, 'OutputType', 'double');
             {{/vendorExtensions.x-sdk-download-file-param}}
             addParameter(x__inp, 'DumpResponseData', false);
             parse(x__inp, {{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}varargin{:});
@@ -81,6 +82,10 @@ classdef {{classname}}
                 {{#isListContainer}}
                 queryParams = {{packageName}}.ApiClient.formatParamCollection(queryParams, '{{baseName}}', x__inp.Results.{{paramName}}, '{{collectionFormat}}');
                 {{/isListContainer}}
+            {{#vendorExtensions.x-sdk-default}}
+            else
+                queryParams = [queryParams, '{{baseName}}', '{{.}}'];
+            {{/vendorExtensions.x-sdk-default}}
             end
             {{/queryParams}}
 
@@ -126,7 +131,7 @@ classdef {{classname}}
             body = {{modelPackage}}.{{baseType}}.ensureIsInstance(x__inp.Results.{{paramName}});
             {{/isListContainer}}
             {{#isListContainer}}
-            body = BaseModel.cellmap(@(x) {{modelPackage}}.{{baseType}}.ensureIsInstance(x), x__inp.Results.{{paramName}});
+            body = {{packageName}}.ModelBase.cellmap(@(x) {{modelPackage}}.{{baseType}}.ensureIsInstance(x), x__inp.Results.{{paramName}});
             {{/isListContainer}}
             {{/isPrimitiveType}}
             body = {{packageName}}.ApiClient.encodeJson(body.toJson());
@@ -156,14 +161,18 @@ classdef {{classname}}
                     end
                     {{/isListContainer}}
                     {{#isListContainer}}
-                    returnData = arrayfun(@(x) {{modelPackage}}.{{baseType}}.fromJson(x), json, 'UniformOutput', false);
+                    returnData = {{packageName}}.ModelBase.cellmap(@{{modelPackage}}.{{baseType}}.fromJson, json);
                     {{/isListContainer}}
                 {{/dataType}}
                 {{#vendorExtensions.x-sdk-download-file-param}}
                 case '{{code}}'
                     destFile = x__inp.Results.{{.}};
-                    resp.saveResponseBodyToFile(destFile);
-                    returnData = destFile;
+                    if ~isempty(destFile)
+                        resp.saveResponseBodyToFile(destFile);
+                        returnData = destFile;
+                    else
+                        returnData = resp.getBodyData(x__inp.Results.OutputType);
+                    end
                 {{/vendorExtensions.x-sdk-download-file-param}}
             {{/responses}}
                 otherwise

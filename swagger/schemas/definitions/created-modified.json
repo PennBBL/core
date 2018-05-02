@@ -3,11 +3,13 @@
   "definitions":{
     "created": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "description": "Creation time (automatically set)"
     },
     "modified": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "description": "Last modification time (automatically updated)"
     }
   }
 }

@@ -1,8 +1,8 @@
 # Flywheel SDK
-An SDK for interaction with a remote Flywheel instance, in Golang, Python, and Matlab!
+An SDK for interaction with a remote Flywheel instance, in Python, and Matlab!
 
-
-
+## [Python Getting Started](https://flywheel-io.github.io/core/branches/master/python/getting_started.html)
+## [Matlab Getting Started](https://flywheel-io.github.io/core/branches/master/matlab/getting_started.html)
 
 # Development
 Gradle is used to build the various components of the SDK. Docker shortcuts are provided in the `docker/` folder to generate code, or run in the docker container.

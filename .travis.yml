@@ -30,7 +30,7 @@ install: true
 script:
   - test -f "$DOCKER_DIR/image.tar" && docker load -i "$DOCKER_DIR/image.tar" || true
   - docker build -t core:base --target base .
-  - docker build -t core:dist --target dist --build-arg VCS_BRANCH="$TRAVIS_BRANCH" --build-arg VCS_COMMIT="$TRAVIS_COMMIT" .
+  - docker build -t core:dist --target dist --build-arg VCS_BRANCH="$TRAVIS_BRANCH" --build-arg VCS_COMMIT="$TRAVIS_COMMIT" --build-arg API_VERSION="$TRAVIS_TAG" .
   - docker build -t core:testing --target testing .
   - if [ "$BUILD_SDK" = "false" ]; then
         ./tests/bin/docker-tests.sh --image core:testing;
@@ -69,10 +69,16 @@ after_success:
       fi
   fi
 
-# Tag and push flywheel/core image (master >> :latest, tag >> :tag)
+# Tag and push flywheel/core image (master >> :latest + :testing, tag >> :tag)
 - if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_EVENT_TYPE" == "push" ]; then
       docker tag core:dist flywheel/core:latest;
+      docker tag core:testing flywheel/core:testing;
       docker push flywheel/core:latest;
+      docker push flywheel/core:testing;
+  fi
+- if [[ "$TRAVIS_BRANCH" =~ ^($CD_BRANCH_NAMES)$ ]] && [ "$TRAVIS_EVENT_TYPE" == "push" ]; then
+      docker tag core:dist flywheel/core:$TRAVIS_BRANCH.latest;
+      docker push flywheel/core:$TRAVIS_BRANCH.latest;
   fi
 - if [ -n "$TRAVIS_TAG" ]; then
       docker tag core:dist flywheel/core:$TRAVIS_TAG;
@@ -86,14 +92,24 @@ after_success:
   fi
 
 deploy:
-  provider: releases
-  api_key: $GITHUB_RELEASE_API_KEY
-  file_glob: true
-  file: dist/*
-  skip_cleanup: true
-  draft: true
-  name: $TRAVIS_TAG
-  on:
-    repo: flywheel-io/core
-    tags: true
-    condition: $BUILD_SDK = true && $TRAVIS_TAG =~ ^[0-9].*
+  # Create GitHub Release
+  - provider: releases
+    api_key: $GITHUB_RELEASE_API_KEY
+    file_glob: true
+    file: dist/*
+    skip_cleanup: true
+    draft: true
+    name: $TRAVIS_TAG
+    on:
+      repo: flywheel-io/core
+      tags: true
+      condition: $BUILD_SDK = true && $TRAVIS_TAG =~ ^[0-9].*
+  # Deploy python wheel
+  - provider: script
+    script: bash $TRAVIS_BUILD_DIR/sdk/scripts/deploy-wheel.sh $PYPI_USER $PYPI_PASS
+    skip_cleanup: true
+    on:
+      repo: flywheel-io/core
+      tags: true
+      condition: $BUILD_SDK = true && $TRAVIS_TAG =~ ^[0-9].*
+

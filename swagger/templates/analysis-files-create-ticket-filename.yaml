@@ -36,10 +36,10 @@ template: |
 
       If no "ticket" query param is included, {{filegroup}} will be downloaded directly.
     {{#resource}}
-    operationId: download_{{.}}_analysis_{{filegroup}}_by_filename
+    operationId: download_{{#singularize}}{{filegroup}}{{/singularize}}_from_{{resource}}_analysis
     {{/resource}}
     {{^resource}}
-    operationId: download_analysis_{{filegroup}}_by_filename
+    operationId: download_{{#singularize}}{{filegroup}}{{/singularize}}_from_analysis
     {{/resource}}
     tags:
     - '{{tag}}'
@@ -51,6 +51,12 @@ template: |
         type: string
         in: query
         name: ticket
+    {{#resource}}
+    x-sdk-download-ticket: get_{{resource}}_analysis_{{#singularize}}{{filegroup}}{{/singularize}}_download_ticket
+    {{/resource}}
+    {{^resource}}
+    x-sdk-download-ticket: get_analysis_{{#singularize}}{{filegroup}}{{/singularize}}_download_ticket
+    {{/resource}}
     responses:
       '200':
         description: ''

@@ -16,7 +16,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 
 # Source folders:
 #   python/sphinx src/python/sphinx/build/
-#   python/docs src/python/gen/README.md and src/python/gen/docs
+#   python/matlab src/matlab/build/gen/sphinx/build
 #   swagger/ swagger/build/swagger-ui/
 
 main() {
@@ -31,7 +31,7 @@ main() {
 
     # Copy documentation 
     if [ "$BRANCH_NAME" == "master" ]; then
-        checkin_master
+        checkin_master "$DOCS_SUBDIR/$BRANCH_NAME"
     else
         checkin_branch "$DOCS_SUBDIR/$BRANCH_NAME"
     fi
@@ -56,11 +56,13 @@ prune_branches() {
         (
         cd gh-pages
         for branch_dir in ${subdir}/*; do
-            branch_name="$(basename ${branch_dir})"
-            branch_exists="$(git ls-remote --${remote_types} ${GIT_REMOTE} ${branch_name} | wc -l)"
-            if [ "$branch_exists" -eq 0 ]; then
-                echo "Pruning branch: ${branch_name}"
-                git rm --quiet -rf "${branch_dir}"
+            if [ -d "${branch_dir}" ]; then
+                branch_name="$(basename ${branch_dir})"
+                branch_exists="$(git ls-remote --${remote_types} ${GIT_REMOTE} ${branch_name} | wc -l)"
+                if [ "$branch_exists" -eq 0 ]; then
+                    echo "Pruning branch: ${branch_name}"
+                    git rm --quiet -rf "${branch_dir}"
+                fi
             fi
         done
         )
@@ -74,18 +76,33 @@ copy_docs() {
     # Ensure that target exists
     mkdir -p "${dest_dir}"
 
-    # Remove old index.html if present
+    # Cleanup old docs, if necessary
     rm -f ${dest_dir}/index.html
+    rm -rf "${dest_dir}/swagger" "${dest_dir}/python" "${dest_dir}/matlab"
 
     # Swagger
     cp -R swagger/build/swagger-ui "${dest_dir}/swagger"
 
     # Python docs
-    mkdir -p "${dest_dir}/python"
-    cp sdk/src/python/gen/README.md "${dest_dir}/python/index.md"
-    cp -R sdk/src/python/gen/docs "${dest_dir}/python/docs"
+    cp -R sdk/src/python/sphinx/build/static gh-pages/
+    cp -R sdk/src/python/sphinx/build "${dest_dir}/python"
 
-    cp -R sdk/src/python/sphinx/build "${dest_dir}/python/sphinx"
+    # Matlab docs
+    cp -R sdk/src/matlab/build/gen/sphinx/build "${dest_dir}/matlab"
+
+    # Static files
+    cp -R docs/static gh-pages/
+
+    # Cleanup sphinx folders
+    rm -r "${dest_dir}/matlab/static"
+    rm -r "${dest_dir}/matlab/.doctrees"
+    rm -r "${dest_dir}/matlab/.buildinfo"
+    rm -r "${dest_dir}/matlab/objects.inv"
+
+    rm -r "${dest_dir}/python/static"
+    rm -r "${dest_dir}/python/.doctrees"
+    rm -r "${dest_dir}/python/.buildinfo"
+    rm -r "${dest_dir}/python/objects.inv"
 }
 
 # Checkin documentation for a single branche
@@ -116,6 +133,7 @@ checkin_branch() {
             git add "${target_dir}*"
             git add branches/index.md
             git add tags/index.md
+            git add static/*
 
             # Add any modified files, and push
             git commit --message "$COMMIT_MESSAGE" 
@@ -146,16 +164,19 @@ checkin_branch() {
 # Prune non-existing branches and tags, and check-in master documentation, doing a force-push
 checkin_master() {
     (
+    target_dir=$1
+
     # Clone the gh-pages branch and prune any branches that don't exist in remotes
     git clone ${GIT_REMOTE} --branch gh-pages --single-branch gh-pages
     prune_branches branches heads
     prune_branches tags tags
 
     # Copy currently generated documentation into gh-pages
-    copy_docs gh-pages/
+    mkdir -p "gh-pages/${target_dir}"
+    copy_docs "gh-pages/${target_dir}"
 
     # Build doc pages
-    docs/build-docs.sh
+    docs/build-docs.sh "${target_dir}" --root
 
     cd gh-pages/
 	if [ "$(git status --porcelain)" ]; then

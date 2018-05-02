@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "allOf": [{"$ref":"../definitions/classification.json#/definitions/classification-update-input"}],
+    "example": {
+    	"modality": "MR",
+    	"replace": {
+    		"Intent": ["Functional"],
+    		"Contrast": ["T2*"],
+    		"Custom": ["Custom Value"]
+    	}
+	}
+}

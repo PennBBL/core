@@ -60,7 +60,7 @@ class RESTClientObject(object):
         # TODO: Setup connection pool?
 
     def response_hook(self, resp, *args, **kwargs):
-        if not 200 <= resp.status_code <= 299:
+        if not 200 <= resp.status_code <= 299 and resp.status_code != 302:
             raise ApiException(http_resp=resp)
 
     def request(self, method, url, query_params=None, headers=None,

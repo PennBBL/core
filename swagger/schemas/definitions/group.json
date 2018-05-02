@@ -6,22 +6,18 @@
             "minLength": 1,
             "pattern": "^[0-9A-Za-z][0-9A-Za-z .@_-]{0,30}[0-9A-Za-z]$",
             "title": "label",
-            "type": "string"
+            "type": "string",
+            "description": "The group label"
         },
         "group": {
           "type": "object",
           "properties": {
-            "_id":{"$ref":"common.json#/definitions/string-id"},
+            "_id":{"$ref":"common.json#/definitions/lowercase-string-id"},
             "label": {"$ref": "#/definitions/label"},
             "permissions": {"$ref": "permission.json#/definitions/permission-output-list"},
             "created": {"$ref":"created-modified.json#/definitions/created"},
             "modified": {"$ref":"created-modified.json#/definitions/modified"},
-            "tags": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
+            "tags": {"$ref":"tag.json#/definitions/tag-list"}
           },
           "additionalProperties":false,
           "x-sdk-model": "group"
@@ -29,7 +25,7 @@
         "group-input":{
           "type": "object",
           "properties": {
-            "_id":{"$ref":"common.json#/definitions/string-id"},
+            "_id":{"$ref":"common.json#/definitions/lowercase-string-id"},
             "label": {"$ref": "#/definitions/label"}
           },
           "additionalProperties": false,
@@ -51,7 +47,7 @@
         "group-new-output": {
           "type": "object",
           "properties": {
-            "_id": {"$ref":"common.json#/definitions/string-id"}
+            "_id": {"$ref":"common.json#/definitions/lowercase-string-id"}
           },
           "required": ["_id"],
           "x-sdk-return": "_id"

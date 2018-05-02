@@ -26,6 +26,10 @@ fw = flywheel.Flywheel(api_key)
 filepath = __file__
 filename = os.path.basename(filepath)
 
+# A second test file
+filename2 = 'test.txt';
+with open(filename2, 'w') as f:
+    f.write('This is a test file')
 
 #
 ## Users
@@ -133,6 +137,23 @@ assert session['files'][0]['size'] == os.path.getsize('/tmp/download2.py')
 
 sessionDownloadUrl = fw.get_session_download_url(sessionId, filename)
 assert sessionDownloadUrl != ''
+
+analysisId = fw.add_session_analysis(sessionId, {
+    'label': 'testdrive',
+    'inputs': [{
+        'type': 'session',
+        'id': sessionId,
+        'name': filename
+    }]
+})
+
+fw.upload_output_to_analysis(analysisId, filename2)
+
+analysis = fw.get_analysis(analysisId)
+assert analysis['label'] == 'testdrive'
+
+assert analysis['inputs'][0]['name'] == filename
+assert analysis['files'][0]['name'] == filename2
 
 fw.delete_session_file(sessionId, filename)
 session = fw.get_session(sessionId)
@@ -272,6 +293,7 @@ assert version['database'] >= 25
 #
 ## Cleanup
 #
+os.remove(filename2)
 fw.delete_collection(colId)
 fw.delete_acquisition(acqId)
 fw.delete_session(sessionId)

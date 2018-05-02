@@ -1,6 +1,38 @@
 import io.swagger.codegen.config.CodegenConfigurator
 import io.swagger.codegen.DefaultGenerator
 
+/*
+ * Introduction: There are no specifications for matlab toolboxes that I could find, so I had to
+ * reverse engineer the toolbox zipfile format by creating the toolbox in Matlab, then inspecting
+ * the contents. The source files in the toolbox/ folder are copies of the metadata files generated
+ * by matlab.
+ *
+ * We use the JSONio package so that we have consistent JSON parsing for each matlab version, and 
+ * can perform hex conversions in the rare cases that it is necessary. (i.e. struct fields cannot 
+ * have special characters such as dots or dashes, and must be escaped using hex values)
+ *
+ * We use a custom Java based RestClient in order to have a consistent, cross-platform interface 
+ * across matlab  versions to make Rest calls where we can control and read headers, query parameters, etc.
+ *
+ * The matlab toolbox is built with the following steps:
+ * 1. Generate the SDK code using swagger (generateApi task)
+ * 2. Create an intermediate directory from the toolbox/ source folder, with the structure:
+ *      _rels/ - Matlab metadata folder that describes the metadata files in the toolbox
+ *      fsroot/ - The actual filesystem contents
+ *      metadata/ - The metadata files
+ *      metadata/configuration.xml - Contains the matlab and java classpath entries to be added to 
+ *          the path, relative to fsroot.
+ *      metadata/coreProperties.xml - Contains version number and build timestamps.
+ *      metadata/filesystemManifest.xml - Contains a list of files in the filesystem with
+ *          permissions and timestamps.
+ * 3. Populate the fsroot folder with:
+ *      The rest client jar file
+ *      The generated SDK source code (under the +flywheel package)
+ *      The JSONio source code (under the +jsonio package)
+ * 4. Generate the metadata files described above (configureXml step)
+ * 5. Zip the entire contents of the intermediate directory into the toolbox.
+ */
+
 def customCodegenJar = project(':custom-swagger-codegen').jar.archivePath
 def templateDir = file('../../codegen/src/main/resources/matlab').path
 
@@ -69,6 +101,7 @@ task copySwaggerApi(type: Copy, dependsOn: generateApi) {
 		include '**/*'
 		exclude '.swagger-codegen/**'
 		exclude '.swagger-codegen-ignore'
+		exclude 'sphinx/**'
 	}
 	into { fsrootDir }
 }
@@ -78,7 +111,16 @@ task copyToolboxFiles(type: Copy) {
 	into { intDir }
 }
 
-task configureToolbox(dependsOn: [copyToolboxFiles, copyRestApi, copySwaggerApi]) {
+task copyJSONio(type: Copy) {
+	from ('JSONio/') {
+		include 'jsonread.m*'
+		include 'jsonwrite.m'
+		include 'LICENSE'
+	}
+	into { fsrootDir + '/+jsonio' }
+}
+
+task configureToolbox(dependsOn: [copyToolboxFiles, copyRestApi, copySwaggerApi, copyJSONio]) {
 	doLast {
 		def isoDate = dateToIso(new Date())
 

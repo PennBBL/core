@@ -21,6 +21,7 @@ SINGULAR_TO_PLURAL = {
     'user':        'users',
 }
 PLURAL_TO_SINGULAR = {p: s for s, p in SINGULAR_TO_PLURAL.iteritems()}
+PLURAL_CONT_TYPES = [ SINGULAR_TO_PLURAL[_type] for _type in CONT_TYPES ]
 
 # NOTE: Following structures have subject as a hierarhcy level although
 # it is not yet a formalized level of the hierarchy throughout API
@@ -314,6 +315,32 @@ def create_containerreference_from_dictionary(d):
 
 def create_containerreference_from_filereference(fr):
     return ContainerReference.from_filereference(fr)
+
+def container_search(query, projection=None, collections=PLURAL_CONT_TYPES, early_return=True, **kwargs):
+    """ Perform search across multiple collections.
+
+    Args:
+        query (dict): The filter specifying elements which must be present for a document to be included in the result set.
+        projection (dict, optional): A list of field names that should be returned in the result set, or a dict specifying fields to include or exclude.
+        collections (list, optional): The list of collections to search across, by default all of the containers specified in CONT_TYPES, in no particular order.
+        early_return (bool, optional): Whether to return after the first match is found or keep searching. Default is true (return immediately)
+        **kwargs: Additional arguments to pass to the underlying `find` calls
+
+    Returns:
+        list: A list of tuples of (collection_name, results)
+    """
+    results = []
+
+    for coll_name in collections:
+        coll = config.db.get_collection(coll_name)
+        coll_results = list(coll.find(query, projection, **kwargs))
+
+        if coll_results:
+            results.append( (coll_name, coll_results) )
+            if early_return:
+                break
+
+    return results
 
 
 def pluralize(cont_name):

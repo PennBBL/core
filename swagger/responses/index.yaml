@@ -29,14 +29,14 @@
     properties:
       modified:
         type: integer
-      jobs_triggered:
+      jobs_spawned:
         type: integer
     required:
       - modified
-      - jobs_triggered
+      - jobs_spawned
     example:
       modified: 1
-      jobs_triggered: 0
+      jobs_spawned: 0
 
 '400:invalid-body-json':
   description: |

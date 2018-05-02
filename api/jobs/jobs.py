@@ -143,7 +143,10 @@ class Job(object):
 
             for i in d['inputs']:
                 inp = i.pop('input')
-                input_dict[inp] = create_filereference_from_dictionary(i)
+                if 'type' in i and 'name' in i:
+                    input_dict[inp] = create_filereference_from_dictionary(i)
+                else:
+                    input_dict[inp] = i
 
             d['inputs'] = input_dict
 
@@ -190,7 +193,8 @@ class Job(object):
 
         if d.get('inputs'):
             for x in d['inputs'].keys():
-                d['inputs'][x] = d['inputs'][x].__dict__
+                if not isinstance(d['inputs'][x], dict):
+                    d['inputs'][x] = d['inputs'][x].__dict__
         else:
             d.pop('inputs')
 
@@ -358,11 +362,12 @@ class Job(object):
             for input_name in self.inputs.keys():
                 i = self.inputs[input_name]
 
-                r['inputs'].append({
-                    'type': 'scitran',
-                    'uri': i.file_uri(i.name),
-                    'location': '/flywheel/v0/input/' + input_name,
-                })
+                if hasattr(i, 'file_uri'):
+                    r['inputs'].append({
+                        'type': 'scitran',
+                        'uri': i.file_uri(i.name),
+                        'location': '/flywheel/v0/input/' + input_name,
+                    })
 
         # Log job origin if provided
         if self.id_:
