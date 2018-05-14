@@ -27,12 +27,13 @@ $template_arguments:
   arguments:
     filegroup: outputs
 
-# ===== Info ===== 
+# ===== Info =====
 /analyses/{AnalysisId}/info:
   $template: templates/container-item-info.yaml
   arguments:
     resource: analysis
     parameter: AnalysisId
+    post-description: Lab edition required.
 
 
 # ===== Tags =====
@@ -93,19 +94,19 @@ $template_arguments:
     summary: Get nested analyses for a container
     description: >
       Returns analyses that belong to containers of the specified type that belong
-      to ContainerId. 
+      to ContainerId.
 
-      For example: `projects/{ProjectId}/acquisitions/analyses` will return any analyses 
+      For example: `projects/{ProjectId}/acquisitions/analyses` will return any analyses
       that have an acquisition that is under that project as a parent.
 
-      The `all` keyword is also supported, for example: projects/{ProjectId}/all/analyses 
+      The `all` keyword is also supported, for example: projects/{ProjectId}/all/analyses
       will return any analyses that have any session or acquisition or the project itself as a parent.
     operationId: get_analyses
     tags:
     - analyses
     responses:
-      '200': 
+      '200':
         description: The list of analyses
         schema:
-          $ref: schemas/output/analyses-list.json  
+          $ref: schemas/output/analyses-list.json
 

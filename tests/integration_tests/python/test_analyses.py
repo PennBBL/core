@@ -7,10 +7,15 @@ import bson
 
 def test_online_analysis(data_builder, as_admin, as_drone, file_form, api_db):
     gear = data_builder.create_gear(gear={'inputs': {'csv': {'base': 'file'}}})
-    group = data_builder.create_group()
+    group = data_builder.create_group(edition=['lab'])
     project = data_builder.create_project()
     session = data_builder.create_session()
     acquisition = data_builder.create_acquisition()
+
+    # Turn the group into a center
+    r = as_admin.put('/groups/' + group, json={'edition': ['center']})
+    assert r.ok
+
     assert as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('input.csv')).ok
 
     # Try to create job-based analysis with invalid fileref
@@ -176,9 +181,21 @@ def test_online_analysis(data_builder, as_admin, as_drone, file_form, api_db):
 
 
 def test_offline_analysis(data_builder, as_admin, file_form, api_db):
+    group = data_builder.create_group(edition=['lab'])
     session = data_builder.create_session()
     acquisition = data_builder.create_acquisition()
+    assert as_admin.put('/groups/' + group, json={'edition': ['center']}).ok
     assert as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('input.csv')).ok
+
+    # Try to create ad-hoc analysis on a center edition group
+    r = as_admin.post('/sessions/' + session + '/analyses', json={
+        'label': 'offline',
+        'inputs': [{'type': 'acquisition', 'id': acquisition, 'name': 'input.csv'}]
+    })
+    assert r.status_code == 403
+
+    r = as_admin.put('/groups/' + group, json={'edition': ['lab']})
+    assert r.ok
 
     # Try to create ad-hoc analysis with invalid fileref
     r = as_admin.post('/sessions/' + session + '/analyses', json={

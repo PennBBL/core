@@ -8,6 +8,7 @@ $template_arguments:
   arguments:
     list-output-schema: schemas/output/session-list.json
     create-input-schema: schemas/input/session.json
+    post-description: Lab edition required.
 
 /sessions/{SessionId}:
   $template: templates/container-item.yaml

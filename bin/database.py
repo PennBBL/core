@@ -26,7 +26,7 @@ from api.types import Origin
 from api.jobs import batch
 
 
-CURRENT_DATABASE_VERSION = 63 # An int that is bumped when a new schema change is made
+CURRENT_DATABASE_VERSION = 64 # An int that is bumped when a new schema change is made
 
 
 def get_db_version():
@@ -1785,6 +1785,7 @@ def upgrade_to_52():
     cursor = config.db.jobs.find()
     process_cursor(cursor, upgrade_job_to_52, context=gears)
 
+
 def upgrade_to_53():
     """
     Update rules to reference gears by id (`gear_id`) instead of name (`alg`)
@@ -2315,13 +2316,19 @@ def upgrade_template_to_list(cont):
         cont['templates'] = list(cont.pop('template', []))
         config.db.projects.find_one_and_update({'_id': cont['_id']}, {'$set': cont})
 
-
 def upgrade_to_63():
     '''
     All project templates should be list of templates
     '''
     cursor = config.db.porjects.find({'template': {'$exists': True}})
     process_cursor(cursor, upgrade_template_to_list)
+
+def upgrade_to_64():
+    """
+    Migration plan is to make all groups labs and then we can toggle off
+    centers manually
+    """
+    config.db.groups.update_many({}, {'$set': {'edition': ['lab']}})
 
 ###
 ### BEGIN RESERVED UPGRADE SECTION

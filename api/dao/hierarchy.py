@@ -10,7 +10,7 @@ from .. import util
 from .. import config
 from .basecontainerstorage import ContainerStorage
 from ..auth import has_access
-from ..web.errors import APIStorageException, APINotFoundException, APIPermissionException
+from ..web.errors import APIStorageException, APINotFoundException, APIPermissionException, APIEditionException
 from ..web.request import AccessType
 from . import containerutil
 
@@ -38,6 +38,23 @@ def get_container(cont_name, _id):
     return config.db[cont_name].find_one({
         '_id': _id,
     })
+
+def is_edition(edition, cont_name, _id, container=None):
+    if container is None:
+        container = get_container(cont_name, _id)
+    if cont_name != 'groups':
+        group = container.get('parents', {}).get('group')
+    else:
+        group = _id
+    if group:
+        editions = get_container('groups', group).get('edition', [])
+        return edition in editions
+    else:
+        return True
+
+def confirm_edition(edition, cont_name, _id, container=None):
+    if not is_edition(edition, cont_name, _id, container):
+        raise APIEditionException('This action is reserved for {} edition groups'.format(edition))
 
 def get_parent_tree(cont_name, _id):
     """
@@ -363,8 +380,10 @@ def _find_or_create_destination_project(group_id, project_label, timestamp, user
 
     if project:
         # If the project already exists, check the user's access
-        if user and not has_access(user, project, 'rw'):
-            raise APIPermissionException('User {} does not have read-write access to project {}'.format(user, project['label']))
+        if user:
+            confirm_edition('lab', 'projects', project['_id'], project)
+            if not has_access(user, project, 'rw'):
+                raise APIPermissionException('User {} does not have read-write access to project {}'.format(user, project['label']))
         return project
 
     elif unsorted_projects:
@@ -377,9 +396,11 @@ def _find_or_create_destination_project(group_id, project_label, timestamp, user
             return project
 
     if not project:
-        # if the project doesn't exit, check the user's access at the group level
-        if user and not has_access(user, group, 'rw'):
-            raise APIPermissionException('User {} does not have read-write access to group {}'.format(user, group_id))
+        # if the project doesn't exit, check the user's access at the group level, should be admin
+        if user:
+            confirm_edition('lab', 'groups', group_id, group)
+            if not has_access(user, group, 'admin'):
+                raise APIPermissionException('User {} does not have read-write access to group {}'.format(user, group_id))
 
         project = {
                 'group': group['_id'],
@@ -529,8 +550,10 @@ def upsert_bottom_up_hierarchy(metadata, type_='uid', user=None):
 
     if session_obj: # skip project creation, if session exists
 
-        if user and not has_access(user, session_obj, 'rw'):
-            raise APIPermissionException('User {} does not have read-write access to session {}'.format(user, session_uid))
+        if user:
+            confirm_edition('lab', 'sessions', session_obj['_id'], session_obj)
+            if not has_access(user, session_obj, 'rw'):
+                raise APIPermissionException('User {} does not have read-write access to session {}'.format(user, session_uid))
 
         now = datetime.datetime.utcnow()
         project_files = dict_fileinfos(project.pop('files', []))

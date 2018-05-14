@@ -25,7 +25,7 @@ template: |
     tags:
     - '{{tag}}'
     responses:
-      '200': 
+      '200':
         description: The list of analyses
         schema:
           $ref: schemas/output/analyses-list.json
@@ -36,7 +36,7 @@ template: |
     description: |
       When query param "job" is "true", send JSON to create
       an analysis and job.  Otherwise, multipart/form-data
-      to upload files and create an analysis.
+      to upload files and create an analysis. Lab edition required.
     operationId: add_{{resource}}_analysis
     tags:
     - '{{tag}}'
@@ -47,7 +47,7 @@ template: |
       - in: body
         name: body
         required: true
-        schema: 
+        schema:
           $ref: schemas/input/analysis.json
       - name: job
         in: query

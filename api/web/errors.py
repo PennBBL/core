@@ -182,3 +182,11 @@ class RangeNotSatisfiable(APIException):
     """
     status_code = 416
     default_msg = 'The requested range is not satisfiable.'
+
+class APIEditionException(APIException):
+    """
+    Group edition is not valid for the requested operation
+    """
+    status_code = 403
+    default_msg = 'Group must ba a different edition for the operation'
+

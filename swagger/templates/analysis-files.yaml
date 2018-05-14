@@ -30,7 +30,7 @@ template: |
       If "ticket" query param is included and empty, create a ticket for all
       {{filegroup}} in the anlaysis
 
-      If no "ticket" query param is included, server error 500
+      If no "ticket" query param is included, server error 500.
     {{#resource}}
     operationId: download_{{resource}}_analysis_{{filegroup}}
     {{/resource}}
@@ -64,7 +64,9 @@ template: |
     {{^resource}}
     operationId: upload_output_to_analysis
     {{/resource}}
-    tags: 
+    description:
+      Lab edition required.
+    tags:
     - '{{tag}}'
     consumes:
       - multipart/form-data

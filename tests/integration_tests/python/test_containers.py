@@ -532,7 +532,16 @@ def test_get_session_jobs(data_builder, default_payload, as_admin, file_form):
 
 
 def test_post_container(data_builder, as_admin, as_user):
-    group = data_builder.create_group()
+    center_group = data_builder.create_group(edition=['center'])
+    group = data_builder.create_group(edition=['lab'])
+
+    # create a project on center group
+    r = as_admin.post('/projects', json={
+        'group': center_group,
+        'label': 'center-edition-project'
+    })
+    assert r.ok
+    center_project = r.json()['_id']
 
     # create project w/ param inherit=true
     r = as_admin.post('/projects', params={'inherit': 'true'}, json={
@@ -578,6 +587,13 @@ def test_post_container(data_builder, as_admin, as_user):
     })
     assert r.ok
 
+    # try to add subject on center_project
+    r = as_admin.post('/subjects', json={
+        'code': 'test_sub',
+        'project': center_project
+    })
+    assert r.status_code == 403
+
     # try to add subject with no project
     r = as_admin.post('/subjects', json={
         'code': 'test_sub'
@@ -614,6 +630,13 @@ def test_post_container(data_builder, as_admin, as_user):
         })
     assert r.status_code == 422
 
+    # try to create a session manually on center_project
+    r = as_admin.post('/sessions', json={
+        'project': center_project,
+        'label': 'test-session'
+    })
+    assert r.status_code == 403
+
     # create session w/ timestamp as rw user
     r = as_user.post('/sessions', json={
         'project': project,
@@ -634,8 +657,17 @@ def test_post_container(data_builder, as_admin, as_user):
     assert r.ok
     assert r.json()['operator'] == "Operator"
 
-    data_builder.delete_group(group, recursive=True)
+    assert as_admin.put('/groups/' + center_group, json={'edition': ['lab']}).ok
+    center_session = data_builder.create_session(project=center_project)
+    assert as_admin.put('/groups/' + center_group, json={'edition': ['center']}).ok
+    r = as_admin.post('/acquisitions', json={
+        'session': center_session,
+        'label': 'Center Acquisition'
+    })
+    assert r.ok
 
+    data_builder.delete_group(group, recursive=True)
+    data_builder.delete_group(center_group, recursive=True)
 
 def test_put_container(data_builder, as_admin):
     session = data_builder.create_session()

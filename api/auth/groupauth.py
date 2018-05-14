@@ -15,7 +15,7 @@ def default(handler, group=None):
                 pass
             elif method in ['DELETE', 'POST']:
                 handler.abort(403, 'not allowed to perform operation')
-            elif _get_access(handler.uid, group) >= INTEGER_PERMISSIONS['admin']:
+            elif _get_access(handler.uid, group) >= INTEGER_PERMISSIONS['admin'] and 'edition' not in payload:
                 pass
             elif method == 'GET' and _get_access(handler.uid, group) >= INTEGER_PERMISSIONS['ro']:
                 pass

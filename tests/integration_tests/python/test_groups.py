@@ -154,6 +154,16 @@ def test_groups(as_user, as_admin, data_builder):
     assert r.ok
     assert r.json()[0].get('projects')[0].get('_id') == project
 
+    # Convert group to a center
+    r = as_admin.put('/groups/' + group, json={'edition': ['center']})
+    assert r.ok
+
+    # Try to change group's edition without site admin priviledge
+    # but with admin access on the group
+    r = as_user.put('/groups/' + group2, json={'edition': ['center']})
+    assert r.status_code == 403
+
+
 def test_groups_blacklist(as_admin):
     r = as_admin.post('/groups', json={'_id': 'unknown', 'label': 'Unknown group'})
     assert r.status_code == 400

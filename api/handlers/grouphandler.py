@@ -49,7 +49,7 @@ class GroupHandler(base.RequestHandler):
         return result
 
     def get_all(self, uid=None):
-        projection = {'label': 1, 'created': 1, 'modified': 1, 'permissions': 1, 'tags': 1}
+        projection = {'label': 1, 'created': 1, 'modified': 1, 'permissions': 1, 'tags': 1, 'edition': 1}
         permchecker = groupauth.list_permission_checker(self, uid)
         page = permchecker(self.storage.exec_op)('GET', projection=projection, pagination=self.pagination)
         results = page['results']
@@ -91,6 +91,7 @@ class GroupHandler(base.RequestHandler):
             self.abort(400, 'The group "{}" can\'t be created as it is integral within the API'.format(payload['_id']))
         payload['created'] = payload['modified'] = datetime.datetime.utcnow()
         payload['permissions'] = [{'_id': self.uid, 'access': 'admin'}] if self.uid else []
+        payload['edition'] = payload.get('edition', ['lab'])
         result = mongo_validator(permchecker(self.storage.exec_op))('POST', payload=payload)
         if result.acknowledged:
             if result.upserted_id:

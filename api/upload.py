@@ -216,7 +216,7 @@ class Upload(base.RequestHandler):
     def upload(self, strategy):
         """Receive a sortable reaper upload."""
 
-        if not self.superuser_request:
+        if not self.user_is_admin:
             user = self.uid
             if not user:
                 self.abort(403, 'Uploading requires login')
@@ -225,7 +225,7 @@ class Upload(base.RequestHandler):
             strategy = strategy.replace('-', '')
             strategy = getattr(Strategy, strategy)
 
-        context = {'uid': self.uid if not self.superuser_request else None}
+        context = {'uid': self.uid if not self.user_is_admin else None}
 
         # Request for upload ticket
         if self.get_param('ticket') == '':

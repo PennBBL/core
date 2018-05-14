@@ -8,6 +8,7 @@ $template_arguments:
   arguments:
     list-output-schema: schemas/output/acquisition-list.json
     create-input-schema: schemas/input/acquisition.json
+    post-description: Lab edition required.
 
 /acquisitions/{AcquisitionId}:
   $template: templates/container-item.yaml

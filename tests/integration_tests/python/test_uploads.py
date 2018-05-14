@@ -58,11 +58,34 @@ def upload_file_form(file_form, merge_dict, randstr):
 
 
 def test_reaper_upload(data_builder, randstr, upload_file_form, as_admin, as_root, as_user):
-    group_1 = data_builder.create_group()
+    group_1 = data_builder.create_group(edition=['lab'])
+    center_group = data_builder.create_group(edition=['center'])
     prefix = randstr()
     project_label_1 = prefix + '-project-label-1'
     session_uid = prefix + '-session-uid'
+    center_session_uid = prefix + '-center-session-uid'
+
+    user_id = as_user.get('/users/self').json()['_id']
+
     project_1 = data_builder.create_project(label=project_label_1, group=group_1)
+    center_project = data_builder.create_project(label='center-project', group=center_group)
+    assert as_admin.post('/groups/' + center_group + '/permissions?propagate=true', json={'_id': user_id, 'access': 'admin'})
+
+    # try to reaper-upload files to group_1/project_label_1 using session_uid on lab without site admin
+    r = as_user.post('/upload/reaper', files=upload_file_form(
+        group={'_id': center_group},
+        project={'label': 'center-project'},
+        session={'uid': center_session_uid},
+    ))
+    assert r.status_code == 403
+
+    # It still works with site admin
+    r = as_admin.post('/upload/reaper', files=upload_file_form(
+        group={'_id': center_group},
+        project={'label': 'center-project'},
+        session={'uid': center_session_uid},
+    ))
+    assert r.ok
 
     # reaper-upload files to group_1/project_label_1 using session_uid
     r = as_admin.post('/upload/reaper', files=upload_file_form(
@@ -104,8 +127,9 @@ def test_reaper_upload(data_builder, randstr, upload_file_form, as_admin, as_roo
     assert len(as_admin.get('/sessions/' + session).json()['files']) == 1
 
     # move session to group_2/project_2
-    group_2 = data_builder.create_group()
+    group_2 = data_builder.create_group(edition=['lab'])
     project_2 = data_builder.create_project(group=group_2, label=prefix + '-project-label-2')
+    assert as_admin.put('/groups/' + group_2, json={'edition': ['center']}).ok
     as_admin.put('/sessions/' + session, json={'project': project_2})
     assert len(as_admin.get('/projects/' + project_1 + '/sessions').json()) == 0
     assert len(as_admin.get('/projects/' + project_2 + '/sessions').json()) == 1
@@ -161,7 +185,7 @@ def test_reaper_upload(data_builder, randstr, upload_file_form, as_admin, as_roo
     assert len(as_root.get('/projects/' + unknown_group_unsorted_project + '/sessions').json()) == 2
 
     # Group given but no project
-    group_3 = data_builder.create_group()
+    group_3 = data_builder.create_group(edition=['center'])
     r = as_root.post('/upload/reaper', files=upload_file_form(
         group={'_id': group_3},
         project={'label': ''},
@@ -253,6 +277,7 @@ def test_reaper_upload(data_builder, randstr, upload_file_form, as_admin, as_roo
     data_builder.delete_group(group_1, recursive=True)
     data_builder.delete_group(group_2, recursive=True)
     data_builder.delete_group(group_3, recursive=True)
+    data_builder.delete_group(center_group, recursive=True)
     data_builder.delete_project(unknown_group_unsorted_project, recursive=True)
 
 def test_label_upload_unknown_group_project(data_builder, file_form, as_root, as_admin):
@@ -371,7 +396,7 @@ def test_label_upload_unknown_group_project(data_builder, file_form, as_root, as
     session = as_root.get('/projects/' + named_unknown_project + '/sessions').json()[0]['_id']
     assert len(as_root.get('/sessions/' + session + '/acquisitions').json()) == 1
 
-    group1 = data_builder.create_group()
+    group1 = data_builder.create_group(edition=['center'])
 
     # Upload with an existing group id and no project label
     r = as_root.post('/upload/label', files=file_form(
@@ -550,8 +575,9 @@ def test_label_project_search(data_builder, file_form, as_root):
 
 
 def test_reaper_reupload_deleted(data_builder, as_root, file_form):
-    group = data_builder.create_group(_id='reupload')
+    group = data_builder.create_group(_id='reupload', edition=['lab'])
     project = data_builder.create_project(label='reupload')
+    assert as_root.put('/groups/' + group, json={'edition': ['center']}).ok
     reap_data = file_form('reaped.txt', meta={
         'group': {'_id': 'reupload'},
         'project': {'label': 'reupload'},
@@ -606,8 +632,9 @@ def test_reaper_reupload_deleted(data_builder, as_root, file_form):
 
 
 def test_uid_upload(data_builder, file_form, as_admin, as_user, as_public):
-    group = data_builder.create_group()
+    group = data_builder.create_group(edition=['lab'])
     project3_id = data_builder.create_project()
+    assert as_admin.put('/groups/' + group, json={'edition': ['center']}).ok
 
     # try to uid-upload w/o logging in
     r = as_public.post('/upload/uid')
@@ -718,10 +745,73 @@ def test_uid_upload(data_builder, file_form, as_admin, as_user, as_public):
     data_builder.delete_group(group, recursive=True)
 
 
-def test_label_upload(data_builder, file_form, as_admin):
-    group = data_builder.create_group()
+def test_label_upload(data_builder, file_form, as_user, as_admin):
+    group = data_builder.create_group(edition=['center'])
+    lab_group = data_builder.create_group(edition=['lab'])
+    user_id = as_user.get('/users/self').json()['_id']
+    assert as_admin.post('/groups/' + group + '/permissions', json={
+        '_id': user_id,
+        'access': 'admin'
+    }).ok
+    user_id = as_user.get('/users/self').json()['_id']
+    assert as_admin.post('/groups/' + lab_group + '/permissions', json={
+        '_id': user_id,
+        'access': 'admin'
+    }).ok
 
-    # label-upload files
+    # try to label-upload files as non site admin to center
+    r = as_user.post('/upload/label', files=file_form(
+        'project.csv', 'subject.csv', 'session.csv', 'acquisition.csv', 'unused.csv',
+        meta={
+            'group': {'_id': group},
+            'project': {
+                'label': 'test_project',
+                'files': [{'name': 'project.csv'}]
+            },
+            'session': {
+                'label': 'test_session_label',
+                'subject': {
+                    'code': 'test_subject_code',
+                    'firstname': 'Name1',
+                    'files': [{'name': 'subject.csv'}]
+                },
+                'files': [{'name': 'session.csv'}]
+            },
+            'acquisition': {
+                'label': 'test_acquisition_label',
+                'files': [{'name': 'acquisition.csv'}]
+            }
+        })
+    )
+    assert r.status_code == 403
+
+    # label-upload files as non site admin to lab
+    r = as_user.post('/upload/label', files=file_form(
+        'project.csv', 'subject.csv', 'session.csv', 'acquisition.csv', 'unused.csv',
+        meta={
+            'group': {'_id': lab_group},
+            'project': {
+                'label': 'test_project',
+                'files': [{'name': 'project.csv'}]
+            },
+            'session': {
+                'label': 'test_session_label',
+                'subject': {
+                    'code': 'test_subject_code',
+                    'firstname': 'Name1',
+                    'files': [{'name': 'subject.csv'}]
+                },
+                'files': [{'name': 'session.csv'}]
+            },
+            'acquisition': {
+                'label': 'test_acquisition_label',
+                'files': [{'name': 'acquisition.csv'}]
+            }
+        })
+    )
+    assert r.ok
+
+    # label-upload files to center as site admin
     r = as_admin.post('/upload/label', files=file_form(
         'project.csv', 'subject.csv', 'session.csv', 'acquisition.csv', 'unused.csv',
         meta={
@@ -860,12 +950,12 @@ def test_label_upload(data_builder, file_form, as_admin):
     assert session2['info']['subject_raw'] == {'firstname': 'Name2'}
     # delete group and children recursively (created by upload)
     data_builder.delete_group(group, recursive=True)
-
+    data_builder.delete_group(lab_group, recursive=True)
 
 def test_multi_upload(data_builder, upload_file_form, randstr, as_admin):
     # test uid-uploads respecting existing uids
     fixed_uid = randstr()
-    fixed_uid_group = data_builder.create_group(_id=fixed_uid)
+    fixed_uid_group = data_builder.create_group(_id=fixed_uid, edition=['center'])
     fixed_uid_form_args = dict(
         group={'_id': fixed_uid_group},
         project={'label': fixed_uid + '-project-label'},
@@ -912,7 +1002,7 @@ def test_multi_upload(data_builder, upload_file_form, randstr, as_admin):
     # test label-uploads respecting existing labels
     # NOTE subject.code is also checked when label-matching sessions!
     fixed_label = randstr()
-    fixed_label_group = data_builder.create_group(_id=fixed_label)
+    fixed_label_group = data_builder.create_group(_id=fixed_label, edition=['center'])
     fixed_label_form_args = dict(
         group={'_id': fixed_label_group},
         project={'label': fixed_label + '-project-label'},
@@ -1461,13 +1551,15 @@ def test_analysis_engine_upload(data_builder, file_form, as_root):
 
 
 def test_packfile_upload(data_builder, file_form, as_admin, as_root, api_db):
-    group = data_builder.create_group()
+    group = data_builder.create_group(edition=['lab'])
     project = data_builder.create_project(group=group)
     session = data_builder.create_session()
 
     subject = data_builder.create_subject(project=project, code='subj-01')
     r = as_admin.delete('/subjects/' + subject)
     assert r.ok
+
+    assert as_admin.put('/groups/' + group, json={'edition': ['center']}).ok
 
     number_of_subjects = len(list(api_db.subjects.find({'project': bson.ObjectId(project)})))
 

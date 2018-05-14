@@ -7,11 +7,11 @@ class GroupsTestCases(SdkTestCase):
 
     def test_groups(self):
         fw = self.fw
-        
+
         group_id = self.rand_string_lower()
         group_name = self.rand_string()
 
-        r_id = self.fw.add_group(flywheel.Group(group_id,group_name))
+        r_id = self.fw.add_group(flywheel.Group(group_id,label=group_name))
         self.assertEqual(group_id, r_id)
 
         # Get

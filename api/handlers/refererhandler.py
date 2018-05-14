@@ -17,6 +17,7 @@ from ..auth import containerauth, always_ok
 from ..dao import containerstorage, noop
 from ..dao.basecontainerstorage import ContainerStorage
 from ..dao.containerutil import singularize, CONTAINER_HIERARCHY
+from ..dao.hierarchy import confirm_edition
 from ..web import base
 from ..web import errors
 from ..web.request import log_access, AccessType
@@ -80,6 +81,8 @@ class AnalysesHandler(RefererHandler):
             # Legacy analysis - accept direct file uploads (inputs and outputs)
             analysis = upload.process_upload(self.request, upload.Strategy.analysis, self.log_user_access, origin=self.origin)
 
+        if not analysis.get('job'):
+            confirm_edition('lab', cont_name, cid, parent)
         uid = None if self.superuser_request else self.uid
         result = self.storage.create_el(analysis, cont_name, cid, self.origin, uid)
         return {'_id': result.inserted_id}

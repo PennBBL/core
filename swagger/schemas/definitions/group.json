@@ -9,10 +9,18 @@
             "type": "string",
             "description": "The group label"
         },
+        "edition": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["center", "lab"]
+          }
+        },
         "group": {
           "type": "object",
           "properties": {
             "_id":{"$ref":"common.json#/definitions/lowercase-string-id"},
+            "edition": {"$ref": "#/definitions/edition"},
             "label": {"$ref": "#/definitions/label"},
             "permissions": {"$ref": "permission.json#/definitions/permission-output-list"},
             "created": {"$ref":"created-modified.json#/definitions/created"},
@@ -27,7 +35,8 @@
           "type": "object",
           "properties": {
             "_id":{"$ref":"common.json#/definitions/lowercase-string-id"},
-            "label": {"$ref": "#/definitions/label"}
+            "label": {"$ref": "#/definitions/label"},
+            "edition": {"$ref": "#/definitions/edition"}
           },
           "additionalProperties": false,
           "x-sdk-model": "group",

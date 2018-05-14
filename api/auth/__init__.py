@@ -62,7 +62,7 @@ def require_login(handler_method):
 
 def require_admin(handler_method):
     """
-    A decorator to ensure the request is made as superuser.
+    A decorator to ensure the request is made as site admin.
 
     Accepts drone and user requests.
     """

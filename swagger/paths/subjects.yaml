@@ -8,6 +8,7 @@ $template_arguments:
   arguments:
     list-output-schema: schemas/output/subject-list.json
     create-input-schema: schemas/input/subject.json
+    post-description: Lab edition required.
 
 /subjects/{SubjectId}:
   $template: templates/container-item.yaml

@@ -1,5 +1,6 @@
 {
   "label": "Test Group",
+  "edition": [ "lab" ],
   "permissions": [
     {
       "access": "admin",

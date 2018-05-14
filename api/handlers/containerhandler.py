@@ -9,6 +9,7 @@ from .. import validators
 from ..auth import containerauth, always_ok
 from ..dao import containerstorage, containerutil, noop
 from ..dao.containerstorage import AnalysisStorage
+from ..dao.hierarchy import confirm_edition
 from ..jobs.jobs import Job
 from ..jobs.queue import Queue
 from ..web import base
@@ -295,6 +296,10 @@ class ContainerHandler(base.RequestHandler):
         parent_container, parent_id_property = self._get_parent_container(payload)
         # Always add the id of the parent to the container
         payload[parent_id_property] = parent_container['_id']
+        # Confirm that ad hoc container creation is happening in lab groups
+        if cont_name not in ['acquisitions', 'projects']:
+            config.log.debug('Confirming group edition')
+            confirm_edition('lab', containerutil.pluralize(parent_id_property), parent_container['_id'], parent_container)
         # If the new container is a session add the group of the parent project in the payload
         if cont_name == 'sessions':
             payload['group'] = parent_container['group']

@@ -11,6 +11,8 @@ parameters:
   - name: create-input-schema
     type: string
     required: true
+  - name: post-description
+    type: string
 template: |
   get:
     summary: Get a list of {{#pluralize}}{{resource}}{{/pluralize}}
@@ -27,6 +29,9 @@ template: |
   post:
     summary: Create a new {{resource}}
     operationId: add_{{resource}}
+    {{#post-description}}
+    description: {{{.}}}
+    {{/post-description}}
     tags:
       - '{{tag}}'
     parameters:

@@ -8,6 +8,8 @@ parameters:
   - name: tag
     type: string
     required: true
+  - name: post-description
+    type: string
 template: |
   parameters:
     - required: true
@@ -17,8 +19,11 @@ template: |
   post:
     summary: Update or replace info for a {{resource}}.
     operationId: modify_{{resource}}_info
+    {{#post-description}}
+    description: {{{.}}}
+    {{/post-description}}
     x-sdk-modify-info: true
-    tags: 
+    tags:
     - '{{tag}}'
     parameters:
       - name: body
