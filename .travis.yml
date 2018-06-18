@@ -88,7 +88,7 @@ after_success:
     docker tag core:dist flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest;
     docker push flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest;
     travis login --pro --no-interactive -g ${GITHUB_RELEASE_API_KEY};
-    bin/trigger_build.sh $(travis token --no-interactive --pro) flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest;
+    bin/trigger_build.sh $(travis token --no-interactive --pro) flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest "flywheel-io%2Finstaller";
   fi
 
 deploy:
