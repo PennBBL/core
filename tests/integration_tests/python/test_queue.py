@@ -1,4 +1,3 @@
-
 def test_queue_search(data_builder, default_payload, as_admin, file_form):
 
     # Dupe of test_jobs.py
@@ -8,14 +7,14 @@ def test_queue_search(data_builder, default_payload, as_admin, file_form):
             'base': 'file'
         }
     }
-    gear = data_builder.create_gear(gear=gear_doc, category='utility')
+    utility_gear = data_builder.create_gear(gear=gear_doc, category='utility')
     project = data_builder.create_project()
     session = data_builder.create_session()
     acquisition = data_builder.create_acquisition()
     assert as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('test.zip')).ok
 
     job_data = {
-        'gear_id': gear,
+        'gear_id': utility_gear,
         'inputs': {
             'dicom': {
                 'type': 'acquisition',
@@ -33,21 +32,21 @@ def test_queue_search(data_builder, default_payload, as_admin, file_form):
 
     r = as_admin.post('/jobs/add', json=job_data)
     assert r.ok
-    utility_id = r.json()['_id']
+    utility_job = r.json()['_id']
 
     r = as_admin.get('/sessions/' + session + '/jobs?join=gears')
     assert r.ok
-    assert(any(x['id'] == utility_id for x in r.json()['jobs']))
+    assert {job['id'] for job in r.json()['jobs']} == {utility_job}
+    assert r.json()['gears'].keys() == [utility_gear]
 
-    ana_gear_id = data_builder.create_gear(gear=gear_doc, category='analysis')
-    job_data['gear_id'] = ana_gear_id
+    analysis_gear = data_builder.create_gear(gear=gear_doc, category='analysis')
+    job_data['gear_id'] = analysis_gear
 
     r = as_admin.post('/jobs/add', json=job_data)
     assert r.ok
-    ana_id = r.json()['_id']
-
+    analysis_job = r.json()['_id']
 
     r = as_admin.get('/sessions/' + session + '/jobs?join=gears')
     assert r.ok
-    assert(any(x['id'] == utility_id for x in r.json()['jobs']))
-    assert(any(x['id'] == ana_id     for x in r.json()['jobs']))
+    assert {job['id'] for job in r.json()['jobs']} == {utility_job, analysis_job}
+    assert set(r.json()['gears'].keys()) == {utility_gear, analysis_gear}

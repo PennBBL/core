@@ -165,6 +165,7 @@ def test_eval_rule_any():
             },
         ],
         'all': [],
+        'not': [],
         'alg': 'dcm2nii',
     }
 
@@ -188,8 +189,8 @@ def test_eval_rule_all():
     container = {'a': 'b'}
 
     rule = {
-        'any': [
-        ],
+        'any': [],
+        'not': [],
         'all': [
             {
                 'type': 'file.type',
@@ -219,7 +220,47 @@ def test_eval_rule_all():
     result = rules.eval_rule(rule, file_, container)
     assert result == False
 
-def test_eval_rule_any_all():
+def test_eval_rule_not():
+    container = {'a': 'b'}
+
+    rule = {
+        'not': [
+            {
+                'type': 'file.classification',
+                'value': 'non-image'
+            },
+            {
+                'type': 'file.name',
+                'value': '*.dcm',
+            },
+            {
+                'type': 'file.classification',
+                'value': 'functional'
+            }
+        ],
+        'all': [],
+        'any': [],
+        'alg': 'dcm2nii',
+    }
+
+    file_ = {'name': 'hello.dcm', 'type': 'a', 'classification': {'Custom': ['b']}}
+    result = rules.eval_rule(rule, file_, container)
+    assert result == False
+
+    file_ = {'name': 'hello.txt', 'type': 'a', 'classification': {'Custom': ['non-image']}}
+    result = rules.eval_rule(rule, file_, container)
+    assert result == False
+
+    file_ = {'name': 'hello.txt', 'type': 'a', 'classification': {'Custom': ['Functional']}}
+    result = rules.eval_rule(rule, file_, container)
+    assert result == False
+
+    file_ = {'name': 'hello.txt'}
+    result = rules.eval_rule(rule, file_, container)
+    assert result == True
+
+
+def test_eval_rule_any_all_not():
     container = {'a': 'b'}
 
     rule = {
@@ -243,6 +284,12 @@ def test_eval_rule_any_all():
                 'value': '*.dcm',
             },
         ],
+        'not': [
+            {
+                'type': 'file.classification',
+                'value': 'non-image'
+            }
+        ],
         'alg': 'dcm2nii',
     }
 
@@ -258,6 +305,11 @@ def test_eval_rule_any_all():
     result = rules.eval_rule(rule, file_, container)
     assert result == True
 
+    file_ = {'name': 'hello.dcm', 'type': 'dicom', 'classification': {'Custom': ['Non-Image', 'Something Else']}}
+    result = rules.eval_rule(rule, file_, container)
+    assert result == False
+
     file_ = {'name': 'hello.txt', 'type': 'a'}
     result = rules.eval_rule(rule, file_, container)
     assert result == False
+

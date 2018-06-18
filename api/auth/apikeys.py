@@ -6,10 +6,13 @@ from ..web.errors import APIAuthProviderException
 
 log = config.log
 
+
 class APIKey(object):
     """
     Abstract API key class
     """
+
+    key_type = None
 
     @staticmethod
     def _preprocess_key(key):
@@ -47,27 +50,22 @@ class APIKey(object):
         else:
             raise APIAuthProviderException('Invalid API key')
 
-    @staticmethod
-    def generate_api_key(key_type):
+    @classmethod
+    def generate_api_key(cls, uid):
         return {
             '_id': util.create_nonce(),
             'created': datetime.datetime.utcnow(),
-            'type': key_type,
+            'uid': uid,
+            'type': cls.key_type,
             'last_used': None
         }
-
-
-class UserApiKey(APIKey):
-
-    key_type = 'user'
 
     @classmethod
     def generate(cls, uid):
         """
-        Generates API key for user, replaces existing API key if exists
+        Generates API key, replaces existing API key if it exists
         """
-        api_key = cls.generate_api_key(cls.key_type)
-        api_key['uid'] = uid
+        api_key = cls.generate_api_key(uid)
         config.db.apikeys.delete_many({'uid': uid, 'type': cls.key_type})
         config.db.apikeys.insert_one(api_key)
         return api_key['_id']
@@ -80,14 +78,24 @@ class UserApiKey(APIKey):
     def check(cls, api_key):
         pass
 
+
+class DeviceApiKey(APIKey):
+    key_type = 'device'
+
+
+class UserApiKey(APIKey):
+    key_type = 'user'
+
+
 class JobApiKey(APIKey):
     """
     API key that grants API access as a specified user during execution of a job
-    Job must be in 'running' state to user API key
+    Job must be in 'running' state to use API key
     """
 
     key_type = 'job'
 
+    # pylint: disable=arguments-differ
     @classmethod
     def generate(cls, uid, job_id):
         """
@@ -106,8 +114,7 @@ class JobApiKey(APIKey):
             return existing_key['_id']
 
         else:
-            api_key = cls.generate_api_key(cls.key_type)
-            api_key['uid'] = uid
+            api_key = cls.generate_api_key(uid)
             api_key['job'] = job_id
 
             config.db.apikeys.insert_one(api_key)
@@ -125,6 +132,7 @@ class JobApiKey(APIKey):
 
 
 APIKeyTypes = {
-    'user'    	: UserApiKey,
-    'job'      	: JobApiKey
+    'device': DeviceApiKey,
+    'user': UserApiKey,
+    'job': JobApiKey,
 }

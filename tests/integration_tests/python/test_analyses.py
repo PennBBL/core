@@ -138,6 +138,24 @@ def test_analysis_download(data_builder, as_admin, file_form, api_db):
         assert set(m.name for m in tar.getmembers()) == set(['legacy/input/input.csv', 'legacy/output/output.csv'])
 
 
+def test_analysis_join_avatars(as_admin, data_builder):
+    session = data_builder.create_session()
+    r = as_admin.post('/sessions/' + session + '/analyses', json={'label': 'join-avatars'})
+    assert r.ok
+    analysis = r.json()['_id']
+
+    r = as_admin.post('/analyses/' + analysis + '/notes', json={'text': 'test'})
+    assert r.ok
+
+    r = as_admin.get('/analyses/' + analysis + '?join_avatars=true')
+    assert r.ok
+    assert 'avatar' in r.json()['notes'][0]
+
+    r = as_admin.get('/sessions/' + session + '/analyses?join_avatars=true')
+    assert r.ok
+    assert 'avatar' in r.json()[0]['notes'][0]
+
+
 def check_files(as_admin, analysis_id, filegroup, *filenames):
     # Verify that filegroup has all files, inflated
     r = as_admin.get('/analyses/' + analysis_id)

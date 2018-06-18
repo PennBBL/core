@@ -156,12 +156,13 @@ def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_ro
     # get next job with peek
     r = as_root.get('/jobs/next', params={'tags': 'test-tag', 'peek': True})
     assert r.ok
-    next_job_id = r.json()['id']
+    next_job_id_peek = r.json()['id']
 
     # get next job
     r = as_root.get('/jobs/next', params={'tags': 'test-tag'})
     assert r.ok
     next_job_id = r.json()['id']
+    assert next_job_id == next_job_id_peek
 
     # set next job to failed
     r = as_root.put('/jobs/' + next_job_id, json={'state': 'failed'})
@@ -214,52 +215,6 @@ def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_ro
     r = as_admin.get('/jobs/next', params={'tags': 'test-tag'})
     assert r.ok
     job_rw_id = r.json()['id']
-
-    # Add job with gear that uses api-key base type and get config
-    gear_doc = default_payload['gear']['gear']
-    gear_doc['inputs'] = {
-        'dicom': {
-            'base': 'file'
-        },
-        'api_key': {
-            'base': 'api-key'
-        }
-    }
-    gear1 = data_builder.create_gear(gear=gear_doc)
-
-    job4 = copy.deepcopy(job_data)
-    job4['gear_id'] = gear1
-
-    r = as_admin.post('/jobs/add', json=job4)
-    assert r.status_code == 200
-    job_id = r.json()['_id']
-
-    # start job
-    r = as_root.put('/jobs/' + job_id, json={'state': 'running'})
-    assert r.ok
-
-    # get config
-    r = as_root.get('/jobs/'+ job_id +'/config.json')
-    assert r.ok
-    config = r.json()
-
-    assert type(config['inputs']['dicom']) is dict
-    assert config['destination']['id'] == acquisition
-    assert type(config['config']) is dict
-    api_key = config['inputs']['api_key']['key']
-
-    # ensure api_key works
-    as_job_key = as_public
-    as_job_key.headers.update({'Authorization': 'scitran-user ' + api_key})
-    r = as_job_key.get('/users/self')
-    assert r.ok
-
-    # complete job and ensure API key no longer works
-    r = as_root.put('/jobs/' + job_id, json={'state': 'complete'})
-    assert r.ok
-
-    r = as_job_key.get('/users/self')
-    assert r.status_code == 401
 
     # try to add job with no inputs and no destination
     gear_doc = default_payload['gear']['gear']
@@ -372,6 +327,7 @@ def test_failed_job_output(data_builder, default_payload, as_user, as_admin, as_
         'alg': gear2_name,
         'name': 'text-trigger',
         'any': [],
+        'not': [],
         'all': [{'type': 'file.type', 'value': 'text'}]
     })
     assert r.ok
@@ -703,3 +659,156 @@ def test_job_context(data_builder, default_payload, as_admin, as_root, file_form
     assert r_inputs['test_context_value']['base'] == 'context'
     assert r_inputs['test_context_value']['found'] == True
     assert r_inputs['test_context_value']['value'] == { 'session_value': 3 }
+
+
+def test_job_api_key(data_builder, default_payload, as_public, as_admin, as_root, api_db, file_form):
+
+    acquisition = data_builder.create_acquisition()
+    assert as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('test.zip')).ok
+
+    # Add job with gear that uses api-key base type and get config
+    gear_doc = default_payload['gear']['gear']
+    gear_doc['inputs'] = {
+        'dicom': {
+            'base': 'file'
+        },
+        'api_key': {
+            'base': 'api-key'
+        }
+    }
+    gear = data_builder.create_gear(gear=gear_doc)
+
+    job_data = {
+        'gear_id': gear,
+        'inputs': {
+            'dicom': {
+                'type': 'acquisition',
+                'id': acquisition,
+                'name': 'test.zip'
+            }
+        },
+        'config': { 'two-digit multiple of ten': 20 },
+        'destination': {
+            'type': 'acquisition',
+            'id': acquisition
+        },
+        'tags': [ 'test-tag' ]
+    }
+
+
+    job1 = copy.deepcopy(job_data)
+    job1['gear_id'] = gear
+
+    r = as_admin.post('/jobs/add', json=job1)
+    assert r.status_code == 200
+    job_id = r.json()['_id']
+
+    # get next job as admin
+    r = as_root.get('/jobs/next')
+    assert r.ok
+
+    # get config
+    r = as_root.get('/jobs/'+ job_id +'/config.json')
+    assert r.ok
+    config = r.json()
+
+    assert type(config['inputs']['dicom']) is dict
+    assert config['destination']['id'] == acquisition
+    assert type(config['config']) is dict
+    api_key = config['inputs']['api_key']['key']
+
+    # ensure api_key works
+    as_job_key = as_public
+    as_job_key.headers.update({'Authorization': 'scitran-user ' + api_key})
+    r = as_job_key.get('/users/self')
+    assert r.ok
+
+    # complete job and ensure API key no longer works
+    r = as_root.put('/jobs/' + job_id, json={'state': 'complete'})
+    assert r.ok
+
+    r = as_job_key.get('/users/self')
+    assert r.status_code == 401
+
+    ##
+    # Ensure API key is generated for retried job
+    ##
+
+    job2 = copy.deepcopy(job_data)
+    job2['gear_id'] = gear
+
+    r = as_admin.post('/jobs/add', json=job2)
+    assert r.status_code == 200
+    job_id = r.json()['_id']
+
+    # get next job as admin
+    r = as_root.get('/jobs/next')
+    assert r.ok
+
+    # get config
+    r = as_root.get('/jobs/'+ job_id +'/config.json')
+    assert r.ok
+    config = r.json()
+
+    assert type(config['inputs']['dicom']) is dict
+    assert config['destination']['id'] == acquisition
+    assert type(config['config']) is dict
+    api_key = config['inputs']['api_key']['key']
+
+    # ensure api_key works
+    as_job_key = as_public
+    as_job_key.headers.update({'Authorization': 'scitran-user ' + api_key})
+    r = as_job_key.get('/users/self')
+    assert r.ok
+
+    # Make sure there are no jobs that are pending
+    assert api_db.jobs.count({'state': 'pending'}) == 0
+
+    # set job as one that should be orphaned
+    api_db.jobs.update_one({'_id': bson.ObjectId(job_id)}, {'$set': {'modified': datetime.datetime(1980, 1, 1)}})
+
+    # reap orphans
+    r = as_root.post('/jobs/reap')
+
+    # Make sure there is only one job that is pending
+    assert api_db.jobs.count({'state': 'pending'}) == 1
+
+    # get next job as admin
+    r = as_root.get('/jobs/next')
+    assert r.ok
+    retried_job = r.json()
+    retried_job_id = retried_job['id']
+    assert retried_job['previous_job_id'] is not None
+
+    # Ensure the attempt is bumped and the config uri is for the new job
+    assert retried_job['attempt'] == 2
+    found_config_uri = False
+    for i in retried_job['request']['inputs']:
+        if i['uri'] == '/jobs/' + retried_job_id + '/config.json':
+            found_config_uri = True
+            break
+    assert found_config_uri
+
+    # get config
+    r = as_root.get('/jobs/'+ retried_job_id +'/config.json')
+    assert r.ok
+    config = r.json()
+
+    assert type(config['inputs']['dicom']) is dict
+    assert config['destination']['id'] == acquisition
+    assert type(config['config']) is dict
+    api_key = config['inputs']['api_key']['key']
+
+    # ensure api_key works
+    as_job_key = as_public
+    as_job_key.headers.update({'Authorization': 'scitran-user ' + api_key})
+    r = as_job_key.get('/users/self')
+    assert r.ok
+
+    # complete job and ensure API key no longer works
+    r = as_root.put('/jobs/' + retried_job_id, json={'state': 'complete'})
+    assert r.ok
+
+    r = as_job_key.get('/users/self')
+    assert r.status_code == 401
+

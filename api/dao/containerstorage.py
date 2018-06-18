@@ -45,6 +45,26 @@ class GroupStorage(ContainerStorage):
             },
             upsert=True)
 
+class UserStorage(ContainerStorage):
+
+    def __init__(self):
+        super(UserStorage,self).__init__('users', use_object_id=False)
+
+    def cleanup_ancillary_data(self, _id):
+        self.cleanup_user_permissions(_id)
+
+    def cleanup_user_permissions(self, uid):
+        """Remove user from the permissions array of every container"""
+        try:
+            query = {'permissions._id': uid}
+            update = {'$pull': {'permissions' : {'_id': uid}}}
+
+            for cont in ['collections', 'groups', 'projects', 'sessions', 'acquisitions']:
+                config.db[cont].update_many(query, update)
+
+        except APIStorageException:
+            raise APIStorageException('Site-wide user permissions for {} were unabled to be removed'.format(uid))
+
 
 class ProjectStorage(ContainerStorage):
 
@@ -130,7 +150,7 @@ class SubjectStorage(ContainerStorage):
             self._fill_default_values(cont)
         return cont
 
-
+    # pylint: disable=arguments-differ
     def get_all_el(self, query, user, projection, fill_defaults=False):
         if query is None:
             query = {}
@@ -174,8 +194,6 @@ class SubjectStorage(ContainerStorage):
         if not projection:
             projection = {'info': 0, 'files.info': 0, 'subject': 0, 'tags': 0}
         return SessionStorage().get_all_el(query, None, projection)
-
-
 
 
 class SessionStorage(ContainerStorage):
@@ -269,7 +287,7 @@ class SessionStorage(ContainerStorage):
         return SubjectStorage().get_container(cont['subject']['_id'], projection=projection)
 
 
-    def get_all_el(self, query, user, projection, fill_defaults=False):
+    def get_all_el(self, query, user, projection, fill_defaults=False, pagination=None):
         """
         Override allows 'collections' key in the query, will transform into proper query for the caller and return results
         """
@@ -279,7 +297,7 @@ class SessionStorage(ContainerStorage):
             a_ids = AcquisitionStorage().get_all_el({'collections': bson.ObjectId(collection_id)}, None, {'session': 1})
             query['_id'] = {'$in': list(set([a['session'] for a in a_ids]))}
 
-        return super(SessionStorage, self).get_all_el(query, user, projection, fill_defaults=fill_defaults)
+        return super(SessionStorage, self).get_all_el(query, user, projection, fill_defaults=fill_defaults, pagination=pagination)
 
 
     def recalc_session_compliance(self, session_id, session=None, template=None, hard=False):
@@ -343,7 +361,6 @@ class SessionStorage(ContainerStorage):
             raise ValueError('Cannot get all sessions from target container {}'.format(target_type))
 
         return self.get_all_el(query, user, projection)
-
 
 
 class AcquisitionStorage(ContainerStorage):
@@ -471,8 +488,7 @@ class AnalysisStorage(ContainerStorage):
             },
             'created': datetime.datetime.utcnow(),
             'modified': datetime.datetime.utcnow(),
-            'user': origin.get('id'),
-            'permissions': parent['permissions'],
+            'user': origin.get('id')
         }
 
         for key in defaults:

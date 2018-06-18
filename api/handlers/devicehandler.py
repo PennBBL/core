@@ -4,8 +4,9 @@ from ..web import base
 from .. import config
 from .. import util
 from ..auth import require_drone, require_login, require_superuser
+from ..auth.apikeys import DeviceApiKey
 from ..dao import containerstorage
-from ..web.errors import APINotFoundException
+from ..web.errors import APINotFoundException, APIValidationException
 from ..validators import validate_data
 
 log = config.log
@@ -22,63 +23,85 @@ class DeviceHandler(base.RequestHandler):
 
     def __init__(self, request=None, response=None):
         super(DeviceHandler, self).__init__(request, response)
-        self.storage = containerstorage.ContainerStorage('devices', use_object_id=False)
+        self.storage = containerstorage.ContainerStorage('devices', use_object_id=True)
 
     @require_login
     def get(self, device_id):
-        return self.storage.get_container(device_id)
+        device = self.storage.get_container(device_id)
+        if self.user_is_admin:
+            self.join_api_key(device)
+        return device
 
     @require_login
     def get_all(self):
-        return self.storage.get_all_el(None, None, None)
+        page = self.storage.get_all_el(None, None, None, pagination=self.pagination)
+        devices = page['results']
+        if self.user_is_admin and self.is_true('join_keys'):
+            for device in devices:
+                self.join_api_key(device)
+        return self.format_page(page)
 
-    @require_drone
-    def get_self(self):
-        device_id = self.origin.get('id', '')
-        return self.storage.get_container(device_id)
+    @staticmethod
+    def join_api_key(device):
+        api_key = DeviceApiKey.get(device['_id'])
+        device['key'] = api_key['_id'] if api_key else DeviceApiKey.generate(device['_id'])
 
-    @require_drone
+    @require_superuser
     def post(self):
-        device_id = self.origin.get('id', '')
-        payload = self.request.json_body
-        # Clean this up when validate_data method is fixed to use new schemas
-        # POST unnecessary, used to avoid run-time modification of schema
+        payload = self.request.json_body if self.request.body else {}
+
+        # Temp device check-in backwards-compatibility
+        if self.origin.get('type') == 'device':
+            return self.put_self()
+
         validate_data(payload, 'device.json', 'input', 'POST', optional=True)
+        result = self.storage.create_el(payload)
+        if not result.acknowledged:
+            raise APINotFoundException('Device not created')
+        key = DeviceApiKey.generate(result.inserted_id)
+        return {'_id': result.inserted_id, 'key': key}
+
+    @require_superuser
+    def delete(self, device_id):
+        result = self.storage.delete_el(device_id)
+        if result.deleted_count != 1:
+            raise APINotFoundException('Device not found')
+        return {'deleted': result.deleted_count}
+
+    @require_login
+    def get_status(self):
+        now = dt.datetime.now()
+        statuses = {}
+        for device in self.storage.get_all_el(None, None, None):
+            status = {'last_seen': device.get('last_seen')}
+            if device.get('errors'):
+                status['status'] = str(Status.error)
+                status['errors'] = device['errors']
+            elif not device.get('interval') or not device.get('last_seen'):
+                status['status'] = str(Status.unknown)
+            elif (now - device['last_seen']).seconds > device['interval']:
+                status['status'] = str(Status.missing)
+            else:
+                status['status'] = str(Status.ok)
+            statuses[str(device['_id'])] = status
+
+        return statuses
+
+    @require_drone
+    def put_self(self):
+        device_id = self.origin.get('id', '')
+        device = self.storage.get_container(device_id)
+
+        if not self.request.body:
+            return {'modified': 0}
+
+        payload = self.request.json_body
+        validate_data(payload, 'device-update.json', 'input', 'PUT', optional=True)
+
+        # New devices created via POST may have `type` not set. Devices are allowed to initialize
+        # the field themselves, but not allowed to change it (which implies a different device).
+        if 'type' in payload and device.get('type') not in (None, payload['type']):
+            raise APIValidationException({'reason': 'Cannot change device type'})
 
         result = self.storage.update_el(device_id, payload)
-        if result.matched_count == 1:
-            return {'modified': result.modified_count}
-        else:
-            raise APINotFoundException('Device with id {} not found, state not updated'.format(device_id))
-
-    # NOTE method not routed in api.py
-    @require_superuser
-    def delete(self, device_id): # pragma: no cover
-        raise NotImplementedError()
-
-    def get_status(self):
-        devices = self.storage.get_all_el(None, None, None)
-        response = {}
-        now = dt.datetime.now()
-        for d in devices:
-            d_obj = {}
-            d_obj['last_seen'] = d.get('last_seen')
-
-            if d.get('errors'):
-                d_obj['status'] = str(Status.error)
-                d_obj['errors'] = d.get('errors')
-                response[d.get('_id')] = d_obj.copy()
-
-            elif not d.get('interval'):
-                d_obj['status'] = str(Status.unknown)
-                response[d.get('_id')] = d_obj.copy()
-
-            elif (now-d.get('last_seen', now)).seconds > d.get('interval'):
-                d_obj['status'] = str(Status.missing)
-                response[d.get('_id')] = d_obj.copy()
-
-            else:
-                d_obj['status'] = str(Status.ok)
-                response[d.get('_id')] = d_obj.copy()
-
-        return response
+        return {'modified': result.modified_count}

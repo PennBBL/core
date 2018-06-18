@@ -149,14 +149,19 @@ class FileStorage(ListStorage):
                 ))
 
         mod_elem = {}
+        update = {}
 
         if 'modality' in payload:
             # Check to see if they are setting a new modality. If so, clear everything but the custom fields
             file_ = self.get_list_item(_id, query_params)
-            if file_.get('modality') and file_['modality'] != payload['modality'] and file_.get('classification'):
-                payload['classification'] = {}
-                if file_['classification'].get('Custom'):
-                    payload['classification'] = {'Custom': file_['classification']['Custom']}
+            if file_.get('modality') and file_['modality'] != payload['modality']:
+                if file_.get('classification'):
+                    payload['classification'] = {}
+                    if file_['classification'].get('Custom'):
+                        payload['classification'] = {'Custom': file_['classification']['Custom']}
+
+                # Unset measurements if modality changes
+                update['$unset'] = { self.list_name + '.$.measurements': True }
 
         for k,v in payload.items():
             mod_elem[self.list_name + '.$.' + k] = v
@@ -169,9 +174,7 @@ class FileStorage(ListStorage):
                 {self.list_name: {'$not': {'$elemMatch': exclude_params} }}
             ]
         mod_elem['modified'] = datetime.datetime.utcnow()
-        update = {
-            '$set': mod_elem
-        }
+        update['$set'] = mod_elem
 
         self.dbc.find_one_and_update(query, update)
         self._update_session_compliance(_id)
@@ -257,7 +260,10 @@ class FileStorage(ListStorage):
         NOTE: add and/or delete OR replace can be specified, never both in the same payload
         """
         container_before = self.get_container(_id)
-        update = {'$set': {'modified': datetime.datetime.utcnow()}}
+        update = {
+            '$set': {'modified': datetime.datetime.utcnow()},
+            '$unset': {self.list_name + '.$.measurements': True}
+        }
 
         if self.use_object_id:
             _id = bson.objectid.ObjectId(_id)

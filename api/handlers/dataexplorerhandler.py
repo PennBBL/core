@@ -301,9 +301,6 @@ EXACT_CONTAINERS = ['file', 'collection']
 class DataExplorerHandler(base.RequestHandler):
     # pylint: disable=broad-except
 
-    def __init__(self, request=None, response=None):
-        super(DataExplorerHandler, self).__init__(request, response)
-
     def _parse_request(self, request_type='search'):
 
         try:
@@ -366,7 +363,10 @@ class DataExplorerHandler(base.RequestHandler):
             elif f.get('term'):
                 # Search raw field
                 for k,v in f['term'].iteritems():
-                    modified_filters.append({'term': {k+'.raw': v}})
+                    if isinstance(v, basestring):
+                        modified_filters.append({'term': {k+'.raw': v}})
+                    else:
+                        modified_filters.append({'term': {k: v}})
             else:
                 modified_filters.append(f)
 

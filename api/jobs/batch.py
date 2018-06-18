@@ -6,6 +6,7 @@ import copy
 import datetime
 
 from .. import config
+from ..dao import dbutil
 from ..dao.containerstorage import AcquisitionStorage, AnalysisStorage
 from .jobs import Job
 from .queue import Queue
@@ -24,11 +25,13 @@ BATCH_JOB_TRANSITIONS = {
 }
 
 
-def get_all(query, projection=None):
+def get_all(query, projection=None, pagination=None):
     """
     Fetch batch objects from the database
     """
-    return config.db.batch.find(query, projection)
+    find_kwargs = dict(filter=query, projection=projection)
+    page = dbutil.paginate_find(config.db.batch, find_kwargs, pagination)
+    return page['results'] if pagination is None else page
 
 def get(batch_id, projection=None, get_jobs=False):
     """

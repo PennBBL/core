@@ -113,9 +113,6 @@ class ListHandler(base.RequestHandler):
     are specified in the routes defined in api.py
     """
 
-    def __init__(self, request=None, response=None):
-        super(ListHandler, self).__init__(request, response)
-
     def get(self, cont_name, list_name, **kwargs):
         _id = kwargs.pop('cid')
         permchecker, storage, _, _, keycheck = self._initialize_request(cont_name, list_name, _id, query_params=kwargs)
@@ -269,7 +266,7 @@ class PermissionsListHandler(ListHandler):
         """
         Checks if user exists
         """
-        return bool(containerstorage.ContainerStorage('users', use_object_id=False).get_all_el({'_id': uid}, None, {'_id':1}))
+        return bool(containerstorage.UserStorage().get_all_el({'_id': uid}, None, {'_id':1}))
 
 class NotesListHandler(ListHandler):
     """
@@ -354,9 +351,6 @@ class FileListHandler(ListHandler):
     """
     This class implements a more specific logic for list of files as the api needs to interact with the filesystem.
     """
-
-    def __init__(self, request=None, response=None):
-        super(FileListHandler, self).__init__(request, response)
 
     def _check_ticket(self, ticket_id, _id, filename):
         ticket = config.db.downloads.find_one({'_id': ticket_id})
@@ -452,6 +446,9 @@ class FileListHandler(ListHandler):
 
         # Authenticated or ticketed download request
         else:
+            # START of duplicated code
+            # IMPORTANT: If you modify the below code reflect the code changes in
+            # refererhandler.py:AnalysesHandler's download method
             signed_url = files.get_signed_url(file_path, file_system,
                                               filename=filename,
                                               attachment=(not self.is_true('view')),
@@ -465,6 +462,7 @@ class FileListHandler(ListHandler):
                         raise util.RangeHeaderParseError('Feature flag not set')
 
                     ranges = util.parse_range_header(range_header)
+
                     for first, last in ranges:
                         if first > fileinfo['size'] - 1:
                             self.abort(416, 'Invalid range')
@@ -480,7 +478,7 @@ class FileListHandler(ListHandler):
                         self.response.headers['Content-Type'] = str(fileinfo.get('mimetype', 'application/octet-stream'))
                     else:
                         self.response.headers['Content-Type'] = 'application/octet-stream'
-                        self.response.headers['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+                        self.response.headers['Content-Disposition'] = 'attachment; filename="' + str(filename) + '"'
                 else:
                     self.response.status = 206
                     if len(ranges) > 1:
@@ -488,9 +486,9 @@ class FileListHandler(ListHandler):
                     else:
                         self.response.headers['Content-Type'] = str(
                             fileinfo.get('mimetype', 'application/octet-stream'))
-                        self.response.headers['Content-Range'] = 'bytes %s-%s/%s' % (str(ranges[0][0]),
-                                                                                     str(ranges[0][1]),
-                                                                                     str(fileinfo['size']))
+                        self.response.headers['Content-Range'] = util.build_content_range_header(ranges[0][0], ranges[0][1], fileinfo['size'])
+
+
                     with file_system.open(file_path, 'rb') as f:
                         for first, last in ranges:
                             mode = os.SEEK_SET
@@ -512,14 +510,13 @@ class FileListHandler(ListHandler):
                                 self.response.write('--%s\n' % self.request.id)
                                 self.response.write('Content-Type: %s\n' % str(
                                     fileinfo.get('mimetype', 'application/octet-stream')))
-                                self.response.write('Content-Range: %s' % 'bytes %s-%s/%s\n' % (str(first),
-                                                                                                str(last),
-                                                                                                str(fileinfo['size'])))
+                                self.response.write('Content-Range: %s\n' % str(util.build_content_range_header(first, last, fileinfo['size'])))
                                 self.response.write('\n')
                                 self.response.write(data)
                                 self.response.write('\n')
                             else:
                                 self.response.write(data)
+            # END of duplicated code
 
             # log download if we haven't already for this ticket
             if ticket:

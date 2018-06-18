@@ -7,9 +7,6 @@ from .. import config
 
 class SchemaHandler(base.RequestHandler):
 
-    def __init__(self, request=None, response=None):
-        super(SchemaHandler, self).__init__(request, response)
-
     def get(self, schema):
         schema_path = os.path.join(config.schema_path, schema)
         try:

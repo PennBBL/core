@@ -69,6 +69,15 @@ main() {
         log "INFO: Staring core ..."
         export SCITRAN_CORE_DRONE_SECRET=${SCITRAN_CORE_DRONE_SECRET:-change-me}
         export SCITRAN_PERSISTENT_DATA_PATH=$(mktemp -d)
+
+        ### Temp fix for 3-way split storages, see api.config.local_fs2 for details (section not required for anything else)
+        # Pre-creating data_path/v1 folder to enable testing the fix
+        mkdir -p $SCITRAN_PERSISTENT_DATA_PATH/v1
+        # Setting and pre-creating fs_url
+        export SCITRAN_PERSISTENT_FS_URL=$SCITRAN_PERSISTENT_DATA_PATH/v2
+        mkdir -p $SCITRAN_PERSISTENT_FS_URL
+        ###
+
         uwsgi --ini /var/scitran/config/uwsgi-config.ini --http [::]:9000 \
             --env SCITRAN_COLLECT_ENDPOINTS=true \
             --env SCITRAN_CORE_ACCESS_LOG_ENABLED=true \

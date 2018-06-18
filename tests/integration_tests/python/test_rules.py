@@ -9,6 +9,7 @@ def test_site_rules(randstr, data_builder, as_admin, as_user, as_public):
         'alg': gear_name,
         'name': 'csv-job-trigger-rule',
         'any': [],
+        'not': [],
         'all': [
             {'type': 'file.type', 'value': 'tabular data'},
         ]
@@ -41,6 +42,7 @@ def test_site_rules(randstr, data_builder, as_admin, as_user, as_public):
         'alg': gear_name,
         'name': 'invalid-regex-rule',
         'any': [],
+        'not': [],
         'all': [
             {'type': 'file.classification', 'value': invalid_pattern, 'regex': True},
         ]
@@ -140,6 +142,7 @@ def test_site_rules_copied_to_new_projects(randstr, data_builder, file_form, as_
         'alg': gear_1_name,
         'name': 'csv-job-trigger-rule',
         'any': [],
+        'not': [],
         'all': [
             {'type': 'file.type', 'value': 'tabular data'},
         ]
@@ -152,6 +155,7 @@ def test_site_rules_copied_to_new_projects(randstr, data_builder, file_form, as_
         'alg': gear_2_name,
         'name': 'text-job-trigger-rule',
         'any': [],
+        'not': [],
         'all': [
             {'type': 'file.type', 'value': 'text'},
         ]
@@ -276,6 +280,7 @@ def test_rules(randstr, data_builder, file_form, as_root, as_admin, with_user, a
         'alg': 'non-existent-gear-name',
         'name': 'csv-job-trigger-rule',
         'any': [],
+        'not': [],
         'all': [
             {'type': 'file.type', 'value': 'tabular data'},
         ]
@@ -366,7 +371,8 @@ def test_rules(randstr, data_builder, file_form, as_root, as_admin, with_user, a
         ],
         'all': [
             {'type': 'file.type', 'value': 'text'},
-        ]
+        ],
+        'not': []
     })
     assert r.ok
     rule2 = r.json()['_id']
@@ -419,6 +425,7 @@ def test_rules(randstr, data_builder, file_form, as_root, as_admin, with_user, a
         'alg': gear_name,
         'name': 'file-classification-regex',
         'any': [],
+        'not': [],
         'all': [
             {'type': 'file.name', 'value': 'test\d+\.(csv|txt)', 'regex': True},
         ]
@@ -465,6 +472,7 @@ def test_context_input_rule(randstr, data_builder, default_payload, api_db, as_a
         'alg': gear_name,
         'name': 'context-input-trigger-rule',
         'any': [],
+        'not': [],
         'all': [{'type': 'file.type', 'value': 'text'}],
     })
     assert r.ok
@@ -540,6 +548,7 @@ def test_disabled_rules(randstr, data_builder, api_db, as_admin, file_form):
         'alg': gear_name,
         'name': 'csv-job-trigger-rule',
         'any': [],
+        'not': [],
         'all': [{'type': 'file.type', 'value': 'tabular data'}],
         'disabled': True,
     })

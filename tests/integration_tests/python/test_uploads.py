@@ -385,6 +385,84 @@ def test_reaper_project_search(data_builder, file_form, as_root):
     data_builder.delete_group('unknown', recursive=True)
 
 
+def test_reaper_reupload_deleted(data_builder, as_root, file_form):
+    group = data_builder.create_group(_id='reupload')
+    reap_data = file_form('reaped.txt', meta={
+        'group': {'_id': 'reupload'},
+        'project': {'label': 'reupload'},
+        'session': {'uid': 'reupload'},
+        'acquisition': {'uid': 'reupload',
+                        'files': [{'name': 'reaped.txt'}]}
+    })
+
+    # reaper upload
+    r = as_root.post('/upload/reaper', files=reap_data)
+    assert r.ok
+
+    ### test acquisition recreation
+    # get + delete acquisition
+    r = as_root.get('/acquisitions')
+    assert r.ok
+    acquisition = next(a['_id'] for a in r.json() if a['uid'] == 'reupload')
+    r = as_root.delete('/acquisitions/' + acquisition)
+    assert r.ok
+
+    # reaper re-upload
+    r = as_root.post('/upload/reaper', files=reap_data)
+    assert r.ok
+
+    # check new acquisition
+    r = as_root.get('/acquisitions')
+    assert r.ok
+    assert next(a for a in r.json() if a['uid'] == 'reupload')
+
+    ### test session recreation
+    # get + delete session
+    r = as_root.get('/sessions')
+    assert r.ok
+    session = next(s['_id'] for s in r.json() if s['uid'] == 'reupload')
+    r = as_root.delete('/sessions/' + session)
+    assert r.ok
+
+    # reaper re-upload
+    r = as_root.post('/upload/reaper', files=reap_data)
+    assert r.ok
+
+    # check new session and acquisition
+    r = as_root.get('/sessions')
+    assert r.ok
+    assert next(s for s in r.json() if s['uid'] == 'reupload')
+    r = as_root.get('/acquisitions')
+    assert r.ok
+    assert next(a for a in r.json() if a['uid'] == 'reupload')
+
+    ### test project recreation
+    # get + delete project
+    r = as_root.get('/projects')
+    assert r.ok
+    project = next(p['_id'] for p in r.json() if p['label'] == 'reupload')
+    r = as_root.delete('/projects/' + project)
+    assert r.ok
+
+    # reaper re-upload
+    r = as_root.post('/upload/reaper', files=reap_data)
+    assert r.ok
+
+    # check new project, session and acquisition
+    r = as_root.get('/projects')
+    assert r.ok
+    assert next(p for p in r.json() if p['label'] == 'reupload')
+    r = as_root.get('/sessions')
+    assert r.ok
+    assert next(s for s in r.json() if s['uid'] == 'reupload')
+    r = as_root.get('/acquisitions')
+    assert r.ok
+    assert next(a for a in r.json() if a['uid'] == 'reupload')
+
+    # cleanup
+    data_builder.delete_group(group, recursive=True)
+
+
 def test_uid_upload(data_builder, file_form, as_admin, as_user, as_public):
     group = data_builder.create_group()
     project3_id = data_builder.create_project()
@@ -719,9 +797,9 @@ def test_acquisition_engine_upload(data_builder, file_form, as_root):
         }
     ]
 
-    # engine upload
+    # engine upload with slashes in filenames with filename_path=true
     r = as_root.post('/engine',
-        params={'level': 'acquisition', 'id': acquisition, 'job': job},
+        params={'level': 'acquisition', 'id': acquisition, 'job': job, 'filename_path':True},
         files=file_form('one.csv', 'folderA/two.csv', '../folderB/two.csv', meta=metadata)
     )
     assert r.ok
@@ -751,7 +829,7 @@ def test_acquisition_engine_upload(data_builder, file_form, as_root):
     m_timestamp = dateutil.parser.parse(metadata['acquisition']['timestamp'])
     assert a_timestamp == m_timestamp
 
-    # Change the metadata filename to its snaitized version
+    # Change the metadata filename to its sanitized version
     metadata['acquisition']['files'][2]['name'] = 'folderB/two.csv'
 
     for mf in metadata['acquisition']['files']:
@@ -759,6 +837,42 @@ def test_acquisition_engine_upload(data_builder, file_form, as_root):
         assert mf is not None
         assert f['type'] == mf['type']
         assert f['info'] == mf['info']
+
+
+
+    # engine upload with slashes in filenames with filename_path=false
+
+    metadata['acquisition']['files'] = [
+        {
+            'name': 'one.csv',
+            'type': 'engine type 0',
+            'info': {'test': 'f0'}
+        },
+        {
+            'name': 'folderA/two.csv',
+            'type': 'engine type 1',
+            'info': {'test': 'f1'}
+        }
+    ]
+
+    r = as_root.post('/engine',
+        params={'level': 'acquisition', 'id': acquisition, 'job': job, 'filename_path':False},
+        files=file_form('one.csv', 'folderA/two.csv', meta=metadata)
+    )
+    assert r.ok
+    r = as_root.get('/acquisitions/' + acquisition)
+    assert r.ok
+    a = r.json()
+
+    # Change the metadata filename to its sanitized version
+    metadata['acquisition']['files'][1]['name'] = 'two.csv'
+
+    for mf in metadata['acquisition']['files']:
+        f = find_file_in_array(mf['name'], a['files'])
+        assert mf is not None
+        assert f['type'] == mf['type']
+        assert f['info'] == mf['info']
+
 
 def test_session_engine_upload(data_builder, file_form, as_root):
     project = data_builder.create_project()
@@ -795,7 +909,7 @@ def test_session_engine_upload(data_builder, file_form, as_root):
     }
 
     r = as_root.post('/engine',
-        params={'level': 'session', 'id': session},
+        params={'level': 'session', 'id': session, 'filename_path':True},
         files=file_form('one.csv', 'two.csv', 'folder/three.csv', meta=metadata)
     )
     assert r.ok
@@ -852,7 +966,7 @@ def test_project_engine_upload(data_builder, file_form, as_root):
     }
 
     r = as_root.post('/engine',
-        params={'level': 'project', 'id': project},
+        params={'level': 'project', 'id': project, 'filename_path':True},
         files=file_form('one.csv', 'two.csv', 'folder/three.csv', meta=metadata)
     )
     assert r.ok

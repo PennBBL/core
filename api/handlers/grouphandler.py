@@ -5,7 +5,9 @@ from .. import util
 from .. import validators
 from ..auth import groupauth, require_admin
 from ..dao import containerstorage
-from .containerhandler import ContainerHandler
+
+
+GROUP_ID_BLACKLIST = [ 'unknown', 'site' ]
 
 
 class GroupHandler(base.RequestHandler):
@@ -21,13 +23,13 @@ class GroupHandler(base.RequestHandler):
         if not self.superuser_request and not self.is_true('join_avatars'):
             self._filter_permissions([result], self.uid)
         if self.is_true('join_avatars'):
-            ContainerHandler.join_user_info([result])
+            self.storage.join_avatars([result])
         return result
 
     @require_admin
     def delete(self, _id):
-        if _id == 'unknown':
-            self.abort(400, 'The group "unknown" can\'t be deleted as it is integral within the API')
+        if _id in GROUP_ID_BLACKLIST:
+            self.abort(400, 'The group "{}" can\'t be deleted as it is integral within the API'.format(_id))
         group = self._get_group(_id)
         permchecker = groupauth.default(self, group)
         result = permchecker(self.storage.exec_op)('DELETE', _id)
@@ -48,15 +50,16 @@ class GroupHandler(base.RequestHandler):
     def get_all(self, uid=None):
         projection = {'label': 1, 'created': 1, 'modified': 1, 'permissions': 1, 'tags': 1}
         permchecker = groupauth.list_permission_checker(self, uid)
-        results = permchecker(self.storage.exec_op)('GET', projection=projection)
+        page = permchecker(self.storage.exec_op)('GET', projection=projection, pagination=self.pagination)
+        results = page['results']
         if not self.superuser_request and not self.is_true('join_avatars') and not self.user_is_admin:
             self._filter_permissions(results, self.uid)
         if self.is_true('join_avatars'):
-            results = ContainerHandler.join_user_info(results)
+            self.storage.join_avatars(results)
         if 'projects' in self.request.params.getall('join'):
             for result in results:
-                result = self.handle_projects(result)
-        return results
+                self.handle_projects(result)
+        return self.format_page(page)
 
     @validators.verify_payload_exists
     def put(self, _id):
@@ -83,6 +86,8 @@ class GroupHandler(base.RequestHandler):
         payload_schema_uri = validators.schema_uri('input', 'group-new.json')
         payload_validator = validators.from_schema_path(payload_schema_uri)
         payload_validator(payload, 'POST')
+        if payload['_id'] in GROUP_ID_BLACKLIST:
+            self.abort(400, 'The group "{}" can\'t be created as it is integral within the API'.format(payload['_id']))
         payload['created'] = payload['modified'] = datetime.datetime.utcnow()
         payload['permissions'] = [{'_id': self.uid, 'access': 'admin'}] if self.uid else []
         result = mongo_validator(permchecker(self.storage.exec_op))('POST', payload=payload)

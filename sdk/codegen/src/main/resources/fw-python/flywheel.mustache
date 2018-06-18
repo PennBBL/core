@@ -8,9 +8,17 @@ from __future__ import absolute_import
 
 {{#apiInfo}}
 
+import os
+import platform
+import logging
+
+log = logging.getLogger('Flywheel')
+
 from {{packageName}}.configuration import Configuration
 from {{packageName}}.api_client import  ApiClient
 import {{apiPackage}}
+
+SDK_VERSION = "{{packageVersion}}"
 
 def config_from_api_key(api_key):
     parts = api_key.split(':')
@@ -32,12 +40,15 @@ def config_from_api_key(api_key):
 
     config = Configuration()
     config.host = '{}://{}:{}/api'.format(scheme, host, port)
-    config.api_key['Authorization'] = key
-    config.api_key_prefix['Authorization'] = 'scitran-user'
+    config.api_key = {'Authorization': key}
+    config.api_key_prefix = {'Authorization': 'scitran-user'}
     return config
 
 class Flywheel:
-    def __init__(self, api_key, root=False):
+    def __init__(self, api_key, root=False, skip_version_check=False):
+        # Init logging
+        logging.basicConfig()
+
         # Parse API Key and configure api_client
         config = config_from_api_key(api_key)
         self.api_client = ApiClient(config)
@@ -46,10 +57,18 @@ class Flywheel:
         if root:
             self.api_client.set_default_query_param('root', 'true')
 
+        self.api_client.user_agent = 'Flywheel SDK/{} (Python {}; {})'.format(SDK_VERSION,
+            platform.python_version(), platform.system())
+
         # Initialize Apis
         {{#apis}}
         self.{{classVarName}} = {{apiPackage}}.{{classname}}(self.api_client)
         {{/apis}}
+
+        # Perform version check
+        self.check_version = not skip_version_check and not os.environ.get('FLYWHEEL_SDK_SKIP_VERSION_CHECK')
+        self.api_client.set_version_check_fn(self.perform_version_check)
+
     {{#apis}}
     {{#operations}}
     {{#operation}}
@@ -103,6 +122,62 @@ class Flywheel:
     {{/operation}}
     {{/operations}}
     {{/apis}}
+
+    def perform_version_check(self):
+        import re
+        import warnings
+
+        VERSION_RE = re.compile(r'^(?P<semver>(?P<major>\d+)\.(?P<minor>\d+)(\.(?P<patch>\d+)))?.*')
+        release_version = ''
+        try:
+            version_info = self.default_api.get_version()
+            release_version = version_info.release
+        except:
+            pass
+
+        # If not sdk version
+        sdk_version_match = VERSION_RE.match(SDK_VERSION)
+        if release_version:
+            release_version_match = VERSION_RE.match(release_version)
+        else:
+            release_version_match = None
+
+        # Log conditionals:
+        # 1. Client or server version not set
+        # 2. Major version mismatch
+        # 3. SDK Minor version > Server Minor version (client features not available on server)
+        # 4. SDK Minor version < Server Minor version (new features on server)
+
+        show_pip_message = False
+        if sdk_version_match and release_version_match:
+            # Compare major/minor version
+            sdk_major = int(sdk_version_match.group('major'))
+            sdk_minor = int(sdk_version_match.group('minor'))
+
+            release_major = int(release_version_match.group('major'))
+            release_minor = int(release_version_match.group('minor'))
+
+            if sdk_major != release_major:
+                if SDK_VERSION.find('dev') == -1:
+                    # Always print version mismatch
+                    warnings.warn('Client version {} does not match server version {}. Please update your client version!'.format(SDK_VERSION, release_version))
+                    show_pip_message = True
+
+            elif self.check_version:
+                if sdk_minor > release_minor:
+                    log.warning('Client version {} is ahead of server version {}. '.format(SDK_VERSION, release_version) +
+                        'Not all client functionality will be supported by the server.')
+                    show_pip_message = True
+                elif sdk_minor < release_minor:
+                    log.warning('Client version {} is behind server version {}. '.format(SDK_VERSION, release_version) +
+                        'Please consider upgrading your client to access all available functionality.')
+                    show_pip_message = True
+        elif self.check_version:
+            warnings.warn('Client or server version not available! This is an unsupported configuration!')
+
+        if show_pip_message:
+            log.warning('Use "pip install flywheel-sdk~={}" '.format(release_version_match.group('semver')) +
+                'to install a compatible version for this server')
 
 {{>flywheel_methods}}
 

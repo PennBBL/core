@@ -103,6 +103,7 @@ main() {
         --env SCITRAN_SITE_API_URL=http://${TEST_PREFIX}-service:9000/api \
         --env SCITRAN_PERSISTENT_DB_URI=mongodb://${TEST_PREFIX}-service:27017/scitran \
         --env SCITRAN_CORE_DRONE_SECRET=secret \
+        --env FLYWHEEL_SDK_SKIP_VERSION_CHECK=1 \
         -w /var/scitran/code/sdk \
         ${SDK_IMAGE} \
         $SDK_TEST_CMD

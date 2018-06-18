@@ -9,6 +9,7 @@ container (eg. ListHandler)
 import bson
 import zipfile
 import datetime
+import os
 from abc import ABCMeta, abstractproperty
 
 from .. import config, files, upload, util, validators
@@ -131,6 +132,9 @@ class AnalysesHandler(RefererHandler):
         if self.is_true('inflate_job'):
             self.storage.inflate_job_info(analysis)
 
+        if self.is_true('join_avatars'):
+            self.storage.join_avatars([analysis])
+
         self.log_user_access(AccessType.view_container, cont_name=analysis['parent']['type'], cont_id=analysis['parent']['id'])
         return analysis
 
@@ -155,7 +159,7 @@ class AnalysesHandler(RefererHandler):
         sub_cont_names = {'projects':0, 'sessions':1, 'acquisitions':2, 'all':3}
 
         # Check that the url is valid
-        if cont_name not in cont_names.keys():
+        if cont_name not in cont_names:
             self.abort(400, "Analysis lists not supported for {}.".format(cont_name))
         elif cont_level:
             if cont_names[cont_name] > sub_cont_names.get(cont_level, -1):
@@ -168,12 +172,17 @@ class AnalysesHandler(RefererHandler):
                 parents = [pid for parent in parent_tree.keys() for pid in parent_tree[parent]]
             else:
                 parents = [pid for pid in parent_tree[cont_level]]
-            # We set User to None because we check for permission when finding the parents
-            analyses = containerstorage.AnalysisStorage().get_all_el({'parent.id':{'$in':parents}},None,{'info': 0, 'files.info': 0})
+            query = {'parent.id': {'$in': parents}}
         else:
-            analyses = containerstorage.AnalysisStorage().get_all_el({'parent.id':cid, 'parent.type':singularize(cont_name)},None,{'info': 0, 'files.info': 0})
-        return analyses
+            query = {'parent.id': cid, 'parent.type': singularize(cont_name)}
 
+        # We set User to None because we check for permission when finding the parents
+        page = self.storage.get_all_el(query, None, {'info': 0, 'files.info': 0}, pagination=self.pagination)
+
+        if self.is_true('join_avatars'):
+            self.storage.join_avatars(page['results'])
+
+        return self.format_page(page)
 
 
     @log_access(AccessType.delete_analysis)
@@ -396,13 +405,86 @@ class AnalysesHandler(RefererHandler):
 
                 # Request to download the file itself
                 else:
-                    self.response.app_iter = file_system.open(file_path, 'rb')
-                    self.response.headers['Content-Length'] = str(fileinfo['size']) # must be set after setting app_iter
-                    if self.is_true('view'):
-                        self.response.headers['Content-Type'] = str(fileinfo.get('mimetype', 'application/octet-stream'))
+                    # START of duplicated code
+                    # IMPORTANT: If you modify the below code reflect the code changes in
+                    # listhandler.py:FileListHandler's download method
+                    signed_url = files.get_signed_url(file_path, file_system,
+                                                      filename=filename,
+                                                      attachment=(not self.is_true('view')),
+                                                      response_type=str(
+                                                          fileinfo.get('mimetype', 'application/octet-stream')))
+                    if signed_url:
+                        self.redirect(signed_url)
+
                     else:
-                        self.response.headers['Content-Type'] = 'application/octet-stream'
-                        self.response.headers['Content-Disposition'] = 'attachment; filename=' + str(filename)
+                        range_header = self.request.headers.get('Range', '')
+                        try:
+                            if not self.is_true('view'):
+                                raise util.RangeHeaderParseError('Feature flag not set')
+
+                            ranges = util.parse_range_header(range_header)
+
+                            for first, last in ranges:
+                                if first > fileinfo['size'] - 1:
+                                    self.abort(416, 'Invalid range')
+
+                                if last > fileinfo['size'] - 1:
+                                    raise util.RangeHeaderParseError('Invalid range')
+
+                        except util.RangeHeaderParseError:
+                            self.response.app_iter = file_system.open(file_path, 'rb')
+                            self.response.headers['Content-Length'] = str(
+                                fileinfo['size'])  # must be set after setting app_iter
+
+                            if self.is_true('view'):
+                                self.response.headers['Content-Type'] = str(
+                                    fileinfo.get('mimetype', 'application/octet-stream'))
+                            else:
+                                self.response.headers['Content-Type'] = 'application/octet-stream'
+                                self.response.headers['Content-Disposition'] = 'attachment; filename="' \
+                                                                               + str(filename) + '"'
+                        else:
+                            self.response.status = 206
+                            if len(ranges) > 1:
+                                self.response.headers[
+                                    'Content-Type'] = 'multipart/byteranges; boundary=%s' % self.request.id
+                            else:
+                                self.response.headers['Content-Type'] = str(
+                                    fileinfo.get('mimetype', 'application/octet-stream'))
+                                self.response.headers['Content-Range'] = util.build_content_range_header(ranges[0][0],
+                                                                                                         ranges[0][1],
+                                                                                                         fileinfo[
+                                                                                                             'size'])
+
+                            with file_system.open(file_path, 'rb') as f:
+                                for first, last in ranges:
+                                    mode = os.SEEK_SET
+                                    if first < 0:
+                                        mode = os.SEEK_END
+                                        length = abs(first)
+                                    elif last is None:
+                                        length = fileinfo['size'] - first
+                                    else:
+                                        if last > fileinfo['size']:
+                                            length = fileinfo['size'] - first
+                                        else:
+                                            length = last - first + 1
+
+                                    f.seek(first, mode)
+                                    data = f.read(length)
+
+                                    if len(ranges) > 1:
+                                        self.response.write('--%s\n' % self.request.id)
+                                        self.response.write('Content-Type: %s\n' % str(
+                                            fileinfo.get('mimetype', 'application/octet-stream')))
+                                        self.response.write('Content-Range: %s\n' % str(
+                                            util.build_content_range_header(first, last, fileinfo['size'])))
+                                        self.response.write('\n')
+                                        self.response.write(data)
+                                        self.response.write('\n')
+                                    else:
+                                        self.response.write(data)
+            # END of duplicated code
 
             # log download if we haven't already for this ticket
             if ticket:

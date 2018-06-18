@@ -2,6 +2,7 @@
 set -exo pipefail
 
 PROJECT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+JSONIO_DIR="${PROJECT_DIR}/src/matlab/JSONio"
 
 GRADLE_CONTAINER="gradle:4.5-jdk8-alpine"
 PYTHON_CONTAINER="python:3.4"
@@ -11,13 +12,13 @@ if [ "$#" -ge 1 ]; then
 fi
 
 # Clone JSONio
-if [ ! -d "src/matlab/JSONio" ]; then
-    git clone https://github.com/flywheel-io/JSONio src/matlab/JSONio
+if [ ! -d "${JSONIO_DIR}" ]; then
+    git clone https://github.com/flywheel-io/JSONio "${JSONIO_DIR}"
 fi
 
 # Checkout latest JSONio commit
 (
-    cd src/matlab/JSONio
+    cd "${JSONIO_DIR}"
     git pull
 )
 

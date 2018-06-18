@@ -7,7 +7,16 @@ from ..types import Origin
 
 from ..web.errors import APINotFoundException, APIPermissionException
 
-CONT_TYPES = ['acquisition', 'analysis', 'collection', 'group', 'project', 'session']
+
+# Ordering optimized for global request frequency
+CONT_TYPES = [
+    'acquisition',
+    'session',
+    'project',
+    'group',
+    'analysis',
+    'collection',
+]
 SINGULAR_TO_PLURAL = {
     'acquisition': 'acquisitions',
     'analysis':    'analyses',

@@ -14,11 +14,11 @@
           response:
             $ref: examples/output/device-list.json
   post:
-    summary: Modify a device's interval, info or set errors.
+    summary: Create a new device.
     description: |
-      Will modify the device record of device making the request.
-      Request must be drone request.
-    operationId: update_device
+      Will create a new device record together with an api key.
+      Request must be an admin request.
+    operationId: create_device
     tags:
     - devices
     responses:
@@ -34,10 +34,13 @@
         schema:
           $ref: schemas/input/device.json
 /devices/self:
-  get:
-    summary: Get device document for device making the request.
-    description: Request must be a drone request.
-    operationId: get_current_device
+  put:
+    summary: Modify a device's type, name, interval, info or set errors.
+    description: |
+      Will modify the device record of the device making the request.
+      Type may only be set once if not already specified at creation.
+      Request must be a drone request.
+    operationId: update_device
     tags:
     - devices
     responses:
@@ -48,6 +51,12 @@
         examples:
           response:
               $ref: examples/output/device.json
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          $ref: schemas/input/device-update.json
 /devices/status:
   get:
     summary: Get status for all known devices.

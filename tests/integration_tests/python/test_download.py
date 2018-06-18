@@ -3,6 +3,10 @@ import os
 import tarfile
 import zipfile
 
+from bson.objectid import ObjectId
+
+from api import config, util
+
 
 def test_download_k(data_builder, file_form, as_admin, api_db, legacy_cas_file):
     project = data_builder.create_project(label='project1')
@@ -114,7 +118,6 @@ def test_download_k(data_builder, file_form, as_admin, api_db, legacy_cas_file):
 
     tar.close()
 
-
     # Try to perform the download from a different IP
     update_result = api_db.downloads.update_one(
         {'_id': ticket},
@@ -180,6 +183,36 @@ def test_download_k(data_builder, file_form, as_admin, api_db, legacy_cas_file):
     # Verify a single file in tar with correct file name
     for tarinfo in tar:
         assert os.path.basename(tarinfo.name) == file_name_legacy
+
+    tar.close()
+
+    # test missing file hangling
+
+    file_id = api_db.acquisitions.find_one({'_id': ObjectId(acquisition)})['files'][0]['_id']
+    config.fs.remove(util.path_from_uuid(file_id))
+
+    r = as_admin.post('/download', json={
+        'optional': False,
+        'nodes': [
+            {'level': 'acquisition', '_id': acquisition},
+            {'level': 'acquisition', '_id': acquisition3},
+        ]
+    })
+    assert r.ok
+    ticket = r.json()['ticket']
+
+    # Perform the download
+    r = as_admin.get('/download', params={'ticket': ticket})
+    assert r.ok
+
+    tar_file = cStringIO.StringIO(r.content)
+    tar = tarfile.open(mode="r", fileobj=tar_file)
+
+    # Verify a single file in tar with correct file name
+    tarinfo_list = list(tar)
+    # it contains two files
+    assert len(tarinfo_list) == 2
+    assert len([tarinfo for tarinfo in tarinfo_list if tarinfo.name.endswith('.MISSING')]) == 1
 
     tar.close()
 
@@ -261,10 +294,9 @@ def test_filelist_range_download(data_builder, as_admin, file_form):
     assert r.ok
     ticket = r.json()['ticket']
 
-    # try to download single file's first byte w/o feature flag
+    # verify contents
     r = as_admin.get(session_files + '/one.csv',
-                     params={'ticket': ticket},
-                     headers={'Range': 'bytes=0-0'})
+                     params={'ticket': ticket})
     assert r.ok
     assert r.content == '123456789'
 
@@ -411,20 +443,21 @@ def test_filelist_range_download(data_builder, as_admin, file_form):
     assert r.ok
     ticket = r.json()['ticket']
 
-    # download multiple ranges
-    r = as_admin.get(session_files + '/one.csv',
-                     params={'ticket': ticket, 'view': 'true'},
-                     headers={'Range': 'bytes=1-2, 3-4'})
-    assert r.ok
-    boundary = r.headers.get('Content-Type').split('boundary=')[1]
-    assert r.content == '--{0}\n' \
-                        'Content-Type: text/csv\n' \
-                        'Content-Range: bytes 1-2/9\n\n' \
-                        '23\n' \
-                        '--{0}\n' \
-                        'Content-Type: text/csv\n' \
-                        'Content-Range: bytes 3-4/9\n\n' \
-                        '45\n'.format(boundary)
+    if os.getenv('SCITRAN_PERSISTENT_FS_URL', 'osfs').startswith('osfs'):
+        # download multiple ranges
+        r = as_admin.get(session_files + '/one.csv',
+                         params={'ticket': ticket, 'view': 'true'},
+                         headers={'Range': 'bytes=1-2, 3-4'})
+        assert r.ok
+        boundary = r.headers.get('Content-Type').split('boundary=')[1]
+        assert r.content == '--{0}\n' \
+                            'Content-Type: text/csv\n' \
+                            'Content-Range: bytes 1-2/9\n\n' \
+                            '23\n' \
+                            '--{0}\n' \
+                            'Content-Type: text/csv\n' \
+                            'Content-Range: bytes 3-4/9\n\n' \
+                            '45\n'.format(boundary)
 
 
 def test_analysis_download(data_builder, file_form, as_admin, as_drone, default_payload):
@@ -586,6 +619,94 @@ def test_analysis_download(data_builder, file_form, as_admin, as_drone, default_
     # delete session analysis (job)
     r = as_admin.delete('/sessions/' + session + '/analyses/' + analysis)
     assert r.ok
+
+
+def test_analyses_range_download(data_builder, as_admin, file_form):
+    session = data_builder.create_session()
+    zip_cont = cStringIO.StringIO()
+    with zipfile.ZipFile(zip_cont, 'w') as zip_file:
+        zip_file.writestr('two.csv', 'sample\ndata\n')
+    zip_cont.seek(0)
+
+    # create (legacy) analysis for testing the download functionality
+    r = as_admin.post('/sessions/' + session + '/analyses', files=file_form(('one.csv', '123456789'),
+                                                                            ('two.zip', zip_cont),
+                                                                            meta={
+                                                                                'label': 'test',
+                                                                                'inputs': [{'name': 'one.csv'}],
+                                                                                'outputs': [{'name': 'two.zip'}],
+                                                                            }))
+    assert r.ok
+    analysis = r.json()['_id']
+
+    analysis_inputs = '/analyses/' + analysis + '/inputs'
+
+    r = as_admin.get(analysis_inputs + '/one.csv', params={'ticket': ''})
+    assert r.ok
+    ticket = r.json()['ticket']
+
+    # verify contents
+    r = as_admin.get(analysis_inputs + '/one.csv',
+                     params={'ticket': ticket})
+    assert r.ok
+    assert r.content == '123456789'
+
+    # download single file from byte 0 to end of file
+    r = as_admin.get(analysis_inputs + '/one.csv',
+                     params={'ticket': ticket, 'view': 'true'},
+                     headers={'Range': 'bytes=0-'})
+    assert r.ok
+    assert r.content == '123456789'
+
+    # download single file's first byte by using lower case header
+    r = as_admin.get(analysis_inputs + '/one.csv',
+                     params={'ticket': ticket, 'view': 'true'},
+                     headers={'range': 'bytes=0-0'})
+    assert r.ok
+    assert r.content == '1'
+
+    # download single file's first two byte
+    r = as_admin.get(analysis_inputs + '/one.csv',
+                     params={'ticket': ticket, 'view': 'true'},
+                     headers={'Range': 'bytes=0-1'})
+    assert r.ok
+    assert r.content == '12'
+
+    # try to download single file with invalid unit
+    r = as_admin.get(analysis_inputs + '/one.csv',
+                     params={'ticket': ticket, 'view': 'true'},
+                     headers={'Range': 'lol=-5'})
+    assert r.status_code == 200
+    assert r.content == '123456789'
+
+    # try to download single file with invalid range where the last byte is greater then the size of the file
+    # in this case the whole file is returned
+    r = as_admin.get(analysis_inputs + '/one.csv',
+                     params={'ticket': ticket, 'view': 'true'},
+                     headers={'Range': 'bytes=0-500'})
+    assert r.ok
+    assert r.content == '123456789'
+
+    # try to download single file with invalid range where the first byte is greater then the size of the file
+    r = as_admin.get(analysis_inputs + '/one.csv',
+                     params={'ticket': ticket, 'view': 'true'},
+                     headers={'Range': 'bytes=500-'})
+    assert r.status_code == 416
+
+    # try to download single file with invalid range first byte is greater than the last one
+    r = as_admin.get(analysis_inputs + '/one.csv',
+                     params={'ticket': ticket, 'view': 'true'},
+                     headers={'Range': 'bytes=10-5'})
+    assert r.ok
+    assert r.content == '123456789'
+
+    # try to download single file with invalid range header syntax
+    r = as_admin.get(analysis_inputs + '/one.csv',
+                     params={'ticket': ticket, 'view': 'true'},
+                     headers={'Range': 'bytes-1+5'})
+    assert r.ok
+    assert r.content == '123456789'
+
 
 def test_filters(data_builder, file_form, as_admin):
 

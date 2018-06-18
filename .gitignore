@@ -4,6 +4,7 @@
 .cache
 .DS_Store
 /.coverage*
+/.pytest_cache
 /bin/accesslog.csv
 /htmlcov
 /persistent

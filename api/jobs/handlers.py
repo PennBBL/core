@@ -14,8 +14,9 @@ from .. import upload
 from .. import files
 from ..auth import require_drone, require_login, require_admin, has_access
 from ..auth.apikeys import JobApiKey
-from ..dao import hierarchy
+from ..dao import dbutil, hierarchy
 from ..dao.containerstorage import ProjectStorage, SessionStorage, SubjectStorage, AcquisitionStorage, AnalysisStorage, cs_factory
+from ..types import Origin
 from ..util import humanize_validation_error, set_for_download
 from ..validators import validate_data, verify_payload_exists
 from ..dao.containerutil import pluralize, singularize
@@ -35,6 +36,7 @@ from .batch import check_state, update
 from .queue import Queue
 from .rules import create_jobs, validate_regexes
 
+
 class GearsHandler(base.RequestHandler):
 
     """Provide /gears API routes."""
@@ -43,13 +45,16 @@ class GearsHandler(base.RequestHandler):
     def get(self):
         """List all gears."""
 
-        gears   = get_gears()
-        filters = self.request.GET.getall('filter')
+        # NOTE Filtering with `?filter=single_input` is not compatible with pagination
+        # because filtering after the query invalidates total and count.
+        # Ignoring any pagination headers/params for backwards compatibility.
+        if 'single_input' in self.request.GET.getall('filter'):
+            gears = get_gears()
+            return [gear for gear in gears if count_file_inputs(gear) <= 1]
 
-        if 'single_input' in filters:
-            gears = list(filter(lambda x: count_file_inputs(x) <= 1, gears))
+        gear_page = get_gears(pagination=self.pagination)
+        return self.format_page(gear_page)
 
-        return gears
 
     @require_login
     def check(self):
@@ -240,7 +245,9 @@ class RulesHandler(base.RequestHandler):
             if not self.user_is_admin and not has_access(self.uid, project, 'ro'):
                 raise APIPermissionException('User does not have access to project {} rules'.format(cid))
 
-        return config.db.project_rules.find({'project_id' : cid}, projection=projection)
+        find_kwargs = dict(filter={'project_id': cid}, projection=projection)
+        page = dbutil.paginate_find(config.db.project_rules, find_kwargs, self.pagination)
+        return self.format_page(page)
 
     @verify_payload_exists
     def post(self, cid):
@@ -339,9 +346,10 @@ class RuleHandler(base.RequestHandler):
 class JobsHandler(base.RequestHandler):
 
     @require_admin
-    def get(self): # pragma: no cover (no route)
+    def get(self):
         """List all jobs."""
-        return list(config.db.jobs.find())
+        page = dbutil.paginate_find(config.db.jobs, {}, self.pagination)
+        return self.format_page(page)
 
     def add(self):
         """Add a job to the queue."""
@@ -467,6 +475,10 @@ class JobHandler(base.RequestHandler):
         j = Job.get(_id)
         mutation = self.request.json
 
+        if 'state' in mutation and mutation['state'] == 'running':
+            if self.origin.get('type', '') != Origin.device:
+                raise APIPermissionException('Only a drone can start a job with this endpoint')
+
         # If user is not superuser, can only cancel jobs they spawned
         if not self.superuser_request and not self.user_is_admin:
             if j.origin.get('id') != self.uid:
@@ -546,9 +558,12 @@ class JobHandler(base.RequestHandler):
 
         # Permission check
         if not self.superuser_request:
-            for x in j.inputs:
-                if hasattr(j.inputs[x], 'check_access'):
-                    j.inputs[x].check_access(self.uid, 'ro')
+
+            if j.inputs is not None:
+                for x in j.inputs:
+                    if hasattr(j.inputs[x], 'check_access'):
+                        j.inputs[x].check_access(self.uid, 'ro')
+
             j.destination.check_access(self.uid, 'rw')
 
         new_id = Queue.retry(j, force=True)
@@ -597,7 +612,6 @@ class JobHandler(base.RequestHandler):
 
         self.log_user_access(AccessType.accept_failed_output, cont_name=j.destination.type, cont_id=j.destination.id, multifile=True)
 
-
 class BatchHandler(base.RequestHandler):
 
     @require_login
@@ -612,7 +626,8 @@ class BatchHandler(base.RequestHandler):
             query = {}
         else:
             query = {'origin.id': self.uid}
-        return batch.get_all(query, {'proposal':0})
+        page = batch.get_all(query, {'proposal': 0}, pagination=self.pagination)
+        return self.format_page(page)
 
     @require_login
     def get(self, _id):

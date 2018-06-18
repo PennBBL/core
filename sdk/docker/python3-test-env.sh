@@ -10,5 +10,5 @@ docker run --rm -it \
     -e PYTHONPATH=/local/src/python/gen \
     -e SdkTestKey=${SdkTestKey} \
     -e FLYWHEEL_SDK_SKIP_VERSION_CHECK=1 \
-    python:2.7 /bin/bash -c "cd src/python/tests; pip install -r requirements.txt; /bin/bash"
+    python:3.6 /bin/bash -c "cd src/python/tests; pip install -r requirements.txt; /bin/bash"
 

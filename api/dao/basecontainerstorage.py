@@ -5,6 +5,7 @@ import pymongo.errors
 
 from . import consistencychecker
 from . import containerutil
+from . import dbutil
 from .. import config
 from .. import util
 
@@ -91,6 +92,13 @@ class ContainerStorage(object):
 
             parent_name = child_name
         return parent_tree
+
+    @classmethod
+    def filter_container_files(cls, cont):
+        if cont is not None and cont.get('files', []):
+            cont['files'] = [f for f in cont['files'] if 'deleted' not in f]
+            for f in cont['files']:
+                f.pop('measurements', None)
 
     def format_id(self, _id):
         if self.use_object_id:
@@ -210,9 +218,10 @@ class ContainerStorage(object):
     def _to_mongo(self, payload):
         pass
 
+    # pylint: disable=unused-argument
     def exec_op(self, action, _id=None, payload=None, query=None, user=None,
-                public=False, projection=None, recursive=False, r_payload=None,  # pylint: disable=unused-argument
-                replace_metadata=False, unset_payload=None):
+                public=False, projection=None, recursive=False, r_payload=None,
+                replace_metadata=False, unset_payload=None, pagination=None):
         """
         Generic method to exec a CRUD operation from a REST verb.
         """
@@ -223,7 +232,7 @@ class ContainerStorage(object):
         if action == 'GET' and _id:
             return self.get_el(_id, projection=projection, fill_defaults=True)
         if action == 'GET':
-            return self.get_all_el(query, user, projection, fill_defaults=True)
+            return self.get_all_el(query, user, projection, fill_defaults=True, pagination=pagination)
         if action == 'DELETE':
             return self.delete_el(_id)
         if action == 'PUT':
@@ -275,9 +284,14 @@ class ContainerStorage(object):
 
     def delete_el(self, _id):
         _id = self.format_id(_id)
+        self.cleanup_ancillary_data(_id)
         if self.use_delete_tag:
             return self.dbc.update_one({'_id': _id}, {'$set': {'deleted': datetime.datetime.utcnow()}})
         return self.dbc.delete_one({'_id':_id})
+
+    def cleanup_ancillary_data(self, _id):
+        """Optional cleanup of other data that may be associated with this container"""
+        pass
 
     def get_el(self, _id, projection=None, fill_defaults=False):
         _id = self.format_id(_id)
@@ -285,11 +299,10 @@ class ContainerStorage(object):
         self._from_mongo(cont)
         if fill_defaults:
             self._fill_default_values(cont)
-        if cont is not None and cont.get('files', []):
-            cont['files'] = [f for f in cont['files'] if 'deleted' not in f]
+        self.filter_container_files(cont)
         return cont
 
-    def get_all_el(self, query, user, projection, fill_defaults=False):
+    def get_all_el(self, query, user, projection, fill_defaults=False, pagination=None):
         if query is None:
             query = {}
         if user:
@@ -313,10 +326,11 @@ class ContainerStorage(object):
         else:
             replace_info_with_bool = False
 
-        results = list(self.dbc.find(query, projection))
+        page = dbutil.paginate_find(self.dbc, {'filter': query, 'projection': projection}, pagination)
+        results = page['results']
+
         for cont in results:
-            if cont.get('files', []):
-                cont['files'] = [f for f in cont['files'] if 'deleted' not in f]
+            self.filter_container_files(cont)
             self._from_mongo(cont)
             if fill_defaults:
                 self._fill_default_values(cont)
@@ -336,7 +350,7 @@ class ContainerStorage(object):
                     f['info_exists'] = bool(f_info)
                     f['info'] = containerutil.sanitize_info(f_info)
 
-        return results
+        return results if pagination is None else page
 
     def modify_info(self, _id, payload, modify_subject=False):
 
@@ -378,3 +392,25 @@ class ContainerStorage(object):
             update['$set']['modified'] = datetime.datetime.utcnow()
 
         return self.dbc.update_one(query, update)
+
+    @staticmethod
+    def join_avatars(containers):
+        """
+        Given a list of containers, adds avatar and name context to each member of the permissions and notes lists
+        """
+
+        # Get list of all users, hash by uid
+        # TODO: This is not an efficient solution if there are hundreds of inactive users
+        users_list = ContainerStorage.factory('users').get_all_el({}, None, None)
+        users = {user['_id']: user for user in users_list}
+
+        for container in containers:
+            permissions = container.get('permissions', [])
+            notes = container.get('notes', [])
+
+            for item in permissions + notes:
+                uid = item.get('user', item['_id'])
+                user = users[uid]
+                item['avatar'] = user.get('avatar')
+                item['firstname'] = user.get('firstname', '')
+                item['lastname'] = user.get('lastname', '')

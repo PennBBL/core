@@ -130,3 +130,11 @@ def test_groups(as_user, as_admin, data_builder):
     r = as_admin.get('/groups', params={'join': 'projects'})
     assert r.ok
     assert r.json()[0].get('projects')[0].get('_id') == project
+
+def test_groups_blacklist(as_admin):
+    r = as_admin.post('/groups', json={'_id': 'unknown', 'label': 'Unknown group'})
+    assert r.status_code == 400
+
+    r = as_admin.post('/groups', json={'_id': 'site', 'label': 'Site group'})
+    assert r.status_code == 400
+

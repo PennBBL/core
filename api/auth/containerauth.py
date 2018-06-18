@@ -110,6 +110,56 @@ def default_referer(handler, parent_container=None):
         return f
     return g
 
+def has_any_referer_access(handler, method, container, parent_container):
+    """Check if access is allowed for this request.
+
+    Arguments:
+        handler (RequestHandler): The request handler instance, with a uid
+        method (str): The method name (uppercase)
+        container (dict): The base container
+        parent_container (dict): The parent container
+
+    Returns:
+        bool: True if access is permitted, false otherwise
+    """
+    has_access = False
+
+    # if parent container is "site", then the user must be a superuser to make changes
+    if handler.superuser_request:
+        has_access = True
+    elif parent_container == 'site':
+        if handler.user_is_admin:
+            has_access = True
+        else:
+            has_access = method == 'GET' and container.get('public', False)
+    elif method == 'GET' and (container.get('public', False) or parent_container.get('public', False)):
+        has_access = True
+    elif parent_container.get('cont_name') == 'user':
+        # if the parent container is a user, then only the user has access
+        has_access = handler.uid == parent_container['_id']
+    else:
+        access = _get_access(handler.uid, parent_container)
+        if method == 'GET':
+            has_access = access >= INTEGER_PERMISSIONS['ro']
+        elif method in ['POST', 'PUT', 'DELETE']:
+            # if the parent container is a group then the user must be an admin to create/delete views
+            if parent_container.get('cont_name') == 'group':
+                has_access = access >= INTEGER_PERMISSIONS['admin']
+            else:
+                has_access = access >= INTEGER_PERMISSIONS['rw']
+
+    return has_access
+
+def any_referer(handler, container=None, parent_container=None):
+    def g(exec_op):
+        def f(method, _id=None, payload=None):
+            # finally we fall back on the default referrer
+            if has_any_referer_access(handler, method, container, parent_container):
+                return exec_op(method, _id=_id, payload=payload)
+            else:
+                raise APIPermissionException('user not authorized to perform a {} operation on parent container'.format(method))
+        return f
+    return g
 
 def public_request(handler, container=None):
     """
@@ -126,20 +176,20 @@ def public_request(handler, container=None):
 
 def list_permission_checker(handler):
     def g(exec_op):
-        def f(method, query=None, user=None, public=False, projection=None):
+        def f(method, query=None, user=None, public=False, projection=None, pagination=None):
             if user and (user['_id'] != handler.uid):
                 handler.abort(403, 'User ' + handler.uid + ' may not see the Projects of User ' + user['_id'])
             query['permissions'] = {'$elemMatch': {'_id': handler.uid}}
             if handler.is_true('public'):
                 query['$or'] = [{'public': True}, {'permissions': query.pop('permissions')}]
-            return exec_op(method, query=query, user=user, public=public, projection=projection)
+            return exec_op(method, query=query, user=user, public=public, projection=projection, pagination=pagination)
         return f
     return g
 
 
 def list_public_request(exec_op):
-    def f(method, query=None, user=None, public=False, projection=None):
+    def f(method, query=None, user=None, public=False, projection=None, pagination=None):
         if public:
             query['public'] = True
-        return exec_op(method, query=query, user=user, public=public, projection=projection)
+        return exec_op(method, query=query, user=user, public=public, projection=projection, pagination=pagination)
     return f

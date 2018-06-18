@@ -198,6 +198,11 @@ def test_get_all_containers(data_builder, as_admin, as_user, as_public, file_for
     assert r.ok
     assert all('avatar' in perm for proj in r.json() for perm in proj['permissions'])
 
+    # get all projects w/ join=origin
+    r = as_public.get('/projects', params={'join': 'origin'})
+    assert r.ok
+    assert all('join-origin' in proj for proj in r.json())
+
     # get all sessions for project w/ measurements=true and stats=true
     r = as_public.get('/projects/' + project_1 + '/sessions', params={
         'measurements': 'true',
@@ -334,10 +339,15 @@ def test_get_container(data_builder, default_payload, file_form, as_drone, as_ad
     assert isinstance(r.json()['analyses'][1]['job'], dict)
 
     # fail and retry analysis job to test auto-updating on analysis
-    analysis_job = r.json()['analyses'][1]['job']['id']
-    as_drone.put('/jobs/' + analysis_job, json={'state': 'running'})
-    as_drone.put('/jobs/' + analysis_job, json={'state': 'failed'})
-    as_drone.post('/jobs/' + analysis_job + '/retry')
+    analysis_job = r.json()['analyses'][1]['job']
+    analysis_job_id = analysis_job['id']
+
+    r = as_drone.put('/jobs/' + analysis_job_id, json={'state': 'running'})
+    assert r.ok
+    r = as_drone.put('/jobs/' + analysis_job_id, json={'state': 'failed'})
+    assert r.ok
+    r = as_drone.post('/jobs/' + analysis_job_id + '/retry')
+    assert r.ok
 
     # get session and check analyis job was updated
     r = as_admin.get('/sessions/' + session)
@@ -800,7 +810,7 @@ def test_edit_file_info(data_builder, as_admin, file_form):
 
     r = as_admin.post('/projects/' + project + '/files', files=file_form(file_name))
     assert r.ok
-    r = as_admin.post('/projects/' + project + '/files', files=file_form(file_name_fwd))
+    r = as_admin.post('/projects/' + project + '/files', files=file_form(file_name_fwd), params={'filename_path':True})
     assert r.ok
 
     r = as_admin.get('/projects/' + project + '/files/' + file_name + '/info')
@@ -1261,7 +1271,6 @@ def test_fields_list_requests(data_builder, file_form, as_admin):
     assert not a['files'][0].get('info')
 
 
-
 def test_container_delete_tag(data_builder, default_payload, as_root, as_admin, as_user, as_drone, file_form, api_db):
     gear_doc = default_payload['gear']['gear']
     gear_doc['inputs'] = {'csv': {'base': 'file'}}
@@ -1405,3 +1414,36 @@ def test_container_delete_tag(data_builder, default_payload, as_root, as_admin, 
 
     # test that the (now) empty group can be deleted
     assert as_root.delete('/groups/' + group).ok
+
+
+def test_abstract_containers(data_builder, as_admin, file_form):
+    group = data_builder.create_group()
+    project = data_builder.create_project()
+    session = data_builder.create_session()
+    acquisition = data_builder.create_acquisition()
+    analysis = as_admin.post('/sessions/' + session + '/analyses', files=file_form(
+        'analysis.csv', meta={'label': 'no-job', 'inputs': [{'name': 'analysis.csv'}]})).json()['_id']
+    collection = data_builder.create_collection()
+
+    for cont in (collection, analysis, acquisition, session, project, group):
+        r = as_admin.post('/containers/' + cont + '/tags', json={'value': 'abstract1'})
+        assert r.ok
+
+        r = as_admin.get('/containers/' + cont)
+        assert r.ok
+        assert r.json()['tags'] == ['abstract1']
+
+        r = as_admin.put('/containers/' + cont + '/tags/abstract1', json={'value': 'abstract2'})
+        assert r.ok
+
+        r = as_admin.get('/containers/' + cont + '/tags/abstract2')
+        assert r.ok
+        assert r.json() == 'abstract2'
+
+    # /analyses/x does not support DELETE (yet?)
+    for cont in (collection, acquisition, session, project, group):
+        r = as_admin.delete('/containers/' + cont)
+        assert r.ok
+
+        r = as_admin.get('/containers/' + cont)
+        assert r.status_code == 404

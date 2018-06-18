@@ -8,7 +8,6 @@ from .. import validators
 from ..auth import containerauth, always_ok
 from ..dao import containerstorage, containerutil, noop
 from ..dao.containerstorage import AnalysisStorage
-from ..jobs.gears import get_gear
 from ..jobs.jobs import Job
 from ..jobs.queue import Queue
 from ..types import Origin
@@ -107,7 +106,7 @@ class ContainerHandler(base.RequestHandler):
         if not self.superuser_request and not self.is_true('join_avatars'):
             self._filter_permissions(result, self.uid)
         if self.is_true('join_avatars'):
-            self.join_user_info([result])
+            self.storage.join_avatars([result])
 
         inflate_job_info = cont_name == 'sessions'
         result['analyses'] = AnalysisStorage().get_analyses(cont_name, _id, inflate_job_info)
@@ -137,7 +136,7 @@ class ContainerHandler(base.RequestHandler):
         cached_gears = {}
 
         for f in result.get('files', []):
-            origin = f.get('origin', None)
+            origin = f.get('origin')
 
             if origin is None:
                 # Backfill origin maps if none provided from DB
@@ -148,12 +147,8 @@ class ContainerHandler(base.RequestHandler):
 
             elif join_origin:
                 j_type = f['origin']['type']
-                j_id   = f['origin']['id']
-                j_id_b = j_id
-
-                # Some tables don't use BSON for their primary keys.
-                if j_type not in (Origin.user, Origin.device):
-                    j_id_b = bson.ObjectId(j_id)
+                j_id   = str(f['origin']['id'])
+                j_id_b = bson.ObjectId(j_id) if bson.ObjectId.is_valid(j_id) else j_id
 
                 # Join from database if we haven't for this origin before
                 if j_type != 'unknown' and result['join-origin'][j_type].get(j_id, None) is None:
@@ -181,31 +176,6 @@ class ContainerHandler(base.RequestHandler):
                     result['join-origin'][j_type][j_id] = join_doc
 
         return result
-
-    @staticmethod
-    def join_user_info(results):
-        """
-        Given a list of containers, adds avatar and name context to each member of the permissions and notes lists
-        """
-
-        # Get list of all users, hash by uid
-        # TODO: This is not an efficient solution if there are hundreds of inactive users
-        users_list = containerstorage.ContainerStorage('users', use_object_id=False).get_all_el({}, None, None)
-        users = {user['_id']: user for user in users_list}
-
-        for r in results:
-            permissions = r.get('permissions', [])
-            notes = r.get('notes', [])
-
-            for p in permissions+notes:
-                uid = p['user'] if 'user' in p else p['_id']
-                user = users[uid]
-                p['avatar'] = user.get('avatar')
-                p['firstname'] = user.get('firstname', '')
-                p['lastname'] = user.get('lastname', '')
-
-
-        return results
 
     def _filter_permissions(self, result, uid):
         """
@@ -239,68 +209,42 @@ class ContainerHandler(base.RequestHandler):
         analyses = AnalysisStorage().get_analyses('session', cont['_id'])
         acquisitions = cont.get('acquisitions', [])
 
-        results = []
         if not acquisitions and not analyses:
             # no jobs
-            return {'jobs': results}
+            return {'jobs': []}
 
         # Get query params
-        states      = self.request.GET.getall('states')
-        tags        = self.request.GET.getall('tags')
-        join_cont   = 'containers' in self.request.params.getall('join')
-        join_gears  = 'gears' in self.request.params.getall('join')
+        states = self.request.GET.getall('states')
+        tags = self.request.GET.getall('tags')
+        join_cont = 'containers' in self.request.params.getall('join')
+        join_gears = 'gears' in self.request.params.getall('join')
 
-        # search for jobs
-        if acquisitions:
-            id_array = [str(c['_id']) for c in acquisitions]
-            cont_array = [containerutil.ContainerReference('acquisition', cid) for cid in id_array]
-            results += Queue.search(cont_array, states=states, tags=tags)
+        cont_refs = [containerutil.ContainerReference(cont_type, str(cont_id)) for cont_type, cont_id in
+                        [('session', cont['_id'])] +
+                        [('analysis', an['_id']) for an in analyses] +
+                        [('acquisition', aq['_id']) for aq in acquisitions]
+                    ]
+        jobs = Queue.search(cont_refs, states=states, tags=tags)
 
-            # Also check the acquisition's session
-            results += Queue.search([containerutil.ContainerReference('session', str(cont['_id']))], states=states, tags=tags)
+        unique_jobs = {}
+        gear_ids = set()
+        for job in jobs:
+            if job['_id'] not in unique_jobs:
+                unique_jobs[job['_id']] = Job.load(job)
+                if job.get('gear_id') and job['gear_id'] not in gear_ids:
+                    gear_ids.add(job['gear_id'])
 
-        if analyses:
-            id_array = [str(c['_id']) for c in analyses]
-            cont_array = [containerutil.ContainerReference('analysis', cid) for cid in id_array]
-            results += Queue.search(cont_array, states=states, tags=tags)
-
-        # Stateful closure to remove search duplicates
-        # Eventually, this code should not call Queue.search and should instead do its own work.
-        def match_ids(x):
-            in_set = str(x['_id']) in match_ids.unique_job_ids
-            match_ids.unique_job_ids.add(str(x['_id']))
-            return not in_set
-
-        match_ids.unique_job_ids = set()
-        results = filter(match_ids, results)
-
-        # Ensure job uniqueness
-        seen_jobs = []
-        seen_gears = []
-        jobs = []
-        for j in results:
-            if j['_id'] not in seen_jobs:
-                job  = Job.load(j)
-                jobs.append(job)
-                seen_jobs.append(job.id_)
-            if j.get('gear_id') and j['gear_id'] not in seen_gears:
-                seen_gears.append(j['gear_id'])
-
-        jobs.sort(key=lambda j: j.created)
-
-        response = {'jobs': jobs}
+        response = {'jobs': sorted(unique_jobs.values(), key=lambda job: job.created)}
         if join_gears:
-            response['gears'] = {}
-            for g_id in seen_gears:
-                response['gears'][g_id] = get_gear(g_id)
+            gears = config.db.gears.find({'_id': {'$in': [bson.ObjectId(gear_id) for gear_id in gear_ids]}})
+            response['gears'] = {str(gear['_id']): gear for gear in gears}
         if join_cont:
             # create a map of analyses and acquisitions by _id
-            containers = dict((str(c['_id']), c) for c in analyses+acquisitions)
+            containers = {str(cont['_id']): cont for cont in analyses + acquisitions}
             for container in containers.itervalues():
                 # No need to return perm arrays
                 container.pop('permissions', None)
             response['containers'] = containers
-
         return response
 
     def get_all(self, cont_name, par_cont_name=None, par_id=None):
@@ -333,9 +277,8 @@ class ContainerHandler(base.RequestHandler):
         else:
             query = {}
         # this request executes the actual reqeust filtering containers based on the user permissions
-        results = permchecker(self.storage.exec_op)('GET', query=query, public=self.public_request, projection=projection)
-        if results is None:
-            self.abort(404, 'No elements found in container {}'.format(self.storage.cont_name))
+        page = permchecker(self.storage.exec_op)('GET', query=query, public=self.public_request, projection=projection, pagination=self.pagination)
+        results = page['results']
         # return only permissions of the current user unless superuser or getting avatars
         if not self.superuser_request and not self.is_true('join_avatars'):
             self._filter_all_permissions(results, self.uid)
@@ -343,17 +286,15 @@ class ContainerHandler(base.RequestHandler):
         if self.is_true('counts'):
             self._add_results_counts(results, cont_name)
 
-        modified_results = []
         for result in results:
+            self.handle_origin(result)
             if self.is_true('stats'):
-                result = containerutil.get_stats(result, cont_name)
-            result = self.handle_origin(result)
-            modified_results.append(result)
+                containerutil.get_stats(result, cont_name)
 
         if self.is_true('join_avatars'):
-            modified_results = self.join_user_info(modified_results)
+            self.storage.join_avatars(results)
 
-        return modified_results
+        return self.format_page(page)
 
     def _filter_all_permissions(self, results, uid):
         for result in results:

@@ -71,6 +71,7 @@ class ApiClient(object):
         # Set default User-Agent.
         self.user_agent = '{{#httpUserAgent}}{{{.}}}{{/httpUserAgent}}{{^httpUserAgent}}Swagger-Codegen/{{{packageVersion}}}/python{{/httpUserAgent}}'
         self.last_response = None
+        self._version_check_fn = None
 
     def __del__(self):
         self.pool.close()
@@ -91,6 +92,9 @@ class ApiClient(object):
     def set_default_query_param(self, name, value):
         self.default_query_params.append((name, value))
 
+    def set_version_check_fn(self, fn):
+        self._version_check_fn = fn
+
     {{#tornado}}
     @tornado.gen.coroutine
     {{/tornado}}
@@ -100,6 +104,11 @@ class ApiClient(object):
             files=None, response_type=None, auth_settings=None,
             _return_http_data_only=None, collection_formats=None,
             _preload_content=True, _request_timeout=None, _request_out=None):
+
+        if self._version_check_fn is not None:
+            version_check_fn = self._version_check_fn
+            self._version_check_fn = None
+            version_check_fn()
 
         config = self.configuration
 

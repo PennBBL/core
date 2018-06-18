@@ -61,7 +61,7 @@ you can either specify the path to the input file, or you can specify some in-me
 	file_spec = flywheel.FileSpec('hello.txt', 'Hello World!\n', 'text/plain')
 	fw.upload_file_to_project(project_id, file_spec)
 
-	% Some endpoints allow multiple file uploads:
+	# Some endpoints allow multiple file uploads:
 	fw.upload_output_to_analysis(analysis_id, ['/tmp/hello1.txt', '/tmp/hello2.txt'])
 
 When downloading, you specify the destination file, or you can download directly to memory

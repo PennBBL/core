@@ -17,6 +17,13 @@ def move_file_to_legacy(src, dst):
     fs.move.move_file(src_fs=config.fs, src_path=src,
                       dst_fs=config.local_fs, dst_path=dst)
 
+def move_file_to_legacy2(src, dst):
+    target_dir = fs.path.dirname(dst)
+    if not config.local_fs2.exists(target_dir):
+        config.local_fs2.makedirs(target_dir)
+    fs.move.move_file(src_fs=config.fs, src_path=src,
+                      dst_fs=config.local_fs2, dst_path=dst)
+
 @pytest.fixture(scope='function')
 def migrate_storage(mocker):
     """Enable importing from `bin` and return `migrate_storage`."""
@@ -142,6 +149,7 @@ def files_to_migrate(data_builder, api_db, as_admin, randstr, file_form):
 
     move_file_to_legacy(util.path_from_uuid(file_id_1), util.path_from_hash(file_hash_1))
     files.append((session_id, file_name_1, url_1, util.path_from_hash(file_hash_1)))
+
     # Create an UUID file
     file_name_2 = '%s.csv' % randstr()
     file_content_2 = randstr()
@@ -155,6 +163,21 @@ def files_to_migrate(data_builder, api_db, as_admin, randstr, file_form):
 
     move_file_to_legacy(util.path_from_uuid(file_id_2), util.path_from_uuid(file_id_2))
     files.append((session_id, file_name_2, url_2, util.path_from_uuid(file_id_2)))
+
+    ### Temp fix for 3-way split storages, see api.config.local_fs2 for details
+    # Create an UUID file in legacy/v1 for testing 3-way split storage
+    file_name_3 = '%s.csv' % randstr()
+    file_content_3 = randstr()
+    as_admin.post('/sessions/' + session_id + '/files', files=file_form((file_name_3, file_content_3)))
+    file_info = api_db['sessions'].find_one(
+        {'files.name': file_name_3}
+    )['files'][2]
+    file_id_3 = file_info['_id']
+    url_3 = '/sessions/' + session_id + '/files/' + file_name_3
+
+    move_file_to_legacy2(util.path_from_uuid(file_id_3), util.path_from_uuid(file_id_3))
+    files.append((session_id, file_name_3, url_3, util.path_from_uuid(file_id_3)))
+    ###
 
     yield files
 
@@ -172,16 +195,17 @@ def files_to_migrate(data_builder, api_db, as_admin, randstr, file_form):
 def test_migrate_containers(files_to_migrate, as_admin, migrate_storage):
     """Testing collection migration"""
 
-    # get file storing by hash in legacy storage
+    # get file stored by hash in legacy storage
     (_, _, url_1, file_path_1) = files_to_migrate[0]
-    # get ile storing by uuid in legacy storage
+    # get file stored by uuid in legacy storage
     (_, _,url_2, file_path_2) = files_to_migrate[1]
+    # get file stored by uuid in legacy/v1 storage
+    (_, _,url_3, file_path_3) = files_to_migrate[2]
 
     # get the ticket
     r = as_admin.get(url_1, params={'ticket': ''})
     assert r.ok
     ticket = r.json()['ticket']
-
     # download the file
     assert as_admin.get(url_1, params={'ticket': ticket}).ok
 
@@ -189,22 +213,29 @@ def test_migrate_containers(files_to_migrate, as_admin, migrate_storage):
     r = as_admin.get(url_2, params={'ticket': ''})
     assert r.ok
     ticket = r.json()['ticket']
-
     # download the file
     assert as_admin.get(url_2, params={'ticket': ticket}).ok
+
+    # get the ticket
+    r = as_admin.get(url_3, params={'ticket': ''})
+    assert r.ok
+    ticket = r.json()['ticket']
+    # download the file
+    assert as_admin.get(url_3, params={'ticket': ticket}).ok
+
     # run the migration
     migrate_storage.main('--containers')
 
     # delete files from the legacy storage
     config.local_fs.remove(file_path_1)
     config.local_fs.remove(file_path_2)
+    config.local_fs2.remove(file_path_3)
 
     # get the files from the new filesystem
     # get the ticket
     r = as_admin.get(url_1, params={'ticket': ''})
     assert r.ok
     ticket = r.json()['ticket']
-
     # download the file
     assert as_admin.get(url_1, params={'ticket': ticket}).ok
 
@@ -212,9 +243,16 @@ def test_migrate_containers(files_to_migrate, as_admin, migrate_storage):
     r = as_admin.get(url_2, params={'ticket': ''})
     assert r.ok
     ticket = r.json()['ticket']
-
     # download the file
     assert as_admin.get(url_2, params={'ticket': ticket}).ok
+
+    # get the ticket
+    r = as_admin.get(url_3, params={'ticket': ''})
+    assert r.ok
+    ticket = r.json()['ticket']
+    # download the file
+    assert as_admin.get(url_3, params={'ticket': ticket}).ok
+
 
 def test_migrate_containers_error(files_to_migrate, migrate_storage):
     """Testing that the migration script throws an exception if it couldn't migrate a file"""

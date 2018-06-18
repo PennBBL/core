@@ -251,6 +251,11 @@ def test_gear_invocation_and_suggest(data_builder, file_form, as_admin):
     assert len(r.json()['files']) == 1
     assert len(r.json()['parents']) == 3
 
+
+    # clean up
+    as_admin.delete('/collections/' + collection)
+
+
 def test_gear_context(data_builder, default_payload, as_admin, as_root, randstr):
     project_label = randstr()
     project_info = {

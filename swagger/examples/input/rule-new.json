@@ -14,5 +14,6 @@
       "value": "nifti"
     }
   ],
-  "any": []
+  "any": [],
+  "not": []
 }

@@ -1,7 +1,7 @@
 import bson
 import time
 
-def test_batch(data_builder, as_user, as_admin, as_root):
+def test_batch(data_builder, as_user, as_admin, as_root, as_drone):
     gear = data_builder.create_gear()
     analysis_gear = data_builder.create_gear(category='analysis')
     invalid_gear = data_builder.create_gear(gear={'custom': {'flywheel': {'invalid': True}}})
@@ -155,9 +155,9 @@ def test_batch(data_builder, as_user, as_admin, as_root):
 
     for job in r.json()['jobs']:
         # set jobs to complete
-        r = as_root.put('/jobs/' + job, json={'state': 'running'})
+        r = as_drone.put('/jobs/' + job, json={'state': 'running'})
         assert r.ok
-        r = as_root.put('/jobs/' + job, json={'state': 'complete'})
+        r = as_drone.put('/jobs/' + job, json={'state': 'complete'})
         assert r.ok
 
     # test batch is complete
@@ -184,9 +184,9 @@ def test_batch(data_builder, as_user, as_admin, as_root):
 
     for job in r.json()['jobs']:
         # set jobs to failed
-        r = as_root.put('/jobs/' + job, json={'state': 'running'})
+        r = as_drone.put('/jobs/' + job, json={'state': 'running'})
         assert r.ok
-        r = as_root.put('/jobs/' + job, json={'state': 'failed'})
+        r = as_drone.put('/jobs/' + job, json={'state': 'failed'})
         assert r.ok
 
     # test batch is complete
@@ -212,9 +212,9 @@ def test_batch(data_builder, as_user, as_admin, as_root):
 
     for job in r.json()['jobs']:
         # set jobs to complete
-        r = as_root.put('/jobs/' + job, json={'state': 'running'})
+        r = as_drone.put('/jobs/' + job, json={'state': 'running'})
         assert r.ok
-        r = as_root.put('/jobs/' + job, json={'state': 'complete'})
+        r = as_drone.put('/jobs/' + job, json={'state': 'complete'})
         assert r.ok
 
     # test batch is complete
@@ -240,7 +240,8 @@ def test_batch(data_builder, as_user, as_admin, as_root):
 
     for job in r.json()['jobs']:
         # set jobs to failed
-        r = as_root.put('/jobs/' + job, json={'state': 'running'})
+        r = as_drone.put('/jobs/' + job, json={'state': 'running'})
+        assert r.ok
         r = as_root.put('/jobs/' + job, json={'state': 'failed'})
         assert r.ok
 
@@ -248,7 +249,7 @@ def test_batch(data_builder, as_user, as_admin, as_root):
     r = as_admin.get('/batch/' + batch_id)
     assert r.json()['state'] == 'failed'
 
-def test_no_input_batch(data_builder, default_payload, randstr, as_admin, as_root, api_db):
+def test_no_input_batch(data_builder, default_payload, randstr, as_admin, as_root, as_drone, api_db):
     project = data_builder.create_project()
     session = data_builder.create_session(project=project)
     session2 = data_builder.create_session(project=project)
@@ -318,9 +319,9 @@ def test_no_input_batch(data_builder, default_payload, randstr, as_admin, as_roo
 
     for job in jobs:
         # set jobs to failed
-        r = as_root.put('/jobs/' + job, json={'state': 'running'})
+        r = as_drone.put('/jobs/' + job, json={'state': 'running'})
         assert r.ok
-        r = as_root.put('/jobs/' + job, json={'state': 'complete'})
+        r = as_drone.put('/jobs/' + job, json={'state': 'complete'})
         assert r.ok
 
     # test batch is complete
@@ -368,9 +369,9 @@ def test_no_input_batch(data_builder, default_payload, randstr, as_admin, as_roo
 
     for job in jobs:
         # set jobs to failed
-        r = as_root.put('/jobs/' + job, json={'state': 'running'})
+        r = as_drone.put('/jobs/' + job, json={'state': 'running'})
         assert r.ok
-        r = as_root.put('/jobs/' + job, json={'state': 'complete'})
+        r = as_drone.put('/jobs/' + job, json={'state': 'complete'})
         assert r.ok
 
     # cleanup

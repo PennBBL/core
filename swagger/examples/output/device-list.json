@@ -1,45 +1,45 @@
 [
   {
-    "errors": null,
-    "method": "bootstrapper",
-    "interval": 500,
-    "_id": "bootstrapper_Bootstrapper",
+    "_id": "000000000000000000000000",
+    "type": "bootstrapper",
     "name": "Bootstrapper",
+    "errors": null,
+    "interval": 500,
     "last_seen": "2016-11-28T18:54:11.880000+00:00"
   },
   {
-    "errors": null,
+    "_id": "000000000000000000000001",
+    "type": "gear-register",
     "name": "flywheel-utility",
+    "errors": null,
     "interval": 700,
-    "_id": "gear-register_flywheel-utility",
-    "method": "gear-register",
     "last_seen": "2016-11-29T18:51:39.836000+00:00"
   },
   {
-    "errors": null,
-    "method": "importer",
-    "_id": "importer_admin_import",
+    "_id": "000000000000000000000002",
+    "type": "importer",
     "name": "admin import",
+    "errors": null,
     "last_seen": "2016-11-28T18:57:27.104000+00:00"
   },
   {
-    "errors": null,
+    "_id": "000000000000000000000003",
+    "type": "cron",
     "name": "Cron",
-    "_id": "cron_Cron",
-    "method": "cron",
+    "errors": null,
     "last_seen": "2016-11-28T23:17:01.261000+00:00"
   },
   {
+    "_id": "000000000000000000000004",
+    "type": "test_type",
+    "name": "example_drone",
     "info": {
       "basic": "info"
     },
     "errors": [
       "An Error"
     ],
-    "name": "example_drone",
     "interval": 400,
-    "_id": "test_method_megans_drone",
-    "method": "test_method",
     "last_seen": "2016-11-28T23:14:06.004000+00:00"
   }
 ]

@@ -21,7 +21,7 @@ class UserHandler(base.RequestHandler):
 
     def __init__(self, request=None, response=None):
         super(UserHandler, self).__init__(request, response)
-        self.storage = containerstorage.ContainerStorage('users', use_object_id=False)
+        self.storage = containerstorage.UserStorage()
 
     def get(self, _id):
         user = self._get_user(_id)
@@ -55,17 +55,16 @@ class UserHandler(base.RequestHandler):
         projection = {'preferences': 0, 'api_key': 0}
         if not self.user_is_admin:
             projection['wechat'] = 0
-        result = permchecker(self.storage.exec_op)('GET', projection=projection)
-        if result is None:
+        page = permchecker(self.storage.exec_op)('GET', projection=projection, pagination=self.pagination)
+        if page['results'] is None:
             self.abort(404, 'Not found')
-        return result
+        return self.format_page(page)
 
     def delete(self, _id):
         user = self._get_user(_id)
         permchecker = userauth.default(self, user)
         # Check for authZ before cleaning up user permissions
         permchecker(noop)('DELETE', _id)
-        self._cleanup_user_permissions(user.get('_id'))
         result = self.storage.exec_op('DELETE', _id)
         if result.deleted_count == 1:
             return {'deleted': result.deleted_count}
@@ -91,7 +90,7 @@ class UserHandler(base.RequestHandler):
         result = mongo_validator(permchecker(self.storage.exec_op))('PUT', _id=_id, payload=payload)
         if result.modified_count == 1:
             if payload.get('disabled', False) and self.is_true('clear_permissions'):
-                self._cleanup_user_permissions(_id)
+                self.storage.cleanup_user_permissions(_id)
             return {'modified': result.modified_count}
         else:
             self.abort(404, 'User {} not updated'.format(_id))
@@ -111,23 +110,26 @@ class UserHandler(base.RequestHandler):
         payload['root'] = payload.get('root', False)
         payload.setdefault('email', payload['_id'])
         payload.setdefault('avatars', {})
+
+        if self.public_request and config.db.users.count() == 0:
+            try:
+                config.db.singletons.insert_one({'_id': 'bootstrap', 'uid': payload['_id']})
+            except pymongo.errors.DuplicateKeyError:
+                pass
+            else:
+                payload['root'] = True
+                result = mongo_validator(self.storage.exec_op)('POST', payload=payload)
+                if result.acknowledged:
+                    api_key = UserApiKey.generate(payload['_id'])
+                    return {'_id': result.inserted_id, 'key': api_key}
+                else:
+                    config.db.singletons.delete_one({'_id': 'bootstrap'})
+
         result = mongo_validator(permchecker(self.storage.exec_op))('POST', payload=payload)
         if result.acknowledged:
             return {'_id': result.inserted_id}
         else:
-            self.abort(404, 'User {} not updated'.format(payload['_id']))
-
-    def _cleanup_user_permissions(self, uid):
-        try:
-
-            query = {'permissions._id': uid}
-            update = {'$pull': {'permissions' : {'_id': uid}}}
-
-            for cont in ['collections', 'groups', 'projects', 'sessions', 'acquisitions']:
-                config.db[cont].update_many(query, update)
-
-        except APIStorageException:
-            self.abort(500, 'Site-wide user permissions for {} were unabled to be removed'.format(uid))
+            self.abort(404, 'User {} not created'.format(payload['_id']))
 
     def avatar(self, uid):
         self.resolve_avatar(uid, default=self.request.GET.get('default'))

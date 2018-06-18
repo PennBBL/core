@@ -17,7 +17,7 @@ from functools import wraps
 import fs.move
 import fs.path
 
-from fs import open_fs
+from fs import open_fs, errors
 
 from api import util
 
@@ -39,17 +39,26 @@ def main(*argv):
                         format=log_format,
                         level=getattr(logging, args.log_level.upper()))
 
-    global db, target_fs, legacy_fs, data_path
+    global db, target_fs, local_fs, local_fs2, data_path
     db_uri = os.environ['SCITRAN_PERSISTENT_DB_URI']
     data_path = os.environ['SCITRAN_PERSISTENT_DATA_PATH']
     log.info('Using mongo URI: %s', db_uri)
     log.info('Using data path: %s', data_path)
     db = pymongo.MongoClient(db_uri).get_default_database()
+    local_fs = open_fs('osfs://' + data_path)
 
-    fs_url = os.environ.get('SCITRAN_PERSISTENT_FS_URL', os.path.join(data_path, 'v1'))
+    ### Temp fix for 3-way split storages, see api.config.local_fs2 for details
+    data_path2 = os.path.join(data_path, 'v1')
+    if os.path.exists(data_path2):
+        log.warning('Path %s exists - enabling 3-way split storage support', data_path2)
+        local_fs2 = open_fs('osfs://' + data_path2)
+    else:
+        local_fs2 = None
+    ###
+
+    fs_url = os.environ.get('SCITRAN_PERSISTENT_FS_URL', 'osfs://' + os.path.join(data_path, 'v1'))
     log.info('Migrate files from %s to %s', data_path, fs_url)
     target_fs = open_fs(fs_url)
-    legacy_fs = open_fs('osfs://' + data_path)
 
     try:
         if not (args.containers or args.gears):
@@ -64,7 +73,7 @@ def main(*argv):
 
         if args.delete_files:
             log.info('Delete legacy files')
-            legacy_fs.removetree(u'/')
+            local_fs.removetree(u'/')
 
         cleanup_empty_folders()
     except MigrationError:
@@ -82,6 +91,17 @@ def parse_args(argv):
     parser.add_argument('--log-level', default='info', metavar='PATH', help='log level [info]')
 
     return parser.parse_args(argv)
+
+
+def get_src_fs_by_file_path(file_path):
+    if local_fs.isfile(file_path):
+        return local_fs
+    ### Temp fix for 3-way split storages, see api.config.local_fs2 for details
+    elif local_fs2 and local_fs2.isfile(file_path):
+        return local_fs2
+    ###
+    else:
+        raise fs.errors.ResourceNotFound('File not found: %s' % file_path)
 
 
 def get_files_by_prefix(document, prefix):
@@ -187,10 +207,12 @@ def migrate_file(f):
         file_path = util.path_from_uuid(file_id)
         if not target_fs.isfile(file_path):
             log.debug('    file aready has id field, just copy to target storage')
+            src_fs = get_src_fs_by_file_path(file_path)
+            log.debug('    file found in %s' % src_fs)
 
             dst_dir = fs.path.dirname(file_path)
             target_fs.makedirs(dst_dir, recreate=True)
-            fs.move.copy_file(src_fs=legacy_fs, src_path=file_path, dst_fs=target_fs, dst_path=file_path)
+            fs.move.copy_file(src_fs=src_fs, src_path=file_path, dst_fs=target_fs, dst_path=file_path)
         else:
             log.debug('    file is aready present in target storage, skipping')
     else:
@@ -204,7 +226,7 @@ def migrate_file(f):
         log.debug('    copy file to target storage')
         dst_dir = fs.path.dirname(f_new_path)
         target_fs.makedirs(dst_dir, recreate=True)
-        fs.move.copy_file(src_fs=legacy_fs, src_path=f_old_path, dst_fs=target_fs, dst_path=f_new_path)
+        fs.move.copy_file(src_fs=local_fs, src_path=f_old_path, dst_fs=target_fs, dst_path=f_new_path)
 
         update_set = {
             f['prefix'] + '.$.modified': datetime.datetime.utcnow(),
@@ -287,10 +309,12 @@ def migrate_gear_files(f):
         file_path = util.path_from_uuid(file_id)
         if not target_fs.isfile(file_path):
             log.debug('    file aready has id field, just copy to target storage')
+            src_fs = get_src_fs_by_file_path(file_path)
+            log.debug('    file found in %s' % src_fs)
 
             dst_dir = fs.path.dirname(file_path)
             target_fs.makedirs(dst_dir, recreate=True)
-            fs.move.copy_file(src_fs=legacy_fs, src_path=file_path, dst_fs=target_fs, dst_path=file_path)
+            fs.move.copy_file(src_fs=src_fs, src_path=file_path, dst_fs=target_fs, dst_path=file_path)
         else:
             log.debug('    file is aready present in target storage, skipping')
     else:
@@ -305,7 +329,7 @@ def migrate_gear_files(f):
 
         dst_dir = fs.path.dirname(f_new_path)
         target_fs.makedirs(dst_dir, recreate=True)
-        fs.move.copy_file(src_fs=legacy_fs, src_path=f_old_path, dst_fs=target_fs, dst_path=f_new_path)
+        fs.move.copy_file(src_fs=local_fs, src_path=f_old_path, dst_fs=target_fs, dst_path=f_new_path)
 
         update_set = {
             'modified': datetime.datetime.utcnow(),

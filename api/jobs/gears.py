@@ -11,16 +11,20 @@ import gears as gear_tools
 import pymongo
 
 from .. import config
+from ..dao import dbutil
 from .jobs import Job
 
 from ..web.errors import APIValidationException, APINotFoundException
 
 log = config.log
 
-def get_gears():
+def get_gears(pagination=None):
     """
     Fetch the install-global gears from the database
     """
+
+    if pagination:
+        pagination['pipe_key'] = lambda key: 'original.' + key
 
     pipe = [
         {'$sort': {
@@ -33,9 +37,9 @@ def get_gears():
         }}
     ]
 
-    cursor = config.mongo_pipeline('gears', pipe)
-
-    return map(lambda x: x['original'], cursor)
+    page = dbutil.paginate_pipe(config.db.gears, pipe, pagination)
+    page['results'] = [r['original'] for r in page['results']]
+    return page['results'] if pagination is None else page
 
 def get_gear(_id):
     return config.db.gears.find_one({'_id': bson.ObjectId(_id)})
@@ -161,7 +165,7 @@ def insert_gear(doc):
     result = config.db.gears.insert(doc)
 
     if config.get_item('queue', 'prefetch'):
-        log.info('Queuing prefetch job for gear ' + doc['gear']['name'])
+        log.info('Queuing prefetch job for gear %s', doc['gear']['name'])
 
         job = Job(str(doc['_id']), {}, destination={}, tags=['prefetch'], request={
             'inputs': [

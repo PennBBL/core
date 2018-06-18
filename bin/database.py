@@ -23,7 +23,7 @@ from api.types import Origin
 from api.jobs import batch
 
 
-CURRENT_DATABASE_VERSION = 46 # An int that is bumped when a new schema change is made
+CURRENT_DATABASE_VERSION = 51 # An int that is bumped when a new schema change is made
 
 def get_db_version():
 
@@ -1411,7 +1411,6 @@ def upgrade_to_44():
             config.db.sessions.update_many(query, update)
 
 
-
 def upgrade_files_to_45(cont, context):
     """
     if the file has a modality, we try to find a matching classification
@@ -1558,6 +1557,7 @@ def upgrade_to_45():
     cursor = config.db.projects.find({'template': {'$exists': True }})
     process_cursor(cursor, upgrade_templates_to_45)
 
+
 def upgrade_to_46():
     """
     Update gears to ensure they all have the created timestamp, will be set
@@ -1566,8 +1566,166 @@ def upgrade_to_46():
     config.db.gears.update_many({"created":{"$exists":False}}, {'$set': {'created': datetime.datetime(1970,1,1), 'modified': datetime.datetime.utcnow()}})
 
 
+def upgrade_to_47():
+    """
+    Use ObjectId for device._id (part of device key authentication)
+    """
+    for device in config.db.devices.find({'_id': {'$type': 'string'}}):
+        config.db.devices.delete_one({'_id': device['_id']})
+        device['label'] = device.pop('_id')    # Save old _id string as label
+        device['type'] = device.pop('method', device['label'])  # Rename method to type (engine, reaper, etc.)
+        device['_id'] = bson.ObjectId()        # Generate oid
+        config.db.devices.insert_one(device)
 
 
+def upgrade_files_to_48(cont, cont_name):
+    """
+    Issue #1200
+    In db upgrade 47, we changed how device objects are stored in the database:
+    Thier `_id` became their `label` and the were given an ObjectId as their new `_id`
+
+    With that new format, origins added to files after the change had a (str'd) ObjectId
+    as their `origin.id`, while old still had the human readable string label. This update
+    will move all old origins to the new format, marking the ones that we cannot transition
+    to unknown/null.
+    """
+
+    devices = config.db.devices.find({})
+    device_id_by_name = {d['label']: str(d['_id']) for d in devices}
+    files = cont.get('files', [])
+
+    for f in files:
+        if f.get('origin') and f['origin'].get('type') == 'device':
+            if not bson.ObjectId.is_valid(f['origin']['id']):
+
+                # Old style device origin, try to find it in the table
+                if f['origin']['id'] in device_id_by_name:
+                    f['origin']['id'] = device_id_by_name[f['origin']['id']]
+
+                else:
+                    # This device must have either changed ids, or is no longer in the system
+                    # Create a device for this _id and insert it into the devices tables
+                    device = {
+                        '_id':      bson.ObjectId(),
+                        'label':    f['origin']['id'],
+                        'type':     f['origin'].get('method', 'unknown'),
+                        'name':     f['origin'].get('name')
+                    }
+                    config.db.devices.insert_one(device)
+                    device_id_by_name[device['label']] = str(device['_id'])
+
+                    f['origin']['id'] = str(device['_id'])
+
+
+    config.db[cont_name].update_one({'_id': cont['_id']}, {'$set': {'files': files}})
+
+    return True
+
+
+def upgrade_to_48():
+    """
+    Update old device origin id to new
+    """
+
+    for cont_name in ['groups', 'projects', 'collections', 'sessions', 'acquisitions', 'analyses']:
+
+        cursor = config.db[cont_name].find({'files.origin.type': 'device'})
+        process_cursor(cursor, upgrade_files_to_48, context=cont_name)
+
+def upgrade_files_to_49(cont, cont_name):
+
+    files = cont.get('files', [])
+
+    for f in files:
+        if f.get('classification') and 'Contrast' in f['classification']:
+            f['classification']['Measurement'] = f['classification'].pop('Contrast')
+
+
+    config.db[cont_name].update_one({'_id': cont['_id']}, {'$set': {'files': files}})
+
+    return True
+
+
+
+def upgrade_to_49():
+    """
+    Rename `Contrast` to `Measurement` for a more accurate classification description
+    """
+    mr_modality = config.db.modalities.update(
+        {'_id': 'MR', 'classification.Contrast': {'$exists': True}},
+        {'$rename': {'classification.Contrast': 'classification.Measurement'}}
+    )
+
+    for cont_name in ['groups', 'projects', 'collections', 'sessions', 'acquisitions', 'analyses']:
+        cursor = config.db[cont_name].find({'files.classification.Contrast': {'$exists': True}})
+        process_cursor(cursor, upgrade_files_to_49, context=cont_name)
+
+def upgrade_files_to_50(cont, cont_name):
+    """
+    For any file where measurements had moved to Custom classification, move it back to measurements
+    """
+    old_measurements = {
+        "anatomy_inplane",
+        "anatomy_ir",
+        "anatomy_pd",
+        "anatomy_t1w",
+        "anatomy_t2w",
+        "calibration",
+        "coil_survey",
+        "diffusion",
+        "diffusion_map",
+        "field_map",
+        "functional",
+        "functional_map",
+        "high_order_shim",
+        "localizer",
+        "non-image",
+        "perfusion",
+        "spectroscopy",
+        "screenshot"
+    }
+
+    files = cont['files']
+
+    for f in files:
+        classification = f.get('classification')
+        if not classification:
+            continue
+
+        custom = classification.get('Custom', [])
+        if custom:
+            measurements = []
+            # Pop old measurements back into the measurements field
+            for value in old_measurements:
+                if value in custom:
+                    custom.remove(value)
+                    measurements.append(value)
+
+            # If we updated measurements, add it to the file
+            if measurements:
+                f['measurements'] = measurements
+
+            # Remove Custom if custom is now empty
+            if not custom:
+                classification.pop('Custom')
+
+    config.db[cont_name].update_one({'_id': cont['_id']}, {'$set': {'files': files}})
+    return True
+
+def upgrade_to_50():
+    """
+    Move measurement values from custom back to measurements field for legacy support
+    """
+    for cont_name in ['groups', 'projects', 'collections', 'sessions', 'acquisitions', 'analyses']:
+        # Only operate on files with custom classification values
+        cursor = config.db[cont_name].find({'files.classification.Custom': {'$exists': True, '$ne': []}})
+        process_cursor(cursor, upgrade_files_to_50, context=cont_name)
+
+def upgrade_to_51():
+    """
+    Get rid of permissions on analyses
+    """
+    config.db.analyses.update_many({}, {"$unset": {"permissions": ""}})
 ###
 ### BEGIN RESERVED UPGRADE SECTION
 ###

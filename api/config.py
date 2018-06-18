@@ -23,6 +23,8 @@ logging.getLogger('requests').setLevel(logging.WARNING) # silence Requests libra
 logging.getLogger('paste.httpserver').setLevel(logging.WARNING) # silence Paste library
 logging.getLogger('elasticsearch').setLevel(logging.WARNING) # silence Elastic library
 logging.getLogger('urllib3').setLevel(logging.WARNING) # silence urllib3 library
+logging.getLogger('boto3').setLevel(logging.WARNING) # silence boto3 library
+logging.getLogger('botocore').setLevel(logging.WARNING) # silence botocore library
 
 # NOTE: Keep in sync with environment variables in sample.config file.
 DEFAULT_CONFIG = {
@@ -286,3 +288,15 @@ def get_release_version():
 fs = open_fs(__config['persistent']['fs_url'])
 local_fs = open_fs('osfs://' + __config['persistent']['data_path'])
 support_legacy_fs = __config['persistent']['support_legacy_fs']
+
+### Temp fix for 3-way split storages, where files exist in
+# 1. $SCITRAN_PERSISTENT_DATA_PATH/v0/ha/sh/v0-hash  (before abstract fs)
+# 2. $SCITRAN_PERSISTENT_DATA_PATH/v1/uu/id/uuid     (using abstract fs, without fs_url - defaulting to data_path/v1)
+# 3. $SCITRAN_PERSISTENT_FS_URL/uu/id/uuid           (using abstract fs, with fs_url)
+data_path2 = __config['persistent']['data_path'] + '/v1'
+if os.path.exists(data_path2):
+    log.warning('Path %s exists - enabling 3-way split storage support', data_path2)
+    local_fs2 = open_fs('osfs://' + data_path2)
+else:
+    local_fs2 = None
+###

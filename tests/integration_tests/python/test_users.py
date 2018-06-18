@@ -164,3 +164,9 @@ def test_reset_wechat_registration(data_builder, as_admin):
     r = as_admin.post('/users/' + new_user + '/reset-registration')
     assert r.ok
     assert 'registration_code' in r.json()
+
+
+def test_bootstrap_not_allowed_twice(bootstrap_users, as_public):
+    # Verify that public user creation is only allowed once (used in bootstrap_users)
+    r = as_public.post('/users', json={'_id': 'h@cker.man', 'firstname': 'Hax0r', 'lastname': 'Wannabe'})
+    assert r.status_code == 403

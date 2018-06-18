@@ -14,7 +14,8 @@
     ],
     "_id": "5a12f2923306be0016179f47",
     "name": "dcm2niix",
-    "any": []
+    "any": [],
+    "not": []
   },
   {
     "alg": "dicom-mr-classifier",
@@ -31,7 +32,8 @@
     ],
     "_id": "5a21be60a75c04001b7a268b",
     "name": "dicom classifier (all dicoms)",
-    "any": []
+    "any": [],
+    "not": []
   },
   {
     "alg": "mriqc",
@@ -48,6 +50,7 @@
     ],
     "_id": "5a21be60a75c04001b7a268c",
     "name": "mriqc (nifti classified as functional or anatomical)",
-    "any": []
+    "any": [],
+    "not": []
   }
 ]

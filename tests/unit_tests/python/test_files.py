@@ -29,3 +29,9 @@ def test_tabular_data():
 
 def test_unknown():
     assert files.guess_type_from_filename('example.unknown') == None
+
+def test_eeg():
+    assert files.guess_type_from_filename('example.eeg.zip') == 'eeg'
+    assert files.guess_type_from_filename('example.eeg') == 'eeg data'
+    assert files.guess_type_from_filename('example.vmrk') == 'eeg marker'
+    assert files.guess_type_from_filename('example.vhdr') == 'eeg header'

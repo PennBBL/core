@@ -11,10 +11,10 @@ from .. import config
 from .jobs import Job, Logs, JobTicket
 from .gears import get_gear, validate_gear_config, fill_gear_default_values
 from ..dao.containerutil import (
-    create_filereference_from_dictionary, create_containerreference_from_dictionary, 
+    create_filereference_from_dictionary, create_containerreference_from_dictionary,
     create_containerreference_from_filereference, FileReference
 )
-from .job_util import resolve_context_inputs 
+from .job_util import resolve_context_inputs
 from ..web.errors import InputValidationException
 
 
@@ -68,6 +68,16 @@ class Queue(object):
         if 'state' in mutation and not valid_transition(job.state, mutation['state']):
             raise Exception('Mutating job from ' + job.state + ' to ' + mutation['state'] + ' not allowed.')
 
+
+        # Special case: when starting a job, actually start it. Should not be called this way.
+        if 'state' in mutation and mutation['state'] == 'running':
+
+            # !!!
+            # !!! DUPE WITH Queue.start_job
+            # !!!
+
+            mutation['request'] = job.generate_request(get_gear(job.gear_id))
+
         # Any modification must be a timestamp update
         mutation['modified'] = datetime.datetime.utcnow()
 
@@ -100,6 +110,9 @@ class Queue(object):
         if job.state != 'failed':
             raise Exception('Can only retry a job that is failed')
 
+        if job.request is None:
+            raise Exception('Cannot retry a job without a request')
+
         # Race condition: jobs should only be marked as failed once a new job has been spawned for it (if any).
         # No transactions in our database, so we can't do that.
         # Instead, make a best-hope attempt.
@@ -109,7 +122,7 @@ class Queue(object):
             raise Exception('Job ' + job.id_ + ' has already been retried as ' + str(found.id_))
 
         new_job = copy.deepcopy(job)
-        new_job.id_ = None
+        new_job.id_ = bson.ObjectId()
         new_job.previous_job_id = job.id_
 
         new_job.state = 'pending'
@@ -119,7 +132,11 @@ class Queue(object):
         new_job.created = now
         new_job.modified = now
 
-        new_id = new_job.insert()
+        # update input uris that reference the old job id
+        for i in new_job.request['inputs']:
+            i['uri'] = i['uri'].replace(str(job.id_), str(new_job.id_))
+
+        new_id = new_job.insert(ignore_insertion_block=True)
         log.info('respawned job %s as %s (attempt %d)', job.id_, new_id, new_job.attempt)
 
         # If job is part of batch job run, update batch jobs list
@@ -173,7 +190,7 @@ class Queue(object):
                 raise InputValidationException('Job input {} is not listed in gear manifest'.format(x))
 
             input_map = job_map['inputs'][x]
-            
+
             if gear['gear']['inputs'][x]['base'] == 'file':
                 try:
                     inputs[x] = create_filereference_from_dictionary(input_map)
@@ -198,7 +215,7 @@ class Queue(object):
                 if isinstance(inputs[key], FileReference):
                     destination = create_containerreference_from_filereference(inputs[key])
                     break
-            
+
             if not destination:
                 raise InputValidationException('Must specify destination if gear has no inputs.')
 
@@ -240,14 +257,15 @@ class Queue(object):
                 cr = create_containerreference_from_filereference(inputs[x])
 
                 # Whitelist file fields passed to gear to those that are scientific-relevant
-                whitelisted_keys = ['info', 'tags', 'classification', 'mimetype', 'type', 'modality', 'size']
+                whitelisted_keys = ['info', 'tags', 'measurements', 'classification', 'mimetype', 'type', 'modality', 'size']
                 obj_projection = { key: obj.get(key) for key in whitelisted_keys }
 
                 ###
                 # recreate `measurements` list on object
                 # Can be removed when `classification` key has been adopted everywhere
 
-                obj_projection['measurements'] = []
+                if not obj_projection.get('measurements', None):
+                    obj_projection['measurements'] = []
                 if obj_projection.get('classification'):
                     for v in obj_projection['classification'].itervalues():
                         obj_projection['measurements'].extend(v)
@@ -325,10 +343,13 @@ class Queue(object):
 
         # Return if there is a job request already (probably prefetch)
         if job.request is not None:
-            log.info('Job ' + job.id_ + ' already has a request, so not generating')
+            log.info('Job %s already has a request, so not generating', job.id_)
             return job
 
         # Create a new request formula
+        # !!!
+        # !!! DUPE WITH Queue.mutate
+        # !!!
         request = job.generate_request(get_gear(job.gear_id))
 
         if peek:
@@ -355,23 +376,23 @@ class Queue(object):
     def search(containers, states=None, tags=None):
         """
         Search the queue for jobs that mention at least one of a set of containers and (optionally) match some set of states or tags.
-        Currently, all containers must be of the same type.
 
         @param containers: an array of ContainerRefs
         @param states: an array of strings
         @param tags: an array of strings
         """
 
-        # Limitation: container types must match.
-        type1 = containers[0].type
-        for container in containers:
-            if container.type != type1:
-                raise Exception('All containers passed to Queue.search must be of the same type')
+        conts_by_type = {}
+        for cont in containers:
+            conts_by_type.setdefault(cont.type, []).append(cont)
 
-        query = { '$or': [
-            {'inputs.id': {'$in': [x.id for x in containers]}, 'inputs.type': type1},
-            {'destination.id': {'$in': [x.id for x in containers]}, 'destination.type': type1},
-        ]}
+        filters = []
+        for cont_type, containers in conts_by_type.iteritems():
+            filters.extend([
+                {'inputs.id': {'$in': [cont.id for cont in containers]}, 'inputs.type': cont_type},
+                {'destination.id': {'$in': [cont.id for cont in containers]}, 'destination.type': cont_type},
+            ])
+        query = {'$or': filters}
 
         if states is not None and len(states) > 0:
             query['state'] = {"$in": states}

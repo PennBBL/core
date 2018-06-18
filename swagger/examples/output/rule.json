@@ -3,6 +3,7 @@
   "name": "dcm2niix",
   "alg": "dcm2niix",
   "any": [],
+  "not": [],
   "all": [
     {
       "regex": true,

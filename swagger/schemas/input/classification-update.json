@@ -6,7 +6,7 @@
     	"modality": "MR",
     	"replace": {
     		"Intent": ["Functional"],
-    		"Contrast": ["T2*"],
+    		"Measurement": ["T2*"],
     		"Custom": ["Custom Value"]
     	}
 	}

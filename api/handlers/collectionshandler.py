@@ -124,15 +124,16 @@ class CollectionsHandler(ContainerHandler):
         else:
             permchecker = containerauth.list_permission_checker(self)
         query = {}
-        results = permchecker(self.storage.exec_op)('GET', query=query, public=self.public_request, projection=projection)
+        page = permchecker(self.storage.exec_op)('GET', query=query, public=self.public_request, projection=projection, pagination=self.pagination)
+        results = page['results']
         if not self.superuser_request and not self.is_true('join_avatars'):
             self._filter_all_permissions(results, self.uid)
         if self.is_true('join_avatars'):
-            results = ContainerHandler.join_user_info(results)
-        for result in results:
-            if self.is_true('stats'):
-                result = containerutil.get_stats(result, 'collections')
-        return results
+            self.storage.join_avatars(results)
+        if self.is_true('stats'):
+            for result in results:
+                containerutil.get_stats(result, 'collections')
+        return self.format_page(page)
 
     def curators(self):
         curator_ids = []

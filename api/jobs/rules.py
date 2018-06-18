@@ -17,11 +17,14 @@ log = config.log
 #     '_id':        'SOME_ID',
 #     'project_id': 'SOME_PROJECT',
 
-#     Algorithm to run if both sets of rules match
+#     Algorithm to run if all sets of rules match
 #     'alg':        'my-gear-name',
 #
 #     At least one match from this array must succeed, or array must be empty
 #     'any': [],
+#
+#     There should be no matches in this array
+#     'not': [],
 #
 #     All matches from array must succeed, or array must be empty
 #     'all': [
@@ -120,6 +123,11 @@ def eval_rule(rule, file_, container):
     """
     Decide if a rule should spawn a job.
     """
+
+    # Are there matches in the 'not' set?
+    for match in rule.get('not', []):
+        if eval_match(match['type'], match['value'], file_, container, regex=match.get('regex')):
+            return False
 
     # Are there matches in the 'any' set?
     must_match = len(rule.get('any', [])) > 0
@@ -294,7 +302,7 @@ def copy_site_rules_for_project(project_id):
 
 def validate_regexes(rule):
     invalid_patterns = set()
-    for match in rule.get('all', []) + rule.get('any', []):
+    for match in rule.get('all', []) + rule.get('any', []) + rule.get('not', []):
         if match.get('regex'):
             pattern = match['value']
             try:

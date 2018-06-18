@@ -1,9 +1,11 @@
+import datetime
 import os
 import sys
 
 import bson
 import copy
 import pytest
+import pytz
 
 
 @pytest.fixture(scope='function')
@@ -183,3 +185,191 @@ def test_45(data_builder, randstr, api_db, as_admin, database, file_form):
     }
     for p in [t_project1, t_project2]:
         assert as_admin.get('/projects/' + p).json()['template'] == template_after
+
+    ### CLEANUP
+
+    api_db.modalities.delete_many({})
+
+
+def test_47_and_48(api_db, data_builder, as_admin, file_form, database):
+    # Create old device
+    last_seen = datetime.datetime.utcnow().replace(microsecond=0)
+    api_db.devices.insert_one({
+        '_id': 'method_name',
+        'method': 'method',
+        'name': 'name',
+        'last_seen': last_seen,
+        'errors': [],
+    })
+
+    api_db.devices.insert_one({
+        '_id': 'device_without_method',
+        'last_seen': last_seen
+    })
+
+    # Create acq with files
+    # * one with with above device as it's origin
+    # * the other pointing to a device that doesn't exist
+    acq_id = data_builder.create_acquisition()
+    as_admin.post('/acquisitions/' + acq_id + '/files', files=file_form('a.txt'))
+    as_admin.post('/acquisitions/' + acq_id + '/files', files=file_form('b.txt'))
+    files = api_db.acquisitions.find_one({'_id': bson.ObjectId(acq_id)})['files']
+    files[0]['origin'] = {'type': 'device', 'id': 'method_name'}
+    files[1]['origin'] = {'type': 'device', 'id': 'missing_one'}
+    api_db.acquisitions.update_one({'_id': bson.ObjectId(acq_id)}, {'$set': {'files': files}})
+
+    # Test that devices are switched over to ObjectId via 47
+    database.upgrade_to_47()
+    device = api_db.devices.find_one({'type': 'method', 'name': 'name'})
+
+    assert device
+    device_id = device.get('_id')
+    assert isinstance(device_id, bson.ObjectId)
+    assert device == {
+        '_id': device_id,
+        'label': 'method_name',
+        'type': 'method',
+        'name': 'name',
+        'last_seen': last_seen,
+        'errors': [],
+    }
+
+    device = api_db.devices.find_one({'type': 'device_without_method'})
+    assert device
+    assert device['label'] == 'device_without_method'
+    assert device['type'] == 'device_without_method'
+
+
+    # Verify that ObjectId casting is no longer 500-ing with `join=origin`, even without
+    # upgrade 48 fixing device origins.
+    r = as_admin.get('/acquisitions/' + acq_id + '?join=origin')
+    assert r.ok
+
+    # Test that device origins get fixed via 48
+    database.upgrade_to_48()
+    device_id_str = str(device_id)
+    files = api_db.acquisitions.find_one({'_id': bson.ObjectId(acq_id)})['files']
+    assert files[0]['origin'] == {'type': 'device', 'id': device_id_str}
+
+    # Look for id of new device
+    added_device_id_str = files[1]['origin']['id']
+    assert files[1]['origin'] == {'type': 'device', 'id': added_device_id_str}
+    added_device = api_db.devices.find_one({'label': 'missing_one'})
+    assert added_device['type'] == 'unknown'
+    added_device['_id'] = added_device_id_str
+
+    # Verify that `join=origin` now works as intended
+    r = as_admin.get('/acquisitions/' + acq_id + '?join=origin')
+    assert r.ok
+    assert r.json()['join-origin']['device'] == {
+        device_id_str: {
+            '_id': device_id_str,
+            'label': 'method_name',
+            'type': 'method',
+            'name': 'name',
+            'last_seen': pytz.timezone('UTC').localize(last_seen).isoformat(),
+            'errors': [],
+        },
+        added_device_id_str: added_device
+    }
+
+def test_50(data_builder, api_db, as_admin, file_form, database):
+    acquisition = data_builder.create_acquisition()
+    r = as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('test_file1.csv'))
+    r = as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('test_file2.csv'))
+    r = as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('test_file3.csv'))
+    assert r.ok
+
+    # Clean up modality
+    r = as_admin.delete('/modalities/MR')
+
+    payload = {
+        '_id': 'MR',
+        'classification': {
+            'Intent': ["Structural", "Functional", "Localizer"],
+            'Measurement': ["B0", "B1", "T1", "T2"]
+        }
+    }
+    r = as_admin.post('/modalities', json=payload)
+    assert r.ok
+
+    r = as_admin.post('/acquisitions/' + acquisition + '/files/test_file1.csv/classification', json={
+        'modality': 'MR',
+        'replace': {
+            'Intent': ['Structural'],
+            'Measurement': ['T1'],
+            'Custom': ['anatomy_t1w', 'foobar']
+        }
+    })
+    assert r.ok
+
+    r = as_admin.post('/acquisitions/' + acquisition + '/files/test_file2.csv/classification', json={
+        'modality': 'MR',
+        'replace': {
+            'Intent': ['Functional'],
+            'Measurement': ['T2'],
+            'Custom': ['functional']
+        }
+    })
+    assert r.ok
+
+    database.upgrade_to_50()
+
+    # Confirm that measurements is set and classification is updated
+    r_acquisition = api_db.acquisitions.find_one({'_id': bson.ObjectId(acquisition)})
+    f = r_acquisition['files'][0]
+    assert f['name'] == 'test_file1.csv'
+    assert f['classification'] == {
+        'Intent': ['Structural'],
+        'Measurement': ['T1'],
+        'Custom': ['foobar']
+    }
+    assert f['measurements'] == ['anatomy_t1w']
+
+    f = r_acquisition['files'][1]
+    assert f['name'] == 'test_file2.csv'
+    assert f['classification'] == {
+        'Intent': ['Functional'],
+        'Measurement': ['T2']
+    }
+    assert f['measurements'] == ['functional']
+
+    f = r_acquisition['files'][2]
+    assert f['name'] == 'test_file3.csv'
+    assert f['classification'] == {}
+    assert 'measurements' not in f
+
+    # Assert that changing modality resets measurements
+    r = as_admin.put('/acquisitions/' + acquisition + '/files/test_file1.csv', json={
+        'modality': None
+    })
+    assert r.ok
+
+    # Assert that changing classification resets measurements
+    r = as_admin.post('/acquisitions/' + acquisition + '/files/test_file2.csv/classification', json={
+        'add': {
+            'Custom': ['myvalue']
+        }
+    })
+    assert r.ok
+
+    r_acquisition = api_db.acquisitions.find_one({'_id': bson.ObjectId(acquisition)})
+    f = r_acquisition['files'][0]
+    assert f['name'] == 'test_file1.csv'
+    assert f['classification'] == {
+        'Custom': ['foobar']
+    }
+    assert 'measurements' not in f
+
+    f = r_acquisition['files'][1]
+    assert f['name'] == 'test_file2.csv'
+    assert f['classification'] == {
+        'Intent': ['Functional'],
+        'Measurement': ['T2'],
+        'Custom': ['myvalue']
+    }
+    assert 'measurements' not in f
+
+    # Clean up modality
+    r = as_admin.delete('/modalities/MR')
+    assert r.ok

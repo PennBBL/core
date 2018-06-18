@@ -1,12 +1,17 @@
 import os
 import bson
+import copy
 import pytz
 import tarfile
 import datetime
 import cStringIO
 
+from tarfile import TarInfo
+
 import fs.path
 import fs.errors
+from fs.iotools import RawWrapper
+import requests
 
 from .web import base
 from .web.request import AccessType
@@ -50,7 +55,7 @@ class Download(base.RequestHandler):
                 if filtered:
                     continue
 
-            file_path, _ = files.get_valid_file(f)
+            file_path = files.get_file_path(f)
             if file_path:  # silently skip missing files
                 if cont_name == 'analyses':
                     targets.append((file_path, '{}/{}/{}'.format(prefix, file_group, f['name']), cont_name, str(container.get('_id')), f['size']))
@@ -98,7 +103,7 @@ class Download(base.RequestHandler):
                 log.warn("Expected file {} on Container {} {} to exist but it is missing. File will be skipped in download.".format(filename, cont_name, cont_id))
                 continue
 
-            file_path, _ = files.get_valid_file(file_obj)
+            file_path = files.get_file_path(file_obj)
             if file_path:  # silently skip missing files
                 targets.append((file_path, cont_name+'/'+cont_id+'/'+file_obj['name'], cont_name, cont_id, file_obj['size']))
                 total_size += file_obj['size']
@@ -215,8 +220,15 @@ class Download(base.RequestHandler):
                 total_size, file_cnt = self._append_targets(targets, 'acquisitions', acq, prefix, total_size, file_cnt, req_spec.get('filters'))
 
             elif item['level'] == 'analysis':
-                analysis = config.db.analyses.find_one(base_query, ['parent', 'label', 'inputs', 'files', 'uid', 'timestamp'])
-                if not analysis:
+                analysis_query = copy.deepcopy(base_query)
+                perm_query = analysis_query.pop('permissions._id')
+                analysis = config.db.analyses.find_one(analysis_query, ['parent', 'label', 'inputs', 'files', 'uid', 'timestamp'])
+                analysis_query["permissions._id"] = perm_query
+                if analysis:
+                    parent = config.db[pluralize(analysis.get('parent', {}).get('type'))].find_one({'deleted': {'$exists': False},
+                                                                                         "_id": analysis.get('parent', {}).get('id'),
+                                                                                         "permissions._id": perm_query})
+                if not analysis or not parent:
                     # silently(while logging it) skip missing objects/objects user does not have access to
                     log.warn("Expected anaylysis {} to exist but it is missing. Node will be skipped".format(item_id))
                     continue
@@ -282,16 +294,46 @@ class Download(base.RequestHandler):
         stream = cStringIO.StringIO()
         with tarfile.open(mode='w|', fileobj=stream) as archive:
             for filepath, arcpath, cont_name, cont_id, _ in ticket['target']:
-                file_system = files.get_fs_by_file_path(filepath)
-                with file_system.open(filepath, 'rb') as fd:
-                    yield archive.gettarinfo(fileobj=fd, arcname=arcpath).tobuf()
-                    chunk = ''
-                    for chunk in iter(lambda: fd.read(CHUNKSIZE), ''): # pylint: disable=cell-var-from-loop
-                        yield chunk
-                    if len(chunk) % BLOCKSIZE != 0:
-                        yield (BLOCKSIZE - (len(chunk) % BLOCKSIZE)) * b'\0'
+                try:
+                    file_system = files.get_fs_by_file_path(filepath)
+                    with file_system.open(filepath, 'rb') as fd:
+                        signed_url = None
+                        if isinstance(fd, RawWrapper) and hasattr(fd._f,  # pylint: disable=protected-access
+                                                                  'gettarinfo'):
+                            tarinfo = fd._f.gettarinfo(arcname=arcpath).tobuf()  # pylint: disable=protected-access
+                            yield tarinfo
+                            signed_url = files.get_signed_url(filepath, file_system)
+                        else:
+                            yield archive.gettarinfo(fileobj=fd, arcname=arcpath).tobuf()
+
+                        try:
+                            if signed_url:
+                                response = requests.get(signed_url, stream=True)
+                                f_iter = response.iter_content(chunk_size=CHUNKSIZE)
+                            else:
+                                f_iter = iter(lambda: fd.read(CHUNKSIZE), '')  # pylint: disable=cell-var-from-loop
+
+                            chunk = ''
+                            for chunk in f_iter:
+                                yield chunk
+                            if len(chunk) % BLOCKSIZE != 0:
+                                yield (BLOCKSIZE - (len(chunk) % BLOCKSIZE)) * b'\0'
+
+                        except (IOError, fs.errors.OperationFailed):
+                            msg = ("Error happened during sending file content in archive stream, file path: %s, "
+                                   "container: %s/%s, archive path: %s" % (filepath, cont_name, cont_id, arcpath))
+                            log.critical(msg)
+                            self.abort(500, msg)
+
+                except (fs.errors.ResourceNotFound, fs.errors.OperationFailed, IOError):
+                    log.critical("Couldn't find the file during creating archive stream: %s, "
+                                 "container: %s/%s, archive path: %s", filepath, cont_name, cont_id, arcpath)
+                    tarinfo = TarInfo()
+                    tarinfo.name = arcpath + '.MISSING'
+                    yield tarinfo.tobuf()
+
                 self.log_user_access(AccessType.download_file, cont_name=cont_name, cont_id=cont_id, filename=os.path.basename(arcpath), multifile=True, origin_override=ticket['origin']) # log download
-        yield stream.getvalue() # get tar stream trailer
+        yield stream.getvalue()  # get tar stream trailer
         stream.close()
 
     def symlinkarchivestream(self, ticket):

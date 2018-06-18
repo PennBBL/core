@@ -1,10 +1,12 @@
-def test_modalities(data_builder, as_admin, as_user):
+import bson
+
+def test_modalities(data_builder, as_admin, as_user, api_db):
 
     payload = {
         '_id': 'MR',
         'classification': {
             'Intent': ["Structural", "Functional", "Localizer"],
-            'Contrast': ["B0", "B1", "T1", "T2"]
+            'Measurement': ["B0", "B1", "T1", "T2"]
         }
     }
 
@@ -55,7 +57,7 @@ def test_modalities(data_builder, as_admin, as_user):
     assert r.status_code == 404
 
 
-def test_edit_file_classification(data_builder, as_admin, as_user, file_form):
+def test_edit_file_classification(data_builder, as_admin, as_user, file_form, api_db):
 
     ## Setup
 
@@ -70,13 +72,14 @@ def test_edit_file_classification(data_builder, as_admin, as_user, file_form):
     assert r.ok
     assert r.json()['classification'] == {}
 
+    as_admin.delete('/modalities/MR')
 
     # add modality information
     payload = {
         '_id': 'MR',
         'classification': {
             'Intent': ["Structural", "Functional", "Localizer"],
-            'Contrast': ["B0", "B1", "T1", "T2"]
+            'Measurement': ["B0", "B1", "T1", "T2"]
         }
     }
 
@@ -90,6 +93,31 @@ def test_edit_file_classification(data_builder, as_admin, as_user, file_form):
         'modality': 'MR'
     })
 
+    api_db.projects.update({
+        '_id': bson.ObjectId(project),
+        'files': { '$elemMatch': { 'name': file_name } }
+    }, {
+        '$set': {'files.$.measurements': ['anatomy_t1w']}
+    })
+
+    # Ensure that file.measurements does not come back on list or singeleton endpoint
+    r = as_admin.get('/projects')
+    assert r.ok
+    r_project = None
+    for el in r.json():
+        if el['_id'] == project:
+            r_project = el
+            break
+
+    assert r_project is not None
+    assert r_project['files'][0]['name'] == file_name
+    assert 'measurements' not in r_project['files'][0]
+
+    r = as_admin.get('/projects/' + project)
+    assert r.ok
+    r_project = r.json()
+    assert r_project['files'][0]['name'] == file_name
+    assert 'measurements' not in r_project['files'][0]
 
     ## Classification editing
 
@@ -115,7 +143,7 @@ def test_edit_file_classification(data_builder, as_admin, as_user, file_form):
     # Attempt full replace of classification
     file_cls = {
         'Intent':   ['Structural'],
-        'Contrast': ['B1', 'T1'],
+        'Measurement': ['B1', 'T1'],
         'Custom':   ['Custom Value']
     }
 
@@ -145,12 +173,12 @@ def test_edit_file_classification(data_builder, as_admin, as_user, file_form):
     # Remove item from list
     r = as_admin.post('/projects/' + project + '/files/' + file_name + '/classification', json={
         'delete': {'Intent': ['Structural'],
-                   'Contrast': ['B1']}
+                   'Measurement': ['B1']}
     })
     assert r.ok
 
     file_cls['Intent'] = ['Functional']
-    file_cls['Contrast'] = ['T1']
+    file_cls['Measurement'] = ['T1']
     r = as_admin.get('/projects/' + project + '/files/' + file_name + '/info')
     assert r.ok
     assert r.json()['classification'] == file_cls
@@ -189,11 +217,11 @@ def test_edit_file_classification(data_builder, as_admin, as_user, file_form):
 
     # Ensure lowercase gets formatted in correct format via modality's classification
     r = as_admin.post('/projects/' + project + '/files/' + file_name + '/classification', json={
-        'add': {'contrast': ['t2', 'b0'], 'custom': ['lowercase']}
+        'add': {'Measurement': ['t2', 'b0'], 'custom': ['lowercase']}
     })
     assert r.ok
 
-    file_cls['Contrast'].extend(['T2', 'B0'])
+    file_cls['Measurement'].extend(['T2', 'B0'])
     file_cls['Custom'].append('lowercase')
     r = as_admin.get('/projects/' + project + '/files/' + file_name + '/info')
     assert r.ok
@@ -201,11 +229,11 @@ def test_edit_file_classification(data_builder, as_admin, as_user, file_form):
 
     # Ensure lowercase gets formatted in correct format via modality's classification
     r = as_admin.post('/projects/' + project + '/files/' + file_name + '/classification', json={
-        'delete': {'contrast': ['t2'], 'custom': ['lowercase']}
+        'delete': {'Measurement': ['t2'], 'custom': ['lowercase']}
     })
     assert r.ok
 
-    file_cls['Contrast'] = ['T1', 'B0']
+    file_cls['Measurement'] = ['T1', 'B0']
     file_cls['Custom'] = ['Custom Value']
     r = as_admin.get('/projects/' + project + '/files/' + file_name + '/info')
     assert r.ok
@@ -338,6 +366,7 @@ def test_classification_change_triggers_job(randstr, data_builder, as_admin, api
         'alg': gear_name,
         'name': 'classification-job-trigger-rule',
         'any': [],
+        'not': [],
         'all': [
             {'type': 'file.classification', 'value': 'Localizer'},
         ]
@@ -352,7 +381,7 @@ def test_classification_change_triggers_job(randstr, data_builder, as_admin, api
         '_id': 'MR',
         'classification': {
             'Intent': ["Structural", "Functional", "Localizer"],
-            'Contrast': ["B0", "B1", "T1", "T2"]
+            'Measurement': ["B0", "B1", "T1", "T2"]
         }
     }
 
@@ -405,11 +434,3 @@ def test_classification_change_triggers_job(randstr, data_builder, as_admin, api
 
     # Clean up rule
     r = as_admin.delete('/site/rules/' + rule_id)
-
-
-
-
-
-
-
-

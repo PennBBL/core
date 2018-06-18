@@ -25,9 +25,12 @@
     "device": {
       "type": "object",
       "properties": {
-        "_id":       {"type":"string"},
-        "method":    {"type":"string"},
+        "_id":       {"$ref":"common.json#/definitions/objectid"},
+        "label":     {"type":"string"},
+        "type":      {"type":"string"},
+        "version":   {"type":"string"},
         "name":      {"type":"string"},
+        "key":       {"type":"string"},
         "errors":    {"$ref":"#/definitions/errors"},
         "info":      {"$ref":"common.json#/definitions/info"},
         "interval":  {"$ref":"#/definitions/interval"},
@@ -36,12 +39,24 @@
       "x-sdk-model": "device",
       "additionalProperties": false
     },
-    "device-input":{
+    "device-input": {
       "type": "object",
       "properties": {
-        "interval":       {"$ref":"#/definitions/interval"},
-        "errors":         {"$ref":"#/definitions/errors"},
-        "info":           {"$ref":"common.json#/definitions/info"}
+        "label": {"type":"string"},
+        "type":  {"type":"string"}
+      },
+      "x-sdk-model": "device",
+      "additionalProperties": false
+    },
+    "device-update": {
+      "type": "object",
+      "properties": {
+        "type":     {"type":"string"},
+        "version":  {"type":"string"},
+        "name":     {"type":"string"},
+        "interval": {"$ref":"#/definitions/interval"},
+        "errors":   {"$ref":"#/definitions/errors"},
+        "info":     {"$ref":"common.json#/definitions/info"}
       },
       "x-sdk-model": "device",
       "additionalProperties": false
@@ -49,15 +64,15 @@
     "device-output": {
       "type": "object",
       "allOf": [{"$ref":"#/definitions/device"}],
-      "required": ["_id", "name", "method", "last_seen"],
+      "required": ["_id", "type", "name", "last_seen"],
       "x-sdk-model": "device"
     },
     "device-status": {
       "type":"object",
       "patternProperties": {
-        "^[0-9a-z.@_-]*$":{
+        "^[a-fA-F0-9]{24}$": {
           "$ref": "#/definitions/device-status-entry"
-        }      
+        }
       }
     }
   }

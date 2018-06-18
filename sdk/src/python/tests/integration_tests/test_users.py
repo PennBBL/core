@@ -78,3 +78,15 @@ class UsersTestCases(SdkTestCase):
         users = fw.get_all_users()
         self.assertNotIn(compare, users)
 
+    def test_client_isolation(self):
+        fw = self.fw
+
+        fw2 = flywheel.Flywheel('127.0.0.1:invalid-key')
+        
+        try:
+            user = self.fw.get_current_user()
+            self.assertUserIsSane(user)
+        except flywheel.ApiException:
+            self.fail('Flywheel instance is not isolated!')
+
+

@@ -27,7 +27,7 @@ def default(handler, group=None):
 
 def list_permission_checker(handler, uid=None):
     def g(exec_op):
-        def f(method, query=None, projection=None):
+        def f(method, query=None, projection=None, pagination=None):
             if uid is not None:
                 if uid != handler.uid and not handler.superuser_request and not handler.user_is_admin:
                     handler.abort(403, 'User ' + handler.uid + ' may not see the Groups of User ' + uid)
@@ -40,7 +40,6 @@ def list_permission_checker(handler, uid=None):
                     query = query or {}
                     projection = projection or {}
                     query['permissions._id'] = handler.uid
-
-            return exec_op(method, query=query, projection=projection)
+            return exec_op(method, query=query, projection=projection, pagination=pagination)
         return f
     return g

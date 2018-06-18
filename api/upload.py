@@ -1,8 +1,10 @@
 import bson
 import datetime
 import json
+import os
 import uuid
 
+import fs.errors
 import fs.path
 
 from .web import base
@@ -74,10 +76,17 @@ def process_upload(request, strategy, access_logger, container_type=None, id_=No
     if container_type and id_:
         container = hierarchy.get_container(container_type, id_)
 
+    # Check if filename should be basename or full path
+    use_filepath = request.GET.get('filename_path', '').lower() in ('1', 'true')
+    if use_filepath:
+        name_fn = util.sanitize_path
+    else:
+        name_fn = os.path.basename
+
     # The vast majority of this function's wall-clock time is spent here.
     # Tempdir is deleted off disk once out of scope, so let's hold onto this reference.
     file_processor = files.FileProcessor(config.fs, local_tmp_fs=(strategy == Strategy.token))
-    form = file_processor.process_form(request)
+    form = file_processor.process_form(request, use_filepath=use_filepath)
 
     if 'metadata' in form:
         try:
@@ -86,10 +95,10 @@ def process_upload(request, strategy, access_logger, container_type=None, id_=No
             raise FileStoreException('wrong format for field "metadata"')
         if isinstance(metadata, dict):
             for f in metadata.get(container_type, {}).get('files', []):
-                f['name'] = util.sanitize_path(f['name'])
+                f['name'] = name_fn(f['name'])
         elif isinstance(metadata, list):
             for f in metadata:
-                f['name'] = util.sanitize_path(f['name'])
+                f['name'] = name_fn(f['name'])
 
     placer_class = strategy.value
     placer = placer_class(container_type, container, id_, metadata, timestamp, origin, context, file_processor, access_logger)
@@ -241,7 +250,7 @@ class Upload(base.RequestHandler):
 
         removed = result.deleted_count
         if removed > 0:
-            log.info('Removed ' + str(removed) + ' expired packfile tokens')
+            log.info('Removed %s expired packfile tokens', removed)
 
         # Next, find token directories and remove any that don't map to a token.
 
@@ -254,7 +263,12 @@ class Upload(base.RequestHandler):
         folder = fs.path.join('tokens', 'packfile')
 
         util.mkdir_p(folder, config.fs)
-        paths = config.fs.listdir(folder)
+        try:
+            paths = config.fs.listdir(folder)
+        except fs.errors.ResourceNotFound:
+            # Non-local storages are used without 0-blobs for "folders" (mkdir_p is a noop)
+            paths = []
+
         cleaned = 0
 
         for token in paths:
@@ -270,7 +284,7 @@ class Upload(base.RequestHandler):
                 pass
 
             if result is None:
-                log.info('Cleaning expired token directory ' + token)
+                log.info('Cleaning expired token directory %s', token)
                 config.fs.removetree(path)
                 cleaned += 1
 

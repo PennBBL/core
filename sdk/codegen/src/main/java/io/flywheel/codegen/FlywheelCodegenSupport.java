@@ -198,14 +198,14 @@ public class FlywheelCodegenSupport {
     }
 
     private static List<Map<String, Object>> makeModifyInfoWrappers(String operationId, DefaultCodegen gen) {
-        return makeModifyWrappers(operationId, gen, "info");
+        return makeModifyWrappers(operationId, gen, "info", "set");
     }
 
     private static List<Map<String, Object>> makeModifyClassificationWrappers(String operationId, DefaultCodegen gen) {
-        return makeModifyWrappers(operationId, gen, "classification");
+        return makeModifyWrappers(operationId, gen, "classification", "add");
     }
 
-    private static List<Map<String, Object>> makeModifyWrappers(String operationId, DefaultCodegen gen, String name) {
+    private static List<Map<String, Object>> makeModifyWrappers(String operationId, DefaultCodegen gen, String name, String setKey) {
         List<Map<String, Object>> result = new ArrayList<>();
 
         // Set
@@ -213,7 +213,7 @@ public class FlywheelCodegenSupport {
         Map<String, Object> detail = new HashMap<>();
         detail.put("wrapperId", gen.toOperationId(opId));
         detail.put("summary", "Update " + name + " with the provided fields.");
-        detail.put("key", "set");
+        detail.put("key", setKey);
         result.add(detail);
 
         // Replace

@@ -1,7 +1,4 @@
 {
-    "notes": [{
-        "text": "some text"
-    }],
     "description": "This is an analysis description",
     "job": {
         "gear_id": "aex",

@@ -142,13 +142,14 @@ class AcquisitionsTestCases(SdkTestCase):
             'Custom': ['measurement1', 'measurement2']
         });
 
-        resp = fw.modify_acquisition_file_classification(acquisition_id, 'yeats.txt', {
-            'add': {
-                'Custom': ['HelloWorld'],
-            },
-            'delete': {
-                'Custom': ['measurement2']
-            }
+        resp = fw.set_acquisition_file_classification(acquisition_id, 'yeats.txt', {
+            'Custom': ['HelloWorld']
+        })
+        self.assertEqual(resp.modified, 1)
+        self.assertEqual(resp.jobs_spawned, 0)
+
+        resp = fw.delete_acquisition_file_classification_fields(acquisition_id, 'yeats.txt', {
+            'Custom': ['measurement2']
         })
         self.assertEqual(resp.modified, 1)
         self.assertEqual(resp.jobs_spawned, 0)

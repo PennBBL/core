@@ -86,6 +86,7 @@ task generateApi(dependsOn: ':custom-swagger-codegen:jar') {
 		config.setTemplateDir(templateDir)
 		config.setLang('matlab')
 		config.addAdditionalProperty("packageName", "flywheel")
+		config.addAdditionalProperty("packageVersion", project.version)
 
 		new DefaultGenerator().opts(config.toClientOptInput()).generate()
 	}

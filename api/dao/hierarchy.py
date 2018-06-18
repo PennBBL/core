@@ -241,12 +241,12 @@ def upsert_fileinfo(cont_name, _id, fileinfo, access_logger):
     container_after, file_before = None, None
 
     for f in container_before.get('files',[]):
-        # Fine file in result and set to file_after
+        # Find file in result and set to file_after
         if f['name'] == fileinfo['name']:
             if 'deleted' in f:
-                # Ugly hack: remove already existing file that has the 'deleted' tag
-                # This creates a gap in the delete functionality, ie. this file cannot be restored from this point on.
-                # Note that the previous file in storage will be unreferenced from the DB (unless CAS edge case...)
+                # Leaves files in storage unreferenced from DB
+                log.warning('implicitly removing deleted file %s/%s/%s (caused by re-uploading with same name)',
+                            cont_name, _id, fileinfo['name'])
                 config.db[cont_name].find_one_and_update(
                     {'_id': _id, 'files.name': fileinfo['name']},
                     {'$pull': {'files': {'name': fileinfo['name']}}}
@@ -343,7 +343,7 @@ def _find_or_create_destination_project(group_id, project_label, timestamp, user
 
 def _create_query(cont, cont_type, parent_type, parent_id, upload_type):
     if upload_type == 'label':
-        q = {}
+        q = {'deleted': {'$exists': False}}
         q['label'] = cont['label']
         q[parent_type] = bson.ObjectId(parent_id)
         if cont_type == 'session' and cont.get('subject',{}).get('code'):
@@ -352,13 +352,15 @@ def _create_query(cont, cont_type, parent_type, parent_id, upload_type):
     elif upload_type == 'uid':
         return {
             parent_type : bson.ObjectId(parent_id),
-            'uid': cont['uid']
+            'uid': cont['uid'],
+            'deleted': {'$exists': False}
         }
     else:
         raise NotImplementedError('upload type {} is not handled by _create_query'.format(upload_type))
 
 def _upsert_container(cont, cont_type, parent, parent_type, upload_type, timestamp):
     cont['modified'] = timestamp
+    cont_name = containerutil.pluralize(cont_type)
 
     if cont.get('timestamp'):
         cont['timestamp'] = dateutil.parser.parse(cont['timestamp'])
@@ -374,7 +376,7 @@ def _upsert_container(cont, cont_type, parent, parent_type, upload_type, timesta
 
     query = _create_query(cont, cont_type, parent_type, parent['_id'], upload_type)
 
-    if config.db[cont_type+'s'].find_one(query) is not None:
+    if config.db[cont_name].find_one(query) is not None:
         return _update_container_nulls(query, cont, cont_type)
 
     else:
@@ -387,7 +389,7 @@ def _upsert_container(cont, cont_type, parent, parent_type, upload_type, timesta
         if cont_type == 'session':
             insert_vals['group'] = parent['group']
         cont.update(insert_vals)
-        insert_id = config.db[cont_type+'s'].insert(cont)
+        insert_id = config.db[cont_name].insert(cont)
         cont['_id'] = insert_id
         return cont
 
@@ -475,6 +477,7 @@ def upsert_bottom_up_hierarchy(metadata, type_='uid', user=None):
         raise APIStorageException(str(e))
 
     session_obj = config.db.sessions.find_one({'uid': session_uid, 'deleted': {'$exists': False}})
+
     if session_obj: # skip project creation, if session exists
 
         if user and not has_access(user, session_obj, 'rw'):
@@ -556,7 +559,7 @@ def _update_hierarchy(container, container_type, metadata):
         _update_container_nulls({'_id': project_id}, project, 'projects')
 
 def _update_container_nulls(base_query, update, container_type):
-    coll_name = container_type if container_type.endswith('s') else container_type+'s'
+    coll_name = containerutil.pluralize(container_type)
     cont = config.db[coll_name].find_one(base_query)
     if cont is None:
         raise APIStorageException('Failed to find {} object using the query: {}'.format(container_type, base_query))
