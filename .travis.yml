@@ -76,7 +76,7 @@ after_success:
       docker push flywheel/core:latest;
       docker push flywheel/core:testing;
       travis login --pro --no-interactive -g ${GITHUB_RELEASE_API_KEY};
-      bin/trigger_build.sh $(travis token --no-interactive --pro) flywheel/core:$TRAVIS_BRANCH.latest "flywheel-io%2Fcoreplus";
+      bin/trigger_build.sh $(travis token --no-interactive --pro) flywheel/core:$TRAVIS_BRANCH.latest "flywheel-io%2Fcoreplus" master;
   fi
 - if [[ "$TRAVIS_BRANCH" =~ ^($CD_BRANCH_NAMES)$ ]] && [ "$TRAVIS_EVENT_TYPE" == "push" ]; then
       docker tag core:dist flywheel/core:$TRAVIS_BRANCH.latest;
@@ -90,8 +90,8 @@ after_success:
     docker tag core:dist flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest;
     docker push flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest;
     travis login --pro --no-interactive -g ${GITHUB_RELEASE_API_KEY};
-    bin/trigger_build.sh $(travis token --no-interactive --pro) flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest "flywheel-io%2Finstaller";
-    bin/trigger_build.sh $(travis token --no-interactive --pro) flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest "flywheel-io%2Fcoreplus";
+    bin/trigger_build.sh $(travis token --no-interactive --pro) flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest "flywheel-io%2Finstaller" ci_trigger;
+    bin/trigger_build.sh $(travis token --no-interactive --pro) flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest "flywheel-io%2Fcoreplus" master;
   fi
 
 deploy:
