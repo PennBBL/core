@@ -91,7 +91,6 @@ after_success:
     docker push flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest;
     travis login --pro --no-interactive -g ${GITHUB_RELEASE_API_KEY};
     bin/trigger_build.sh $(travis token --no-interactive --pro) flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest "flywheel-io%2Finstaller";
-    # To test the triggering
     bin/trigger_build.sh $(travis token --no-interactive --pro) flywheel/core:$TRAVIS_PULL_REQUEST_BRANCH.latest "flywheel-io%2Fcoreplus";
   fi
 
