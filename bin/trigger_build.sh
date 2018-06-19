@@ -12,5 +12,5 @@ else
 	ORIGIN_IMAGE_REF="$ORIGIN_BRANCH.latest"
 fi
 MESSAGE="Build triggered by image:$ORIGIN_IMAGE"
-POST_DATA="{\"request\": {\"branch\":\"$TARGET_BRANCH\", \"message\":\"$MESSAGE\", \"config\": {\"env\": {\"CORE_IMAGE\": \"$ORIGIN_IMAGE\"}, {\"ORIGIN_GIT_REF\": \"$ORIGIN_GIT_REF\"}, {\"ORIGIN_IMAGE_REF\": \"$ORIGIN_IMAGE_REF\"}}}}"
+POST_DATA="{\"request\": {\"branch\":\"$TARGET_BRANCH\", \"message\":\"$MESSAGE\", \"config\": {\"env\": {\"CORE_IMAGE\": \"$ORIGIN_IMAGE\", \"ORIGIN_GIT_REF\": \"$ORIGIN_GIT_REF\", \"ORIGIN_IMAGE_REF\": \"$ORIGIN_IMAGE_REF\"}}}}"
 curl -X POST -H "Content-Type: application/json" -H "Accept: application/json" -H "Travis-API-Version: 3" -H "User-Agent: Flywheel ci" -H "Authorization: token $TRAVIS_TOKEN" -d "$POST_DATA" https://api.travis-ci.com/repo/$TARGET_REPO/requests
