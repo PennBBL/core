@@ -9,9 +9,13 @@ if [[ -n $ORIGIN_TAG ]]; then
     ORIGIN_GIT_REF=$ORIGIN_TAG
     ORIGIN_IMAGE_REF=$ORIGIN_TAG
 else
+    if [[ ${ORIGIN_BRANCH} == "master" ]]; then
+        ORIGIN_IMAGE_REF="latest"
+    else
+        ORIGIN_IMAGE_REF="$ORIGIN_BRANCH.latest"
+    fi
     ORIGIN_TAG=""
     ORIGIN_GIT_REF="origin/$ORIGIN_BRANCH"
-    ORIGIN_IMAGE_REF="$ORIGIN_BRANCH.latest"
 fi
 MESSAGE="Build triggered by image:$ORIGIN_IMAGE"
 POST_DATA="{\"request\": {\"branch\":\"$TARGET_BRANCH\", \"message\":\"$MESSAGE\", \"config\": {\"env\": {\"CORE_IMAGE\": \"$ORIGIN_IMAGE\", \"ORIGIN_GIT_REF\": \"$ORIGIN_GIT_REF\", \"ORIGIN_IMAGE_REF\": \"$ORIGIN_IMAGE_REF\", \"ORIGIN_TAG\": \"$ORIGIN_TAG\"}}}}"
