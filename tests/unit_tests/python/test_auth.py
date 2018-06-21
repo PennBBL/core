@@ -1,5 +1,6 @@
 import datetime
 import re
+import bson
 
 import pytest
 import requests_mock
@@ -15,7 +16,7 @@ def test_jwt_auth(config, as_drone, as_public, api_db):
         verify_endpoint='http://ldap.test',
         check_ssl=False)
 
-    uid = 'ldap@ldap.test'
+    email = 'ldap@ldap.test'
     with requests_mock.Mocker() as m:
         # try to log in w/ ldap and invalid token (=code)
         m.post(config.auth.ldap.verify_endpoint, status_code=400)
@@ -28,13 +29,15 @@ def test_jwt_auth(config, as_drone, as_public, api_db):
         assert r.status_code == 401
 
         # try to log in w/ ldap - user not in db (yet)
-        m.post(config.auth.ldap.verify_endpoint, json={'mail': uid})
+        m.post(config.auth.ldap.verify_endpoint, json={'mail': email})
         r = as_public.post('/login', json={'auth_type': 'ldap', 'code': 'test'})
         assert r.status_code == 402
 
         # try to log in w/ ldap - user added but disabled
-        assert as_drone.post('/users', json={
-            '_id': uid, 'disabled': True, 'firstname': 'test', 'lastname': 'test'}).ok
+        r = as_drone.post('/users', json={
+            'email': email, 'disabled': True, 'firstname': 'test', 'lastname': 'test'})
+        assert r.ok
+        uid = r.json['_id']
         r = as_public.post('/login', json={'auth_type': 'ldap', 'code': 'test'})
         assert r.status_code == 402
 
@@ -43,7 +46,7 @@ def test_jwt_auth(config, as_drone, as_public, api_db):
         as_drone.put('/users/' + uid, json={'disabled': False})
         r = as_public.post('/login', json={'auth_type': 'ldap', 'code': 'test'})
         assert r.ok
-        assert 'gravatar' not in api_db.users.find_one({'_id': uid})['avatars']
+        assert 'gravatar' not in api_db.users.find_one({'_id': bson.ObjectId(uid)})['avatars']
         token = r.json['token']
 
         # access api w/ valid token
@@ -54,11 +57,11 @@ def test_jwt_auth(config, as_drone, as_public, api_db):
         m.head(re.compile('https://gravatar.com/avatar'))
         r = as_public.post('/login', json={'auth_type': 'ldap', 'code': 'test'})
         assert r.ok
-        assert 'gravatar' in api_db.users.find_one({'_id': uid})['avatars']
+        assert 'gravatar' in api_db.users.find_one({'_id': bson.ObjectId(uid)})['avatars']
 
         # clean up
         api_db.authtokens.delete_one({'_id': token})
-        api_db.users.delete_one({'_id': uid})
+        api_db.users.delete_one({'_id': bson.ObjectId(uid)})
 
 
 def test_cas_auth(config, as_drone, as_public, api_db):
@@ -75,7 +78,7 @@ def test_cas_auth(config, as_drone, as_public, api_db):
         display_string='CAS Auth')
 
     username = 'cas'
-    uid = username+'@'+config.auth.cas.namespace
+    email = username+'@'+config.auth.cas.namespace
 
     with requests_mock.Mocker() as m:
         # try to log in w/ cas and invalid token (=code)
@@ -122,8 +125,11 @@ def test_cas_auth(config, as_drone, as_public, api_db):
         assert r.status_code == 402
 
         # try to log in w/ cas - user added but disabled
-        assert as_drone.post('/users', json={
-            '_id': uid, 'disabled': True, 'firstname': 'test', 'lastname': 'test'}).ok
+        r = as_drone.post('/users', json={
+            'email': email, 'disabled': True, 'firstname': 'test', 'lastname': 'test'})
+        assert r.ok
+        uid = r.json["_id"]
+
         r = as_public.post('/login', json={'auth_type': 'cas', 'code': 'test'})
         assert r.status_code == 402
 
@@ -132,7 +138,7 @@ def test_cas_auth(config, as_drone, as_public, api_db):
         as_drone.put('/users/' + uid, json={'disabled': False})
         r = as_public.post('/login', json={'auth_type': 'cas', 'code': 'test'})
         assert r.ok
-        assert 'gravatar' not in api_db.users.find_one({'_id': uid})['avatars']
+        assert 'gravatar' not in api_db.users.find_one({'_id': bson.ObjectId(uid)})['avatars']
         token = r.json['token']
 
         # access api w/ valid token
@@ -143,11 +149,11 @@ def test_cas_auth(config, as_drone, as_public, api_db):
         m.head(re.compile('https://gravatar.com/avatar'))
         r = as_public.post('/login', json={'auth_type': 'cas', 'code': 'test'})
         assert r.ok
-        assert 'gravatar' in api_db.users.find_one({'_id': uid})['avatars']
+        assert 'gravatar' in api_db.users.find_one({'_id': bson.ObjectId(uid)})['avatars']
 
         # clean up
         api_db.authtokens.delete_one({'_id': token})
-        api_db.users.delete_one({'_id': uid})
+        api_db.users.delete_one({'_id': bson.ObjectId(uid)})
 
 
 def test_google_auth(config, as_drone, as_public, api_db):
@@ -166,7 +172,7 @@ def test_google_auth(config, as_drone, as_public, api_db):
     r = as_public.post('/login', json={'auth_type': 'test', 'code': 'test'})
     assert r.status_code == 400
 
-    uid = 'google@google.test'
+    email = 'google@google.test'
     with requests_mock.Mocker() as m:
         # try to log in w/ google and invalid code
         m.post(config.auth.google.token_endpoint, status_code=400)
@@ -185,13 +191,15 @@ def test_google_auth(config, as_drone, as_public, api_db):
         assert r.status_code == 401
 
         # try to log in w/ google - user not in db (yet)
-        m.get(config.auth.google.id_endpoint, json={'email': uid})
+        m.get(config.auth.google.id_endpoint, json={'email': email})
         r = as_public.post('/login', json={'auth_type': 'google', 'code': 'test'})
         assert r.status_code == 402
 
         # try to log in w/ google - user added but disabled
-        as_drone.post('/users', json={
-            '_id': uid, 'disabled': True, 'firstname': 'test', 'lastname': 'test'}).ok
+        r = as_drone.post('/users', json={
+            'email': email, 'disabled': True, 'firstname': 'test', 'lastname': 'test'})
+        assert r.ok
+        uid = r.json['_id']
         r = as_public.post('/login', json={'auth_type': 'google', 'code': 'test'})
         assert r.status_code == 402
 
@@ -200,7 +208,7 @@ def test_google_auth(config, as_drone, as_public, api_db):
         m.head(re.compile('https://gravatar.com/avatar'), status_code=404)
         r = as_public.post('/login', json={'auth_type': 'google', 'code': 'test'})
         assert r.status_code == 401
-        assert 'gravatar' not in api_db.users.find_one({'_id': uid})['avatars']
+        assert 'gravatar' not in api_db.users.find_one({'_id': bson.ObjectId(uid)})['avatars']
 
         # log in (now w/ existing gravatar)
         m.head(re.compile('https://gravatar.com/avatar'))
@@ -208,7 +216,7 @@ def test_google_auth(config, as_drone, as_public, api_db):
             'access_token': 'test', 'expires_in': 60, 'refresh_token': 'test'})
         r = as_public.post('/login', json={'auth_type': 'google', 'code': 'test'})
         assert r.ok
-        assert 'gravatar' in api_db.users.find_one({'_id': uid})['avatars']
+        assert 'gravatar' in api_db.users.find_one({'_id': bson.ObjectId(uid)})['avatars']
         token_1 = r.json['token']
 
         # access api w/ valid token
@@ -235,13 +243,13 @@ def test_google_auth(config, as_drone, as_public, api_db):
         # try to access api w/ expired token but w/o persisted refresh_token
         api_db.authtokens.update_one({'_id': token_2}, {'$set':
             {'expires': datetime.datetime.now() - datetime.timedelta(seconds=1)}})
-        api_db.refreshtokens.delete_one({'uid': uid})
+        api_db.refreshtokens.delete_one({'uid': bson.ObjectId(uid)})
         r = as_public.get('', headers={'Authorization': token_2})
         assert r.status_code == 401
 
         # clean up
         api_db.authtokens.delete_one({'_id': token_2})
-        api_db.users.delete_one({'_id': uid})
+        api_db.users.delete_one({'_id': bson.ObjectId(uid)})
 
     # try to logout w/o auth headers
     r = as_public.post('/logout')
@@ -256,7 +264,7 @@ def test_wechat_auth(config, as_drone, as_public, api_db):
         token_endpoint='http://wechat.test/token',
         refresh_endpoint='http://wechat.test/refresh')
 
-    uid = 'wechat@wechat.test'
+    email = 'wechat@wechat.test'
     with requests_mock.Mocker() as m:
         # try to log in w/ wechat and invalid code
         m.post(config.auth.wechat.token_endpoint, status_code=400)
@@ -274,8 +282,10 @@ def test_wechat_auth(config, as_drone, as_public, api_db):
         assert r.status_code == 402
 
         # try to log in w/ wechat w/o regitration (same error as above, no user associated w/ openid)
-        assert as_drone.post('/users', json={
-            '_id': uid, 'firstname': 'test', 'lastname': 'test'}).ok
+        r = as_drone.post('/users', json={
+            'email': email, 'firstname': 'test', 'lastname': 'test'})
+        assert r.ok
+        uid = r.json["_id"]
         r = as_public.post('/login', json={'auth_type': 'wechat', 'code': 'test'})
         assert r.status_code == 402
 
@@ -287,15 +297,15 @@ def test_wechat_auth(config, as_drone, as_public, api_db):
         # generate registration code
         r = as_drone.post('/users/' + uid + '/reset-registration')
         assert r.ok
-        assert 'registration_code' in api_db.users.find_one({'_id': uid})['wechat']
+        assert 'registration_code' in api_db.users.find_one({'_id': bson.ObjectId(uid)})['wechat']
         regcode_1 = r.json['registration_code']
 
         # try to log in w/ wechat w/o refresh token from provider
         r = as_public.post('/login', json={
             'auth_type': 'wechat', 'code': 'test', 'registration_code': regcode_1})
         assert r.status_code == 401
-        assert 'openid' in api_db.users.find_one({'_id': uid})['wechat']
-        assert 'registration_code' not in api_db.users.find_one({'_id': uid})['wechat']
+        assert 'openid' in api_db.users.find_one({'_id': bson.ObjectId(uid)})['wechat']
+        assert 'registration_code' not in api_db.users.find_one({'_id': bson.ObjectId(uid)})['wechat']
 
         # try to log in w/ wechat w/o openid already existing in db
         m.post(config.auth.wechat.token_endpoint, json={'openid': 'test', 'refresh_token': 'test'})
@@ -307,7 +317,7 @@ def test_wechat_auth(config, as_drone, as_public, api_db):
         # log in w/ wechat
         m.post(config.auth.wechat.token_endpoint, json={
             'openid': 'test', 'refresh_token': 'test', 'access_token': 'test', 'expires_in': 60})
-        api_db.users.update_one({'_id': uid}, {'$unset': {'wechat.openid': ''}})
+        api_db.users.update_one({'_id': bson.ObjectId(uid)}, {'$unset': {'wechat.openid': ''}})
         r = as_public.post('/login', json={
             'auth_type': 'wechat', 'code': 'test', 'registration_code': regcode_2})
         assert r.ok
@@ -341,7 +351,7 @@ def test_wechat_auth(config, as_drone, as_public, api_db):
 
         # clean up
         api_db.authtokens.delete_one({'_id': token_2})
-        api_db.users.delete_one({'_id': uid})
+        api_db.users.delete_one({'_id': bson.ObjectId(uid)})
 
 def test_saml_auth(config, as_drone, as_public, api_db):
     # try to login w/ unconfigured auth provider
@@ -357,7 +367,7 @@ def test_saml_auth(config, as_drone, as_public, api_db):
         uid_key_name='mail')
 
 
-    uid = 'saml_uid@saml.test'
+    email = 'saml_uid@saml.test'
 
     with requests_mock.Mocker() as m:
         # try to log in w/ saml and no shibboleth cookie
@@ -392,25 +402,28 @@ def test_saml_auth(config, as_drone, as_public, api_db):
         assert r.status_code == 401
 
         # try to log in w/ saml - user added but disabled
-        assert as_drone.post('/users', json={
-            '_id': uid, 'disabled': True, 'firstname': 'test', 'lastname': 'test'}).ok
-        m.get(config.auth.saml.verify_endpoint, json={'attributes': [{'name': 'mail', 'values': [uid]}]})
+        r = as_drone.post('/users', json={
+            'email': email, 'disabled': True, 'firstname': 'test', 'lastname': 'test'})
+        assert r.ok
+        uid = r.json['_id']
+        m.get(config.auth.saml.verify_endpoint, json={'attributes': [{'name': 'mail', 'values': [email]}]})
         r = as_public.get('/login/saml', cookies={'_shibsession_test': 'test_cookie_content'})
         assert r.status_code == 402
 
         # log in w/ saml (also mock gravatar 404)
         m.head(re.compile('https://gravatar.com/avatar'), status_code=404)
-        as_drone.put('/users/' + uid, json={'disabled': False})
+        assert as_drone.put('/users/' + uid, json={'disabled': False}).ok
         r = as_public.get('/login/saml', cookies={'_shibsession_test': 'test_cookie_content'})
         assert r.status_code == 302
-        assert 'gravatar' not in api_db.users.find_one({'_id': uid})['avatars']
+        assert 'gravatar' not in api_db.users.find_one({'_id': bson.ObjectId(uid)})['avatars']
 
         # log in w/ saml (now w/ existing gravatar)
         m.head(re.compile('https://gravatar.com/avatar'))
         r = as_public.get('/login/saml', cookies={'_shibsession_test': 'test_cookie_content'})
         assert r.status_code == 302
-        assert 'gravatar' in api_db.users.find_one({'_id': uid})['avatars']
+        assert 'gravatar' in api_db.users.find_one({'_id': bson.ObjectId(uid)})['avatars']
 
         # clean up
         api_db.authtokens.delete_many({'uid': uid})
         api_db.users.delete_one({'_id': uid})
+        api_db.users.delete_one({'_id': bson.ObjectId(uid)})

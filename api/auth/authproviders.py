@@ -39,6 +39,15 @@ class AuthProvider(object):
         else:
             raise NotImplementedError('Auth type {} is not supported'.format(auth_type))
 
+    def get_uid(self, email):
+        """
+        Returns the uid from the email
+        """
+        user = config.db.users.find_one({'email': email})
+        if not user:
+            raise APIUnknownUserException('No user with email {} in the system.'.format(email))
+        return user.get('_id')
+
     def validate_code(self, code, **kwargs):
         raise NotImplementedError
 
@@ -102,12 +111,13 @@ class JWTAuthProvider(AuthProvider):
         r = requests.post(self.config['verify_endpoint'], data={'token': token}, verify=self.config.get('check_ssl', True))
         if not r.ok:
             raise APIAuthProviderException('User token not valid')
-        uid = json.loads(r.content).get('mail')
-        if not uid:
+        email = json.loads(r.content).get('mail')
+        if not email:
             raise APIAuthProviderException('Auth provider did not provide user email')
+        uid = self.get_uid(email)
 
         self.ensure_user_exists(uid)
-        self.set_user_gravatar(uid, uid)
+        self.set_user_gravatar(uid, email)
 
         return uid
 
@@ -164,12 +174,12 @@ class GoogleOAuthProvider(AuthProvider):
         if not r.ok:
             raise APIAuthProviderException('User token not valid')
         identity = json.loads(r.content)
-        uid = identity.get('email')
-        if not uid:
+        email = identity.get('email')
+        if not email:
             raise APIAuthProviderException('Auth provider did not provide user email')
-
+        uid = self.get_uid(email)
         self.ensure_user_exists(uid)
-        self.set_user_gravatar(uid, uid)
+        self.set_user_gravatar(uid, email)
         self.set_user_avatar(uid, identity)
 
         return uid
@@ -302,10 +312,11 @@ class CASAuthProvider(AuthProvider):
             raise APIAuthProviderException('User token not valid')
 
         username = self._parse_xml_response(r.content)
-        uid = username+'@'+self.config['namespace']
+        email = username+'@'+self.config['namespace']
+        uid = self.get_uid(email)
 
         self.ensure_user_exists(uid)
-        self.set_user_gravatar(uid, uid)
+        self.set_user_gravatar(uid, email)
 
         return uid
 
@@ -361,19 +372,19 @@ class SAMLAuthProvider(AuthProvider):
             log_msg = 'SAML request failed: {} - {}'.format(r.status_code, r.reason)
             raise APIAuthProviderException('SAML session not valid', log_msg=log_msg)
 
-        uid = None
+        email = None
         attributes = json.loads(r.content).get('attributes', [])
 
         for a in attributes:
             if a.get('name') == self.config['uid_key_name']:
                 values = a.get('values')
-                uid = values[0] if values else None
+                email = values[0] if values else None
 
-        if not uid:
+        if not email:
             raise APIAuthProviderException('Auth provider did not provide user email')
-
+        uid = self.get_uid(email)
         self.ensure_user_exists(uid)
-        self.set_user_gravatar(uid, uid)
+        self.set_user_gravatar(uid, email)
 
         return uid
 

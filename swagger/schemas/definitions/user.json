@@ -27,7 +27,7 @@
                           "type": "string",
                           "description": "Avatar image URL"
                         },
-    "root":             { 
+    "root":             {
                           "type": "boolean",
                           "description": "Super admin flag"
                         },
@@ -51,7 +51,6 @@
     "user-input":{
       "type":"object",
       "properties":{
-        "_id":{"$ref":"common.json#/definitions/user-id"},
         "firstname":{"$ref":"#/definitions/firstname"},
         "lastname":{"$ref":"#/definitions/lastname"},
         "email":{"$ref":"#/definitions/email"},
@@ -112,7 +111,7 @@
          "_id", "firstname", "lastname",
          "root", "email", "created", "modified"
       ],
-      "x-sdk-model": "user"      
+      "x-sdk-model": "user"
     }
   }
 }

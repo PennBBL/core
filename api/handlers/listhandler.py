@@ -200,14 +200,27 @@ class PermissionsListHandler(ListHandler):
     """
     PermissionsListHandler overrides post, put and delete methods of ListHandler to propagate permissions
     """
+    def get(self, cont_name, list_name, **kwargs):
+        uid = bson.ObjectId(kwargs.pop('_id'))
+        return super(PermissionsListHandler, self).get(cont_name, list_name, _id=uid, **kwargs)
+
     def post(self, cont_name, list_name, **kwargs):
-        _id = kwargs.get('cid')
+        _id = kwargs.pop('cid')
 
         payload = self.request.json_body
-        if not self._user_exists(payload.get('_id')):
+        if not self._user_exists(bson.ObjectId(payload.get('_id'))):
             raise APIUnknownUserException('Cannot add permission for unknown user {}'.format(payload.get('_id')))
 
-        result = super(PermissionsListHandler, self).post(cont_name, list_name, **kwargs)
+        permchecker, storage, mongo_validator, payload_validator, keycheck = self._initialize_request(cont_name, list_name, _id)
+
+        payload_validator(payload, 'POST')
+        payload["_id"] = bson.ObjectId(payload.get('_id'))
+        result = keycheck(mongo_validator(permchecker(storage.exec_op)))('POST', _id=_id, payload=payload)
+
+        if result.modified_count == 1:
+            result = {'modified':result.modified_count}
+        else:
+            self.abort(404, 'Element not added in list {} of container {} {}'.format(storage.list_name, storage.cont_name, _id))
 
         if cont_name == 'groups' and self.request.params.get('propagate') =='true':
             self._propagate_permissions(cont_name, _id, query={'permissions._id' : payload['_id']}, update={'$set': {'permissions.$.access': payload['access']}})
@@ -217,11 +230,34 @@ class PermissionsListHandler(ListHandler):
         return result
 
     def put(self, cont_name, list_name, **kwargs):
-        _id = kwargs.get('cid')
+        _id = kwargs.pop('cid')
 
-        result = super(PermissionsListHandler, self).put(cont_name, list_name, **kwargs)
+        uid = bson.ObjectId(kwargs.pop('_id'))
+        kwargs["_id"] = uid
+
+
+        permchecker, storage, mongo_validator, payload_validator, keycheck = self._initialize_request(cont_name, list_name, _id, query_params=kwargs)
+
         payload = self.request.json_body
-        payload['_id'] = kwargs.get('_id')
+        payload_validator(payload, 'PUT')
+        if payload.get('_id'):
+            payload["_id"] = bson.ObjectId(payload.get('_id'))
+            if payload.get("_id") != uid:
+                self.abort(404, 'Element not updated in list {} of container {} {}'.format(storage.list_name, storage.cont_name, _id))
+
+        try:
+            result = keycheck(mongo_validator(permchecker(storage.exec_op)))('PUT', _id=_id, query_params=kwargs, payload=payload)
+        except APIStorageException as e:
+            self.abort(400, e.message)
+        # abort if the query of the update wasn't able to find any matching documents
+        if result.matched_count == 0:
+            self.abort(404, 'Element not updated in list {} of container {} {}'.format(storage.list_name, storage.cont_name, _id))
+        else:
+            result = {'modified':result.modified_count}
+
+
+        payload = self.request.json_body
+        payload['_id'] = uid
         if cont_name == 'groups' and self.request.params.get('propagate') =='true':
             self._propagate_permissions(cont_name, _id, query={'permissions._id' : payload['_id']}, update={'$set': {'permissions.$.access': payload['access']}})
             self._propagate_permissions(cont_name, _id, query={'permissions._id': {'$ne': payload['_id']}}, update={'$addToSet': {'permissions': payload}})
@@ -231,10 +267,12 @@ class PermissionsListHandler(ListHandler):
 
     def delete(self, cont_name, list_name, **kwargs):
         _id = kwargs.get('cid')
-        result = super(PermissionsListHandler, self).delete(cont_name, list_name, **kwargs)
+
+        uid = bson.ObjectId(kwargs.pop('_id'))
+        result = super(PermissionsListHandler, self).delete(cont_name, list_name, _id=uid, **kwargs)
 
         if cont_name == 'groups' and self.request.params.get('propagate') =='true':
-            self._propagate_permissions(cont_name, _id, query={'permissions._id' : kwargs.get('_id')}, update={'$pull' : {'permissions': {'_id': kwargs.get('_id')}}})
+            self._propagate_permissions(cont_name, _id, query={'permissions._id' : uid}, update={'$pull' : {'permissions': {'_id': uid}}})
         elif cont_name != 'groups':
             self._propagate_permissions(cont_name, _id)
         return result

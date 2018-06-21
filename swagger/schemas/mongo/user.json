@@ -44,5 +44,5 @@
     "wechat": {}
   },
   "additionalProperties": false,
-  "required":["_id", "firstname", "lastname", "created", "modified", "root"]
+  "required":["email", "firstname", "lastname", "created", "modified", "root"]
 }

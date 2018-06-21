@@ -1,7 +1,7 @@
 def test_permissions(data_builder, as_admin):
     project = data_builder.create_project()
-    user_1 = data_builder.create_user(_id='test-permissions-1@user.com')
-    user_2 = data_builder.create_user(_id='test-permissions-2@user.com')
+    user_1 = data_builder.create_user(email='test-permissions-1@user.com')
+    user_2 = data_builder.create_user(email='test-permissions-2@user.com')
 
     permissions_path = '/projects/' + project + '/permissions'
     user_1_path = permissions_path + '/' + user_1
@@ -13,7 +13,7 @@ def test_permissions(data_builder, as_admin):
 
     # Try to add permission for unknown user
     r = as_admin.post(permissions_path, json={
-        '_id': 'fake_user@yahoo.com',
+        '_id': '000000000000000000000000',
         'access': 'admin'
         })
     assert r.status_code == 402

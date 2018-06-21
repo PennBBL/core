@@ -383,7 +383,7 @@ class DataExplorerHandler(base.RequestHandler):
                 raise APIPermissionException("Must have site admin privileges to search across all data")
         else:
             # Add permissions filter to list if user is not requesting all data
-            modified_filters.append({'term': {'permissions._id': self.uid}})
+            modified_filters.append({'term': {'permissions._id': str(self.uid) if self.uid else None}})
 
         # Only return objects that have not been marked as deleted
         modified_filters.append({'term': {'deleted': False}})
@@ -432,7 +432,7 @@ class DataExplorerHandler(base.RequestHandler):
             self.abort(400, 'Field name is required')
         filters = [{'term': {'deleted': False}}]
         if not self.superuser_request:
-            filters.append({'term': {'permissions._id': self.uid}})
+            filters.append({'term': {'permissions._id': str(self.uid) if self.uid else None}})
         try:
             field = config.es.get(index='data_explorer_fields', id=field_name, doc_type='flywheel_field')
         except TransportError as e:

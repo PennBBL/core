@@ -1,4 +1,5 @@
 import binascii
+import bson
 import copy
 import datetime
 import json
@@ -128,7 +129,7 @@ def bootstrap_users(session, api_db):
     """Create admin and non-admin users with api keys"""
     global SCITRAN_ADMIN_API_KEY
     _session = session()
-    r = _session.post('/users', json={'_id': 'admin@user.com', 'firstname': 'Test', 'lastname': 'Admin'})
+    r = _session.post('/users', json={'email': 'admin@user.com', 'firstname': 'Test', 'lastname': 'Admin'})
     assert r.ok
     if callable(r.json):
         SCITRAN_ADMIN_API_KEY = r.json()['key']
@@ -136,7 +137,7 @@ def bootstrap_users(session, api_db):
         SCITRAN_ADMIN_API_KEY = r.json['key']
     _session.headers.update({'Authorization': 'scitran-user {}'.format(SCITRAN_ADMIN_API_KEY)})
     data_builder = DataBuilder(_session, api_db)
-    data_builder.create_user(_id='user@user.com', api_key=SCITRAN_USER_API_KEY)
+    data_builder.create_user(email='user@user.com', api_key=SCITRAN_USER_API_KEY)
     yield data_builder
     api_db.users.delete_many({})
     api_db.singletons.delete_one({'_id': 'bootstrap'})
@@ -216,8 +217,8 @@ class DataBuilder(object):
 
         # add missing required unique fields using randstr
         # such fields are: [user._id, group._id, gear.gear.name]
-        if resource == 'user' and '_id' not in payload:
-            payload['_id'] = self.randstr() + '@user.com'
+        if resource == 'user' and 'email' not in payload:
+            payload['email'] = self.randstr() + '@user.com'
         if resource == 'group' and '_id' not in payload:
             payload['_id'] = self.randstr()
         if resource == 'gear' and 'name' not in payload['gear']:
@@ -278,7 +279,7 @@ class DataBuilder(object):
                 'created': datetime.datetime.utcnow(),
                 'last_seen': None,
                 'type': 'user',
-                'origin': {'type': 'user', 'id': _id}
+                'origin': {'type': 'user', 'id': bson.ObjectId(_id)}
             })
 
         self.resources.append((resource, _id))

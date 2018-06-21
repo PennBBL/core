@@ -37,7 +37,7 @@ def _upsert_user(request_session, api_url, user_doc):
         return new_user_resp
 
     # Already exists, update instead
-    return request_session.put(api_url + '/users/' + user_doc['_id'], json=user_doc)
+    return request_session.put(api_url + '/users/' + user_doc['email'], json=user_doc)
 
 
 def _upsert_permission(request_session, api_url, permission_doc, group_id):
@@ -70,6 +70,7 @@ def users(filepath, api_url, http_headers, insecure):
         requests.HTTPError: Upsert failed.
     """
     now = datetime.datetime.utcnow()
+    user_ids = {}
     with open(filepath) as fd:
         input_data = json.load(fd)
     with requests.Session() as rs:
@@ -77,9 +78,11 @@ def users(filepath, api_url, http_headers, insecure):
         rs.verify = not insecure
         rs.headers = http_headers
         for u in input_data.get('users', []):
-            log.info('    {0}'.format(u['_id']))
+            log.info('    {0}'.format(u['email']))
             r = _upsert_user(request_session=rs, api_url=api_url, user_doc=u)
             r.raise_for_status()
+            if r.json().get('_id'):
+                user_ids[u['email']] = r.json()['_id']
 
         log.info('bootstrapping groups...')
         r = rs.get(api_url + '/config')
@@ -90,6 +93,8 @@ def users(filepath, api_url, http_headers, insecure):
             r = rs.post(api_url + '/groups' , json=g)
             r.raise_for_status()
             for permission in permissions:
+                if permission.get('email'):
+                    permission['_id'] = user_ids[permission.pop('email')]
                 r = _upsert_permission(request_session=rs, api_url=api_url, permission_doc=permission, group_id=g['_id'])
                 r.raise_for_status()
 

@@ -61,6 +61,7 @@
         "type": {
           "type": "string"
         },
+        "email":  {"$ref": "user.json#/definitions/email"},
         "id": {
           "type": ["string", "null"]
         }

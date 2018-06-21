@@ -32,8 +32,8 @@ routing_regexes = {
     # Group ID: 2-32 characters of form [0-9a-z.@_-]. Start and ends with alphanum.
     'gid': '[0-9a-z][0-9a-z.@_-]{0,30}[0-9a-z]',
 
-    # User ID: any length, [0-9a-z.@_-]
-    'uid': '[0-9a-zA-Z.@_-]*',
+    # User ID: 24-character hex
+    'uid': '[0-9a-f]{24}',
 
     # Object ID: 24-character hex
     'oid': '[0-9a-f]{24}',

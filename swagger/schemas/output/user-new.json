@@ -2,6 +2,6 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"allOf": [{"$ref": "../definitions/common.json#/definitions/object-created"}],
 	"example": {
-		"_id": "jane.doe@gmail.com"
+		"_id": "1234567890abc7654321abc4"
 	}
 }

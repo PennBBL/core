@@ -127,7 +127,8 @@ class RequestHandler(webapp2.RequestHandler):
             self.superuser_request = False
             self.user_is_admin = False
         else:
-            user = config.db.users.find_one({'_id': self.uid}, ['root', 'disabled'])
+            user = config.db.users.find_one({'_id': self.uid}, ['root', 'disabled', 'email'])
+            self.origin['email'] = user.get('email')
             if not user:
                 self.abort(402, 'User {} will need to be added to the system before managing data.'.format(self.uid))
             if user.get('disabled', False) is True:
@@ -300,12 +301,13 @@ class RequestHandler(webapp2.RequestHandler):
         timestamp = datetime.datetime.utcnow()
 
         self.uid = token_entry['uid']
-        self.origin = {'type': str(Origin.user), 'id': self.uid}
+        self.origin = {'type': str(Origin.user), 'id': str(self.uid)}
 
         # If this is the first time they've logged in, record that
         config.db.users.update_one({'_id': self.uid, 'firstlogin': None}, {'$set': {'firstlogin': timestamp}})
         # Unconditionally set their most recent login time
-        config.db.users.update_one({'_id': self.uid}, {'$set': {'lastlogin': timestamp}})
+        user = config.db.users.find_one_and_update({'_id': self.uid}, {'$set': {'lastlogin': timestamp}}, projection={'email':1})
+        self.origin['email'] = user.get('email')
 
         session_token = base64.urlsafe_b64encode(os.urandom(42))
         token_entry['_id'] = session_token

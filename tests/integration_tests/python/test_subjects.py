@@ -48,16 +48,18 @@ def test_subject_collection(data_builder, api_db, as_admin):
 def test_subject_endpoints(data_builder, as_admin, as_public, file_form):
     # prep
     def create_user_accessor(email):
-        user = data_builder.create_user(_id=email, api_key=email)
+        user = data_builder.create_user(email=email, api_key=email)
         as_user = copy.deepcopy(as_public)
         as_user.headers.update({'Authorization': 'scitran-user ' + email})
         return as_user
 
     project = data_builder.create_project()
     as_rw = create_user_accessor('rw-user@test.com')
+    rw_id = as_rw.get('/users/self').json()['_id']
     as_ro = create_user_accessor('ro-user@test.com')
-    assert as_admin.post('/projects/' + project + '/permissions', json={'_id': 'rw-user@test.com', 'access': 'rw'}).ok
-    assert as_admin.post('/projects/' + project + '/permissions', json={'_id': 'ro-user@test.com', 'access': 'ro'}).ok
+    ro_id = as_ro.get('/users/self').json()['_id']
+    assert as_admin.post('/projects/' + project + '/permissions', json={'_id': rw_id, 'access': 'rw'}).ok
+    assert as_admin.post('/projects/' + project + '/permissions', json={'_id': ro_id, 'access': 'ro'}).ok
 
     # GET /subjects no data
     r = as_admin.get('/subjects')
@@ -197,7 +199,7 @@ def test_subject_endpoints(data_builder, as_admin, as_public, file_form):
 def test_subject_notes(data_builder, as_admin, as_public, file_form):
     # prep
     def create_user_accessor(email):
-        user = data_builder.create_user(_id=email, api_key=email)
+        user = data_builder.create_user(email=email, api_key=email)
         as_user = copy.deepcopy(as_public)
         as_user.headers.update({'Authorization': 'scitran-user ' + email})
         return as_user
@@ -206,16 +208,17 @@ def test_subject_notes(data_builder, as_admin, as_public, file_form):
     subject = as_admin.post('/subjects', json={'project': project, 'code': 'test-sublist', 'public': False}).json()['_id']
     as_rw = create_user_accessor('rw-user@test.com')
     as_ro = create_user_accessor('ro-user@test.com')
-    assert as_admin.post('/projects/' + project + '/permissions', json={'_id': 'rw-user@test.com', 'access': 'rw'}).ok
-    assert as_admin.post('/projects/' + project + '/permissions', json={'_id': 'ro-user@test.com', 'access': 'ro'}).ok
+    rw_id = as_rw.get('/users/self').json()['_id']
+    ro_id = as_ro.get('/users/self').json()['_id']
+    assert as_admin.post('/projects/' + project + '/permissions', json={'_id': rw_id, 'access': 'rw'}).ok
+    assert as_admin.post('/projects/' + project + '/permissions', json={'_id': ro_id, 'access': 'ro'}).ok
 
     # Add a note
     r = as_admin.post('/subjects/' + subject + '/notes', json={'text': 'note'})
     assert r.ok
 
     # Add note perms
-    # TODO Fix as_public POST sublist response (should be 403)
-    assert as_public.post('/subjects/' + subject + '/notes', json={'text': 'note2'}).status_code == 500
+    assert as_public.post('/subjects/' + subject + '/notes', json={'text': 'note2'}).status_code == 403
     assert as_ro.post('/subjects/' + subject + '/notes', json={'text': 'note2'}).status_code == 403
     assert as_rw.post('/subjects/' + subject + '/notes', json={'text': 'note2'}).ok
 

@@ -1,12 +1,13 @@
 from dateutil.parser import parse
 
-def test_groups(as_user, as_admin, data_builder):
+def test_groups(as_user, as_admin, data_builder, api_db):
     # Cannot find a non-existant group
     r = as_admin.get('/groups/non-existent')
     assert r.status_code == 404
 
     group = data_builder.create_group()
-    user_id = data_builder.create_user(_id='test-user@user.com')
+    user_id = data_builder.create_user(email='test-user@user.com')
+    admin_id = as_admin.get('/users/self').json()['_id']
 
     # Able to find new group
     r = as_admin.get('/groups/' + group)
@@ -107,9 +108,9 @@ def test_groups(as_user, as_admin, data_builder):
     assert r.ok
 
     # Get all permissions for each group
-    r = as_admin.get('/users/admin@user.com/groups')
+    r = as_admin.get('/users/' + admin_id + '/groups')
     assert r.ok
-    assert r.json()[0].get("permissions")[0].get("_id") == "admin@user.com"
+    assert r.json()[0].get("permissions")[0].get("_id") == admin_id
 
     # Get the group again to compare timestamps for the Edit permission test groups
     r = as_admin.get('/groups/' + group)
@@ -129,8 +130,9 @@ def test_groups(as_user, as_admin, data_builder):
     d8 = parse(eight_modified)
     assert d8 > d7
 
-    group2 = data_builder.create_group()
-    r = as_admin.post('/groups/' + group2 + '/permissions', json={'access':'admin','_id':'user@user.com'})
+    group2 = data_builder.create_group(label='group 2')
+    as_user_id = as_user.get('/users/self').json()["_id"]
+    r = as_admin.post('/groups/' + group2 + '/permissions', json={'access':'admin','_id':as_user_id})
     assert r.ok
     r = as_user.get('/groups')
     assert r.ok

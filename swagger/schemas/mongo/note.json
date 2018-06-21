@@ -5,7 +5,7 @@
     "_id":              {"type": "string"},
     "created":          {},
     "modified":         {},
-    "user":             {"type": "string"},
+    "user":             {},
     "text":             {"type": "string"}
   },
   "required": ["_id", "user", "created", "modified", "text"],

@@ -51,7 +51,7 @@ class GroupStorage(ContainerStorage):
 class UserStorage(ContainerStorage):
 
     def __init__(self):
-        super(UserStorage,self).__init__('users', use_object_id=False)
+        super(UserStorage,self).__init__('users', use_object_id=True)
 
     def cleanup_ancillary_data(self, _id):
         safe_cleanup_views(_id)

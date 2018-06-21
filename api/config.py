@@ -175,6 +175,7 @@ def initialize_db():
     db.subjects.create_index([('project', 1), ('code', 1)])
     db.sessions.create_index([('project', 1), ('label', 1)])
     db.sessions.create_index([('subject', 1), ('label', 1)])
+    db.users.create_index('email', unique=True)
     db.sessions.create_index('uid')
     db.sessions.create_index('created')
     db.acquisitions.create_index([('session', 1), ('label', 1)])

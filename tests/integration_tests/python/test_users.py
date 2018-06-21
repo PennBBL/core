@@ -32,7 +32,6 @@ def test_users(data_builder, as_root, as_admin, as_user, as_public):
 
     # Try adding new user missing required attr
     r = as_root.post('/users', json={
-        '_id': 'jane.doe@gmail.com',
         'lastname': 'Doe',
         'email': 'jane.doe@gmail.com',
     })
@@ -40,25 +39,27 @@ def test_users(data_builder, as_root, as_admin, as_user, as_public):
     assert "'firstname' is a required property" in r.text
 
     # Add new user
-    new_user_id = 'new@user.com'
+    new_user_email = 'new@user.com'
     r = as_root.post('/users', json={
-        '_id': new_user_id,
+        'email': new_user_email,
         'firstname': 'New',
         'lastname': 'User',
     })
     assert r.ok
+    new_user_id = r.json()["_id"]
     r = as_root.get('/users/' + new_user_id)
     assert r.ok
 
     # Add new user as admin
-    new_user_id_admin = 'new2@user.com'
+    new_user_email_admin = 'new2@user.com'
     r = as_admin.post('/users', json={
-        '_id': new_user_id_admin,
+        'email': new_user_email_admin,
         'firstname': 'New2',
         'lastname': 'User2',
     })
     assert r.ok
-    r = as_root.get('/users/' + new_user_id)
+    new_user_id_admin = r.json()["_id"]
+    r = as_root.get('/users/' + new_user_id_admin)
     assert r.ok
 
     #Get another user as user
@@ -74,7 +75,7 @@ def test_users(data_builder, as_root, as_admin, as_user, as_public):
     assert r.ok
 
     # Try to update non-existent user
-    r = as_root.put('/users/nonexistent@user.com', json={'firstname': 'Realname'})
+    r = as_root.put('/users/000000000000000000000000', json={'firstname': 'Realname'})
     assert r.status_code == 404
 
     # Try empty update
@@ -120,13 +121,14 @@ def test_users(data_builder, as_root, as_admin, as_user, as_public):
     assert r.ok
 
     # Test HTTPS enforcement on avatar urls
-    new_user_id = 'new@user.com'
+    new_user_email = 'new@user.com'
     r = as_root.post('/users', json={
-        '_id': new_user_id,
+        'email': new_user_email,
         'firstname': 'New',
         'lastname': 'User',
     })
     assert r.ok
+    new_user_id = r.json()['_id']
     r = as_root.get('/users/' + new_user_id)
     assert r.ok
 
@@ -168,5 +170,5 @@ def test_reset_wechat_registration(data_builder, as_admin):
 
 def test_bootstrap_not_allowed_twice(bootstrap_users, as_public):
     # Verify that public user creation is only allowed once (used in bootstrap_users)
-    r = as_public.post('/users', json={'_id': 'h@cker.man', 'firstname': 'Hax0r', 'lastname': 'Wannabe'})
+    r = as_public.post('/users', json={'email': 'h@cker.man', 'firstname': 'Hax0r', 'lastname': 'Wannabe'})
     assert r.status_code == 403

@@ -10,7 +10,7 @@
     "public": false,
     "permissions": [{
         "access": "admin",
-        "_id": "coltonlw@flywheel.io"
+        "_id": "57e01cccf6b5d5ed2cb4e182"
     }]
 }, {
     "_id": "57e01cccb1dc04000fb83f56",
@@ -24,6 +24,6 @@
     "public": true,
     "permissions": [{
         "access": "admin",
-        "_id": "coltonlw@flywheel.io"
+        "_id": "57e01cccf6b5d5ed2cb4e182"
     }]
 }]

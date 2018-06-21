@@ -52,6 +52,8 @@ class APIKey(object):
 
     @classmethod
     def generate_api_key(cls, uid):
+        if not isinstance(uid, bson.ObjectId):
+            uid = bson.ObjectId(uid)
         return {
             '_id': util.create_nonce(),
             'created': datetime.datetime.utcnow(),

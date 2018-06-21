@@ -19,7 +19,7 @@ def test_error_response(as_admin, as_user, as_public, as_root, data_builder, api
     project = data_builder.create_project()
 
     # Test dao exception
-    r = as_admin.post('/users', json={'_id': "admin@user.com", 'firstname': "Firstname", 'lastname': "Lastname"})
+    r = as_admin.post('/users', json={'email': "admin@user.com", 'firstname': "Firstname", 'lastname': "Lastname"})
     assert r.status_code == 409
     assert r.json().get('request_id')
 

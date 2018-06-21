@@ -12,7 +12,7 @@
     "label":             {},
     "permissions":            {
                           "type": "array",
-                          "items": {"$ref": "../definitions/permission.json#/definitions/permission"},
+                          "items": {"$ref": "permission.json"},
                           "title": "Permissions",
                           "default": [],
                           "uniqueItems": true

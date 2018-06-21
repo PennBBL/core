@@ -3,13 +3,13 @@
         "_id": "57e34f8afab726054f7ec6b2",
         "label": "Search_1",
         "search": {"return_type": "session"},
-        "uid": "coltonlw@flywheel.io",
+        "uid": "1234567890abc7654321abc4",
         "created": "2016-09-21T14:56:09.943000+00:00",
         "modified": "2016-09-21T14:56:09.943000+00:00",
         "permissions": [
           {
             "access": "admin",
-            "_id": "coltonlw@flywheel.io"
+            "_id": "1234567890abc7654321abc4"
           }
         ]
     },
@@ -17,13 +17,13 @@
         "_id": "57e34f8aeab726002d7ec6b2",
         "label": "Search_2",
         "search": {"return_type": "acquisition"},
-        "uid": "coltonlw@flywheel.io",
+        "uid": "1234567890abc7654321abc4",
         "created": "2016-09-21T14:56:09.943000+00:00",
         "modified": "2016-09-21T14:56:09.943000+00:00",
         "permissions": [
           {
             "access": "admin",
-            "_id": "coltonlw@flywheel.io"
+            "_id": "1234567890abc7654321abc4"
           }
         ]
     }

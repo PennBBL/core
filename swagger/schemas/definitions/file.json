@@ -34,6 +34,7 @@
                   "type":"string",
                   "description": "Database ID of joined name and method"
                 },
+                "email":  {"$ref": "user.json#/definitions/email"},
                 "method": {
                   "type":"string",
                   "description": "Method of file origin"

@@ -76,6 +76,7 @@ class UserHandler(base.RequestHandler):
     def put(self, _id):
         """Update a user"""
         user = self._get_user(_id)
+        _id = user["_id"]
         permchecker = userauth.default(self, user)
         payload = self.request.json_body
         if not payload:
@@ -108,12 +109,11 @@ class UserHandler(base.RequestHandler):
         payload_validator(payload, 'POST')
         payload['created'] = payload['modified'] = datetime.datetime.utcnow()
         payload['root'] = payload.get('root', False)
-        payload.setdefault('email', payload['_id'])
         payload.setdefault('avatars', {})
 
         if self.public_request and config.db.users.count() == 0:
             try:
-                config.db.singletons.insert_one({'_id': 'bootstrap', 'uid': payload['_id']})
+                config.db.singletons.insert_one({'_id': 'bootstrap', 'uid': payload['email']})
             except pymongo.errors.DuplicateKeyError:
                 pass
             else:
@@ -137,7 +137,8 @@ class UserHandler(base.RequestHandler):
     def self_avatar(self):
         if self.uid is None:
             self.abort(404, 'not a logged-in user')
-        self.resolve_avatar(self.uid, default=self.request.GET.get('default'))
+        email = self._get_user(self.uid).get('email')
+        self.resolve_avatar(email, default=self.request.GET.get('default'))
 
     def resolve_avatar(self, email, default=None):
         """

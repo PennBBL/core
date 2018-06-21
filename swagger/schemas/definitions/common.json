@@ -27,9 +27,9 @@
             "pattern": "^[0-9a-z][0-9a-z.@_-]{0,30}[0-9a-z]$"
         },
 		"user-id": {
-			"type": "string",
-			"format": "email",
-            "description": "Database ID of a user"
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$",
+            "description": "Unique database ID"
 		},
         "info": {
             "type": "object",

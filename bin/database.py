@@ -26,7 +26,7 @@ from api.types import Origin
 from api.jobs import batch
 
 
-CURRENT_DATABASE_VERSION = 63 # An int that is bumped when a new schema change is made
+CURRENT_DATABASE_VERSION = 64 # An int that is bumped when a new schema change is made
 
 
 def get_db_version():
@@ -1845,7 +1845,6 @@ def upgrade_to_54():
     cursor = config.db.apikeys.find({})
     process_cursor(cursor, upgrade_api_keys_to_54)
 
-
 def upgrade_to_55(dry_run=False):
     """Move subjects into their own collection"""
 
@@ -2323,6 +2322,109 @@ def upgrade_to_63():
     cursor = config.db.porjects.find({'template': {'$exists': True}})
     process_cursor(cursor, upgrade_template_to_list)
 
+def upgrade_to_64_users_and_keys_closure(cont, cont_name):
+    # Make sure all users have email set to their ids and then unset the id
+    # Then go through all containers with permission and update those
+    cont['email'] = cont.get("_id")
+    cont["_id"] = bson.ObjectId()
+    if '@' in str(cont['email']):
+        logging.debug("Email: {}".format(cont["email"]))
+
+        config.db[cont_name].insert(cont)
+        config.db[cont_name].delete_one({"_id": cont["email"]})
+
+
+        config.db['apikeys'].update_many({"uid":cont["email"]}, {"$set": {"uid": cont["_id"]}})
+        config.db['authtokens'].update_many({"uid":cont["email"]}, {"$set": {"uid": cont["_id"]}})
+        config.db['refreshtokens'].update_many({"uid":cont["email"]}, {"$set": {"uid": cont["_id"]}})
+
+    return True
+
+def upgrade_to_64_perm_closure_users(user_list):
+    def upgrade_to_64_permissions_and_files_closure(cont, cont_name):
+        logging.info('{}:{}'.format(cont_name, cont['_id']))
+        for permission in cont.get('permissions', []):
+            perm_id = user_list.get(permission['_id'])
+            if not perm_id:
+                return True
+            permission['_id'] = perm_id
+        for file_ in cont.get('files', []):
+            if file_.get('origin', {}).get('type') == 'user':
+                file_['origin']['email'] = file_['origin']['id']
+                file_origin_id = user_list.get(file_['origin']['id'])
+                if not file_origin_id:
+                    return True
+                file_['origin']['id'] = str(file_origin_id)
+        if cont_name == 'analyses':
+            for file_ in cont.get('input', []):
+                if file_.get('origin', {}).get('type') == 'user':
+                    file_['origin']['email'] = file_['origin']['id']
+                    file_origin_id = user_list.get(file_['origin']['id'])
+                    if not file_origin_id:
+                        return True
+                    file_['origin']['id'] = str(file_origin_id)
+            if cont.get('user'):
+                cont_user = user_list.get(cont['user'])
+                if not cont_user:
+                    return True
+                cont['user'] = cont_user
+        if cont_name == "collections" and cont.get('curator'):
+            cont_user = user_list.get(cont['curator'])
+            if not cont_user:
+                return True
+            cont['curator'] = user_list[cont['curator']]
+        for note in cont.get('notes', []):
+            if note.get('user'):
+                note_user = user_list.get(note['user'])
+                if not note_user:
+                    return True
+                note['user'] = note_user
+        config.db[cont_name].update_one({'_id': cont['_id']}, {"$set": cont})
+        return True
+    return upgrade_to_64_permissions_and_files_closure
+
+def upgrade_to_64_origin_closure_users(user_list):
+    def upgrade_to_64_origin_closure(cont, context):
+        cont_name, db = context
+        if cont.get('origin',{}).get('type') == 'user':
+            cont['origin']['email'] = cont['origin']['id']
+            origin_id = user_list.get(cont['origin']['id'])
+            if not origin_id:
+                return True
+            cont['origin']['id'] = str(origin_id)
+            db[cont_name].update_one({'_id': cont['_id']}, {"$set": cont})
+        return True
+    return upgrade_to_64_origin_closure
+
+def upgrade_to_64():
+    """
+    User ids are now ObjectIds
+    """
+    cursor = config.db["users"].find({})
+    # c
+
+    process_cursor(cursor, upgrade_to_64_users_and_keys_closure, context="users")
+    user_list = {}
+    for user in config.db["users"].find({}):
+        # logging.debug(user)
+        user_list[user['email']] = user['_id']
+
+    # user_list = {user.get('email'): user.get('_id') for user in config.db["users"].find({})}
+    # logging.debug(user_list)
+    closure = upgrade_to_64_perm_closure_users(user_list)
+
+    for cont_name in ['groups', 'projects', 'collections', 'subjects', 'sessions', 'acquisitions', 'analyses']:
+        # Only operate on files with custom classification values
+        cursor = config.db[cont_name].find({})
+        process_cursor(cursor, closure, context=cont_name)
+
+    closure = upgrade_to_64_origin_closure_users(user_list)
+    cursor = config.db['jobs'].find({"origin.type": "user"})
+    process_cursor(cursor, closure, context=('jobs', config.db))
+    cursor = config.db['batch'].find({"origin.type": "user"})
+    process_cursor(cursor, closure, context=('batch', config.db))
+    cursor = config.log_db['access_log'].find({"origin.type": "user"})
+    process_cursor(cursor, closure, context=('access_log', config.log_db))
 ###
 ### BEGIN RESERVED UPGRADE SECTION
 ###

@@ -42,7 +42,6 @@ assert len(users) >= 1
 
 email = rand_string() + '@' + rand_string() + '.com'
 userId = fw.add_user({
-    '_id':       email,
     'email':     email,
     'firstname': rand_string(),
     'lastname':  rand_string(),

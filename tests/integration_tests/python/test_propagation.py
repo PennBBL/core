@@ -73,7 +73,7 @@ def test_add_and_remove_user_for_project_permissions(data_builder, as_admin):
     session = data_builder.create_session()
     acquisition = data_builder.create_acquisition()
 
-    user_id = data_builder.create_user(_id='propagation@user.com')
+    user_id = data_builder.create_user(email='propagation@user.com')
 
     # Add user to project permissions
     payload = {'_id': user_id, 'access': 'admin'}
@@ -154,7 +154,7 @@ def test_add_and_remove_user_group_permission(data_builder, as_admin):
     session = data_builder.create_session()
     acquisition = data_builder.create_acquisition()
 
-    user_id = data_builder.create_user(_id='propagation@user.com')
+    user_id = data_builder.create_user(email='propagation@user.com')
 
     # Add user to group permissions
     payload = {'_id': user_id, 'access': 'admin'}

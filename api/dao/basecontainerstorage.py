@@ -460,7 +460,7 @@ class ContainerStorage(object):
             notes = container.get('notes', [])
 
             for item in permissions + notes:
-                uid = item.get('user', item['_id'])
+                uid = bson.ObjectId(item.get('user', item['_id']))
                 user = users[uid]
                 item['avatar'] = user.get('avatar')
                 item['firstname'] = user.get('firstname', '')

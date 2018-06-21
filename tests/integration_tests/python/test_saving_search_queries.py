@@ -1,5 +1,7 @@
 
-def test_saving_search_queries(as_admin, data_builder):
+def test_saving_search_queries(as_admin, as_user, data_builder):
+
+    user_id = as_user.get('/users/self').json()["_id"]
 
     # Try posting a malformed search
     r = as_admin.post('/dataexplorer/queries', json={"not-label":"random-string"})
@@ -42,21 +44,21 @@ def test_saving_search_queries(as_admin, data_builder):
     assert r.json()['label'] == 'newSearch'
 
     # Add permission to search
-    r = as_admin.post('/dataexplorer/queries/' + search + '/permissions', json={'access': 'admin', '_id': 'user@user.com'})
+    r = as_admin.post('/dataexplorer/queries/' + search + '/permissions', json={'access': 'admin', '_id': user_id})
     assert r.ok
     r = as_admin.get('/dataexplorer/queries/' + search)
     assert r.ok
-    assert r.json()['permissions'][1]['_id'] == 'user@user.com'
+    assert r.json()['permissions'][1]['_id'] == user_id
 
     # Modify permission
-    r = as_admin.put('/dataexplorer/queries/' + search + '/permissions/user@user.com', json={'access': 'ro'})
+    r = as_admin.put('/dataexplorer/queries/' + search + '/permissions/' + user_id, json={'access': 'ro'})
     assert r.ok
     r = as_admin.get('/dataexplorer/queries/' + search)
     assert r.ok
     assert r.json()['permissions'][1]['access'] == 'ro'
 
     # Remove permission
-    r = as_admin.delete('/dataexplorer/queries/' + search + '/permissions/user@user.com')
+    r = as_admin.delete('/dataexplorer/queries/' + search + '/permissions/' + user_id)
     assert r.ok
     r = as_admin.get('/dataexplorer/queries/' + search)
     assert r.ok

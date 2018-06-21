@@ -46,10 +46,10 @@ class UsersTestCases(SdkTestCase):
     def test_add_modify_delete_user(self):
         fw = self.fw
         email = self.rand_string() + '@' + self.rand_string() + '.io'
-        
-        user = flywheel.User(id=email, email=email, 
+
+        user = flywheel.User(email=email,
             firstname=self.rand_string(), lastname=self.rand_string())
-        
+
         # Add
         user_id = fw.add_user(user)
         self.assertNotEmpty(user_id)

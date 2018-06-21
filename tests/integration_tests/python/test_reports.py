@@ -179,7 +179,7 @@ def test_access_log_report(data_builder, with_user, as_user, as_admin):
 
     r = as_admin.get('/report/accesslog', params={'subject': 'compliant5'})
     assert r.ok
-    for count,log in enumerate(r.json(), start = 1):
+    for count, log in enumerate(r.json(), start = 1):
         assert log.get('context', {}).get('subject', {}).get('label') == 'compliant5'
     assert count == 2
     r = as_admin.delete('/sessions/' + session)

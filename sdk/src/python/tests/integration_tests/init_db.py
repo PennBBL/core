@@ -5,20 +5,19 @@ import datetime
 SCITRAN_PERSISTENT_DB_URI = os.environ.get('SCITRAN_PERSISTENT_DB_URI')
 SCITRAN_ADMIN_API_KEY = binascii.hexlify(os.urandom(10)).decode('utf-8')
 
-def create_user(db, _id, api_key, **kwargs):
+def create_user(db, email, api_key, **kwargs):
     payload = {
-        '_id': _id, 
-        'email': _id,
+        'email': email,
         'created': datetime.datetime.utcnow(),
         'modified': datetime.datetime.utcnow(),
-        'firstname': 'test', 
+        'firstname': 'test',
         'lastname': 'user'
     }
     payload.update(kwargs)
 
     # Create user
     print('Create user...')
-    db.users.replace_one({'_id': _id}, payload, upsert=True)
+    _id = db.users.replace_one({'email': email}, payload, upsert=True).upserted_id
 
     # Insert API Key
     print('Create API Key...')

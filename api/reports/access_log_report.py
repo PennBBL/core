@@ -33,6 +33,7 @@ class AccessLogReport(Report):
         "ip",
         "access_type",
         "origin.id",
+        "origin.email",
         "origin.method",
         "origin.name",
         "origin.type",

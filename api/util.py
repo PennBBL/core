@@ -124,7 +124,7 @@ def deep_update(d, u):
 
 def user_perm(permissions, _id):
     for perm in permissions:
-        if perm['_id'] == _id:
+        if str(perm['_id']) == str(_id):
             return perm
     return {}
 
@@ -133,8 +133,8 @@ def is_user_id(uid):
     """
     Checks to make sure uid matches uid regex
     """
-    pattern = re.compile('^[0-9a-zA-Z.@_-]*$')
-    return bool(pattern.match(uid))
+    pattern = re.compile('^[0-9a-f]{24}$')
+    return bool(pattern.match(str(uid)))
 
 
 # NOTE unused function

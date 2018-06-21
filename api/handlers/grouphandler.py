@@ -1,4 +1,5 @@
 import datetime
+import bson
 
 from ..web import base
 from .. import util
@@ -49,6 +50,8 @@ class GroupHandler(base.RequestHandler):
         return result
 
     def get_all(self, uid=None):
+        if uid:
+            uid = bson.ObjectId(uid)
         projection = {'label': 1, 'created': 1, 'modified': 1, 'permissions': 1, 'tags': 1}
         permchecker = groupauth.list_permission_checker(self, uid)
         page = permchecker(self.storage.exec_op)('GET', projection=projection, pagination=self.pagination)

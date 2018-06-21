@@ -970,23 +970,25 @@ def test_adhoc_data_view_analyses_files(data_builder, file_form, as_admin, as_dr
     api_db.analyses.delete_one({'_id': bson.ObjectId(analysis1)})
     api_db.analyses.delete_one({'_id': bson.ObjectId(analysis2)})
 
-def test_user_data_view(as_user, as_public):
+def test_user_data_view(as_user, as_public, as_admin):
+    user_id = as_user.get('/users/self').json()['_id']
+    admin_id = as_admin.get('/users/self').json()['_id']
     # Try to create with no body
-    r = as_user.post('/containers/user@user.com/views')
+    r = as_user.post('/containers/' + user_id + '/views')
     assert r.status_code == 400
 
     # Try to create invalid view
     view = { 'columns': [{'src': 'acquisition.label'}] }
-    r = as_user.post('/containers/user@user.com/views', json=view)
+    r = as_user.post('/containers/' + user_id + '/views', json=view)
     assert r.status_code == 400
 
     # Try to create a view on a different user
     view['label'] = 'test-view'
-    r = as_user.post('/containers/admin@user.com/views', json=view)
+    r = as_user.post('/containers/' + admin_id + '/views', json=view)
     assert r.status_code == 403
 
     # Create a user-owned view
-    r = as_user.post('/containers/user@user.com/views', json=view)
+    r = as_user.post('/containers/' + user_id + '/views', json=view)
     assert r.ok
     view = r.json()['_id']
 
@@ -1004,13 +1006,13 @@ def test_user_data_view(as_user, as_public):
     assert len(r_view['columns']) == 1
 
     # Attempt to list another user's views
-    r = as_user.get('/containers/admin@user.com/views')
+    r = as_user.get('/containers/' + admin_id + '/views')
     assert r.ok
     views = r.json()
     assert len(views) == 0
 
     # List views
-    r = as_user.get('/containers/user@user.com/views')
+    r = as_user.get('/containers/' + user_id + '/views')
     assert r.ok
     views = r.json()
 
@@ -1111,10 +1113,11 @@ def test_site_data_view(as_admin, as_user):
     assert r.ok
 
 def test_group_data_view(as_admin, as_user, data_builder):
+    user_id = as_user.get('/users/self').json()['_id']
     group = data_builder.create_group(_id='data_view_group')
     assert group == 'data_view_group'
 
-    r = as_admin.post('/groups/data_view_group/permissions', json={'_id': 'user@user.com', 'access': 'rw'})
+    r = as_admin.post('/groups/data_view_group/permissions', json={'_id': user_id, 'access': 'rw'})
     assert r.ok
 
     view = {
@@ -1166,11 +1169,12 @@ def test_project_data_view(as_admin, as_user, as_public, data_builder, file_form
     project = data_builder.create_project(label='test-project', public=False)
     session1 = data_builder.create_session(project=project, subject=subject1, label='ses-01')
     acquisition1 = data_builder.create_acquisition(session=session1, label='scout')
+    user_id = as_user.get('/users/self').json()['_id']
 
     file_form1 = file_form(('values.csv', csv_test_data('a1')))
     assert as_admin.post('/acquisitions/' + acquisition1 + '/files', files=file_form1).ok
 
-    r = as_admin.post('/projects/' + project + '/permissions', json={'_id': 'user@user.com', 'access': 'ro'})
+    r = as_admin.post('/projects/' + project + '/permissions', json={'_id': user_id, 'access': 'ro'})
     assert r.ok
 
     view = {
@@ -1443,7 +1447,8 @@ def test_save_data_view_to_container(data_builder, file_form, as_admin, as_user,
     assert r.status_code == 403
 
     # No user access (Can't save to container)
-    r = as_admin.post('/projects/' + project + '/permissions', json={'_id': 'user@user.com', 'access': 'ro'})
+    user_id = as_user.get('/users/self').json()['_id']
+    r = as_admin.post('/projects/' + project + '/permissions', json={'_id': user_id, 'access': 'ro'})
     assert r.ok
 
     r = as_user.post('/views/save?containerId={}'.format(project), json={
