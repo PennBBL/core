@@ -3,7 +3,7 @@ import datetime
 import bson
 
 
-def test_devices(as_public, as_user, as_admin, as_root, as_drone, api_db):
+def test_devices(as_public, as_user, as_admin, as_drone, api_db):
     # try to get all devices w/o logging in
     r = as_public.get('/devices')
     assert r.status_code == 403
@@ -51,7 +51,7 @@ def test_devices(as_public, as_user, as_admin, as_root, as_drone, api_db):
     assert 'key' in r.json()
 
     # try to do device check-in as user
-    r = as_root.put('/devices/self')
+    r = as_admin.put('/devices/self')
     assert r.status_code == 403
 
     # do empty device check-in (implicit last_seen update)
@@ -76,12 +76,12 @@ def test_devices(as_public, as_user, as_admin, as_root, as_drone, api_db):
     assert r.ok
     assert drone_id in r.json()
 
-    # try to create device w/o root
-    r = as_admin.post('/devices')
+    # try to create device w/o site admin
+    r = as_user.post('/devices')
     assert r.status_code == 403
 
     # create device
-    r = as_root.post('/devices', json={'type': 'test'})
+    r = as_admin.post('/devices', json={'type': 'test'})
     assert r.ok
     device_id = r.json()['_id']
     assert api_db.apikeys.count({'origin.id': bson.ObjectId(device_id), 'type': 'device'}) == 1
@@ -112,7 +112,7 @@ def test_devices(as_public, as_user, as_admin, as_root, as_drone, api_db):
     assert as_user.get('/devices/status').json()[device_id]['status'] == 'error'
 
     # delete device
-    r = as_root.delete('/devices/' + device_id)
+    r = as_admin.delete('/devices/' + device_id)
     assert r.ok
 
     r = as_user.get('/devices/' + device_id)

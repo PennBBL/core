@@ -100,7 +100,7 @@ class ContainerHandler(base.RequestHandler):
         result = permchecker(self.storage.exec_op)('GET', _id)
         if result is None:
             self.abort(404, 'Element not found in container {} {}'.format(self.storage.cont_name, _id))
-        if not self.superuser_request and not self.is_true('join_avatars'):
+        if not self.user_is_admin and not self.is_true('join_avatars'):
             self._filter_permissions(result, self.uid)
         if self.is_true('join_avatars'):
             self.storage.join_avatars([result])
@@ -189,7 +189,7 @@ class ContainerHandler(base.RequestHandler):
                 projection = None
 
         # select which permission filter will be applied to the list of results.
-        if self.superuser_request:
+        if self.complete_list:
             permchecker = always_ok
         elif self.public_request:
             permchecker = containerauth.list_public_request
@@ -210,8 +210,8 @@ class ContainerHandler(base.RequestHandler):
         # this request executes the actual reqeust filtering containers based on the user permissions
         page = permchecker(self.storage.exec_op)('GET', query=query, public=self.public_request, projection=projection, pagination=self.pagination)
         results = page['results']
-        # return only permissions of the current user unless superuser or getting avatars
-        if not self.superuser_request and not self.is_true('join_avatars'):
+        # return only permissions of the current user unless admin or getting avatars
+        if not self.user_is_admin and not self.is_true('join_avatars'):
             self._filter_all_permissions(results, self.uid)
         # the "count" flag add a count for each container returned
         if self.is_true('counts'):
@@ -250,7 +250,7 @@ class ContainerHandler(base.RequestHandler):
         self.storage = self.config['storage']
         projection = self.storage.get_list_projection()
         # select which permission filter will be applied to the list of results.
-        if self.superuser_request or self.user_is_admin:
+        if self.user_is_admin:
             permchecker = always_ok
         elif self.public_request:
             self.abort(403, 'this request is not allowed')
@@ -593,7 +593,7 @@ class ContainerHandler(base.RequestHandler):
             self.abort(404, 'Element {} not found in container {}'.format(_id, self.storage.cont_name))
 
     def _get_permchecker(self, container=None, parent_container=None):
-        if self.superuser_request:
+        if self.user_is_admin:
             return always_ok
         elif self.public_request:
             return containerauth.public_request(self, container)

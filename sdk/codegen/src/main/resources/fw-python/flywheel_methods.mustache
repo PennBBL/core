@@ -52,7 +52,7 @@
         """
         return self.get_container(id, **kwargs)
 
-    def resolve(self, path):
+    def resolve(self, path, **kwargs):
         """Perform a path based lookup of nodes in the Flywheel hierarchy.
 
         :param str path: (required) The path to resolve
@@ -61,7 +61,7 @@
         if not isinstance(path, list):
             path = path.split('/')
 
-        return self.resolve_path(flywheel.ResolverInput(path=path))
+        return self.resolve_path(flywheel.ResolverInput(path=path), **kwargs)
 
     def lookup(self, path):
         """Perform a path based lookup of a single node in the Flywheel hierarchy.

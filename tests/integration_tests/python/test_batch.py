@@ -25,6 +25,10 @@ def test_batch(data_builder, as_user, as_admin, as_root, as_drone):
     r = as_root.get('/batch')
     assert r.ok
 
+    # get all as admin with exhaustive flag
+    r = as_admin.get('/batch', params={'exhaustive':True})
+    assert r.ok
+
     # try to create batch without gear_id/targets
     r = as_admin.post('/batch', json={})
     assert r.status_code == 400
@@ -301,14 +305,14 @@ def test_batch(data_builder, as_user, as_admin, as_root, as_drone):
         # set jobs to failed
         r = as_drone.put('/jobs/' + job, json={'state': 'running'})
         assert r.ok
-        r = as_root.put('/jobs/' + job, json={'state': 'failed'})
+        r = as_admin.put('/jobs/' + job, json={'state': 'failed'})
         assert r.ok
 
     # test batch is complete
     r = as_admin.get('/batch/' + batch_id)
     assert r.json()['state'] == 'failed'
 
-def test_no_input_batch(data_builder, default_payload, randstr, as_admin, as_root, as_drone, api_db):
+def test_no_input_batch(data_builder, default_payload, randstr, as_admin, as_drone, api_db):
     project = data_builder.create_project()
     session = data_builder.create_session(project=project)
     session2 = data_builder.create_session(project=project)
@@ -325,7 +329,7 @@ def test_no_input_batch(data_builder, default_payload, randstr, as_admin, as_roo
     }
 
 
-    r = as_root.post('/gears/' + gear_name, json=gear_doc)
+    r = as_admin.post('/gears/' + gear_name, json=gear_doc)
     assert r.ok
 
     gear = r.json()['_id']
@@ -402,7 +406,7 @@ def test_no_input_batch(data_builder, default_payload, randstr, as_admin, as_roo
         }
     }
 
-    r = as_root.post('/gears/' + gear_name, json=gear_doc)
+    r = as_admin.post('/gears/' + gear_name, json=gear_doc)
     assert r.ok
 
     gear2 = r.json()['_id']
@@ -439,16 +443,16 @@ def test_no_input_batch(data_builder, default_payload, randstr, as_admin, as_roo
 
     # cleanup
 
-    r = as_root.delete('/gears/' + gear)
+    r = as_admin.delete('/gears/' + gear)
     assert r.ok
 
-    r = as_root.delete('/gears/' + gear2)
+    r = as_admin.delete('/gears/' + gear2)
     assert r.ok
 
     # must remove jobs manually because gears were added manually
     api_db.jobs.remove({'gear_id': {'$in': [gear, gear2]}})
 
-def test_no_input_context_batch(data_builder, default_payload, as_admin, as_root, file_form, randstr, api_db):
+def test_no_input_context_batch(data_builder, default_payload, as_admin, file_form, randstr, api_db):
     project = data_builder.create_project()
     session = data_builder.create_session(project=project)
     session2 = data_builder.create_session(project=project)
@@ -464,7 +468,7 @@ def test_no_input_context_batch(data_builder, default_payload, as_admin, as_root
         }
     }
 
-    r = as_root.post('/gears/' + gear_name, json=gear_doc)
+    r = as_admin.post('/gears/' + gear_name, json=gear_doc)
     assert r.ok
     gear = r.json()['_id']
 
@@ -544,13 +548,13 @@ def test_no_input_context_batch(data_builder, default_payload, as_admin, as_root
     assert job2_inputs['test_context_value']['value'] == 'project_context_value'
 
     # Cleanup
-    r = as_root.delete('/gears/' + gear)
+    r = as_admin.delete('/gears/' + gear)
     assert r.ok
 
     # must remove jobs manually because gears were added manually
     api_db.jobs.remove({'gear_id': {'$in': [gear]}})
 
-def test_file_input_context_batch(data_builder, default_payload, as_admin, as_root, file_form, randstr, api_db):
+def test_file_input_context_batch(data_builder, default_payload, as_admin, file_form, randstr, api_db):
     project = data_builder.create_project()
     session = data_builder.create_session(project=project)
     session2 = data_builder.create_session(project=project)
@@ -576,7 +580,7 @@ def test_file_input_context_batch(data_builder, default_payload, as_admin, as_ro
         }
     }
 
-    r = as_root.post('/gears/' + gear_name, json=gear_doc)
+    r = as_admin.post('/gears/' + gear_name, json=gear_doc)
     assert r.ok
     gear = r.json()['_id']
 
@@ -667,7 +671,7 @@ def test_file_input_context_batch(data_builder, default_payload, as_admin, as_ro
     assert r.json()['state'] == 'running'
 
     # Cleanup
-    r = as_root.delete('/gears/' + gear)
+    r = as_admin.delete('/gears/' + gear)
     assert r.ok
 
     # must remove jobs manually because gears were added manually

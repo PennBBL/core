@@ -17,9 +17,9 @@ class ProjectsTestCases(SdkTestCase):
 
     def test_projects(self):
         fw = self.fw
-        
+
         project_name = self.rand_string()
-        project = flywheel.Project(label=project_name, group=self.group_id, 
+        project = flywheel.Project(label=project_name, group=self.group_id,
             description="This is a description", info = { 'some-key': 37 })
 
         # Add
@@ -207,7 +207,7 @@ class ProjectsTestCases(SdkTestCase):
         r_project = fw.get_project(project_id)
         self.assertEmpty(r_project.files)
 
-    def test_create_project_in_root_mode(self):
+    def test_create_project_without_perm(self):
         fw = self.fw
 
         group = fw.get_group(self.group_id)
@@ -224,36 +224,23 @@ class ProjectsTestCases(SdkTestCase):
         project_name = self.rand_string()
         project = flywheel.Project(label=self.rand_string(), group=self.group_id)
 
-        try:
-            fw.add_project(project)
-            self.fail('Expected ApiException creating project!')
-        except flywheel.ApiException as e:
-            self.assertEqual(e.status, 403)
-
-        # We shouldn't get an error in root mode
-        project_id = self.fw_root.add_project(project)
+        project_id = fw.add_project(project)
         self.assertNotEmpty(project_id)
-      
+
         try:
             # Delete implicit permission from the project
             fw.delete_project_user_permission(project_id, user_id)
 
-            # Should get a 403 error trying to retrieve the project
-            try:
-                fw.get_project(project_id)
-                self.fail('Expected ApiException retrieving project!')
-            except flywheel.ApiException as e:
-                self.assertEqual(e.status, 403)
-
-            # Should be able to retrieve as root
-            r_project = self.fw_root.get_project(project_id)
+            # retrieve the project
+            r_project = fw.get_project(project_id)
             self.assertEqual(r_project.label, project.label)
 
-            # Should be in list retrieved as root
             r_project.info = {}
-            r_project.info_exists = False 
+            r_project.info_exists = False
             r_project.analyses = None
-            projects = self.fw_root.get_all_projects()
+
+            # Should be in list retrieved with exhaustive
+            projects = self.fw.get_all_projects(exhaustive=True)
             self.assertIn(r_project, projects)
 
             # Should not show up in normal list
@@ -262,7 +249,7 @@ class ProjectsTestCases(SdkTestCase):
 
         finally:
             # Always cleanup project
-            self.fw_root.delete_project(project_id)
+            self.fw.delete_project(project_id)
 
     def test_project_errors(self):
         fw = self.fw

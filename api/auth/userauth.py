@@ -3,9 +3,7 @@ def default(handler, user=None):
         def f(method, _id=None, query=None, payload=None, projection=None):
             if handler.public_request:
                 handler.abort(403, 'public request is not authorized')
-            elif handler.superuser_request and not (method == 'DELETE' and _id == handler.uid):
-                pass
-            elif handler.user_is_admin and (method == 'DELETE' and not _id == handler.uid):
+            elif handler.user_is_admin and not (method == 'DELETE' and _id == handler.uid):
                 pass
             elif method == 'PUT' and handler.uid == _id:
                 if 'root' in payload and payload['root'] != user['root']:
@@ -16,9 +14,9 @@ def default(handler, user=None):
                     pass
             elif method == 'PUT' and handler.user_is_admin:
                 pass
-            elif method == 'POST' and not handler.superuser_request and not handler.user_is_admin:
+            elif method == 'POST' and not handler.user_is_admin:
                 handler.abort(403, 'only admins are allowed to create users')
-            elif method == 'POST' and (handler.superuser_request or handler.user_is_admin):
+            elif method == 'POST' and handler.user_is_admin:
                 pass
             elif method == 'GET':
                 pass

@@ -59,8 +59,9 @@ class Flywheel:
         config = config_from_api_key(api_key)
         self.api_client = ApiClient(config, context=self)
 
-        # Root mode
+        # Root mode (Deprecated)
         if root:
+            log.warning('Root mode is deprecated')
             self.api_client.set_default_query_param('root', 'true')
 
         self.api_client.user_agent = 'Flywheel SDK/{} (Python {}; {})'.format(SDK_VERSION,

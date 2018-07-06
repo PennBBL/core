@@ -78,8 +78,12 @@ def test_project_report(data_builder, as_admin, as_user):
     })
     assert r.status_code == 400
 
+    # Add user to projects
+    uid = as_user.get('/users/self').json()['_id']
+    as_admin.post('/projects/' + project_1 + '/permissions', json={'_id': uid, 'access': 'admin'})
+
     # get project report w/ date filter not matching sessions
-    r = as_admin.get('/report/project', params={
+    r = as_user.get('/report/project', params={
         'projects': project_1,
         'end_date': yesterday_ts,
     })
@@ -89,7 +93,7 @@ def test_project_report(data_builder, as_admin, as_user):
     assert projects[0]['session_count'] == 0
 
     # get project report w/ date filter matching sessions
-    r = as_admin.get('/report/project', params={
+    r = as_user.get('/report/project', params={
         'projects': project_1,
         'start_date': yesterday_ts,
         'end_date': tomorrow_ts,
@@ -268,12 +272,12 @@ def test_usage_report(data_builder, file_form, as_user, as_admin):
     analysis = as_admin.post('/sessions/' + session + '/analyses', files=file_form(meta={'label': 'test'})).json()['_id']
     as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('input.csv'))
     job = data_builder.create_job(inputs={'usage': {'type': 'acquisition', 'id': acquisition, 'name': 'input.csv'}})
-    as_admin.get('/jobs/next', params={'root': 'true'})
+    as_admin.get('/jobs/next')
     as_admin.post('/engine',
-        params={'root': 'true', 'level': 'analysis', 'id': analysis, 'job': job},
+        params={'level': 'analysis', 'id': analysis, 'job': job},
         files=file_form('output.csv', meta={'type': 'text', 'value': {'label': 'test'}})
     )
-    as_admin.put('/jobs/' + job, params={'root': 'true'}, json={'state': 'complete'})
+    as_admin.put('/jobs/' + job, json={'state': 'complete'})
 
     # get month-aggregated usage report
     monthrange = calendar.monthrange(today.year, today.month)

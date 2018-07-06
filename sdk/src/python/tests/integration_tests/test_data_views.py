@@ -22,11 +22,11 @@ class DataViewTestCases(SdkTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.fw_root.delete_project(cls.project_id)
-        cls.fw_root.delete_group(cls.group_id)
+        cls.fw.delete_project(cls.project_id)
+        cls.fw.delete_group(cls.group_id)
 
         if cls.view_id:
-            cls.fw_root.delete_view(cls.view_id)
+            cls.fw.delete_view(cls.view_id)
 
     def setUp(self):
         self.test_acquisition_id = None

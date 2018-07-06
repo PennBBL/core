@@ -7,9 +7,7 @@ log = config.log
 def default(handler, group=None):
     def g(exec_op):
         def f(method, _id=None, query=None, payload=None, projection=None):
-            if handler.superuser_request:
-                pass
-            elif handler.public_request:
+            if handler.public_request:
                 handler.abort(400, 'public request is not valid')
             elif handler.user_is_admin:
                 pass
@@ -29,14 +27,14 @@ def list_permission_checker(handler, uid=None):
     def g(exec_op):
         def f(method, query=None, projection=None, pagination=None):
             if uid is not None:
-                if uid != handler.uid and not handler.superuser_request and not handler.user_is_admin:
+                if uid != handler.uid and not handler.user_is_admin:
                     handler.abort(403, 'User ' + handler.uid + ' may not see the Groups of User ' + uid)
                 query = query or {}
                 query['permissions._id'] = uid
                 projection = projection or {}
                 projection['permissions.$'] = 1
             else:
-                if not handler.superuser_request:
+                if not handler.complete_list:
                     query = query or {}
                     projection = projection or {}
                     query['permissions._id'] = handler.uid

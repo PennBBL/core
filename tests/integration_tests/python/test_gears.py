@@ -1,6 +1,6 @@
 import bson
 
-def test_gear_add_versioning(default_payload, randstr, data_builder, as_root):
+def test_gear_add_versioning(default_payload, randstr, data_builder, as_admin, as_root):
     gear_name = randstr()
     gear_version_1 = '0.0.1'
     gear_version_2 = '0.0.2'
@@ -11,12 +11,12 @@ def test_gear_add_versioning(default_payload, randstr, data_builder, as_root):
 
     # create new gear w/ gear_version_1
     gear_payload['gear']['version'] = gear_version_1
-    r = as_root.post('/gears/' + gear_name, json=gear_payload)
+    r = as_admin.post('/gears/' + gear_name, json=gear_payload)
     assert r.ok
     gear_id_1 = r.json()['_id']
 
     # get gear by id, test name and version
-    r = as_root.get('/gears/' + gear_id_1)
+    r = as_admin.get('/gears/' + gear_id_1)
     assert r.ok
     assert r.json()['gear']['name'] == gear_name
     assert r.json()['gear']['version'] == gear_version_1
@@ -26,20 +26,25 @@ def test_gear_add_versioning(default_payload, randstr, data_builder, as_root):
     assert r.ok
     assert sum(gear['gear']['name'] == gear_name for gear in r.json()) == 1
 
+    # list gears with exhaustive flag
+    r = as_admin.get('/gears', params={'exhaustive': True, 'fields': 'all'})
+    assert r.ok
+    assert sum(gear['gear']['name'] == gear_name for gear in r.json()) == 1
+
     # create new gear w/ gear_version_2
     gear_payload['gear']['version'] = gear_version_2
-    r = as_root.post('/gears/' + gear_name, json=gear_payload)
+    r = as_admin.post('/gears/' + gear_name, json=gear_payload)
     assert r.ok
     gear_id_2 = r.json()['_id']
 
     # get gear by id, test name and version
-    r = as_root.get('/gears/' + gear_id_2)
+    r = as_admin.get('/gears/' + gear_id_2)
     assert r.ok
     assert r.json()['gear']['name'] == gear_name
     assert r.json()['gear']['version'] == gear_version_2
 
     # list gears, test gear name occurs only once
-    r = as_root.get('/gears', params={'fields': 'all'})
+    r = as_admin.get('/gears', params={'fields': 'all'})
     assert r.ok
     assert sum(gear['gear']['name'] == gear_name for gear in r.json()) == 1
 
@@ -58,14 +63,14 @@ def test_gear_add_versioning(default_payload, randstr, data_builder, as_root):
     assert not any(gear['gear']['version'] == gear_version_3 for gear in all_gears)
 
     # try to create gear w/ same name and version (gear_version_2)
-    r = as_root.post('/gears/' + gear_name, json=gear_payload)
+    r = as_admin.post('/gears/' + gear_name, json=gear_payload)
     assert not r.ok
 
     # delete gears
-    r = as_root.delete('/gears/' + gear_id_1)
+    r = as_admin.delete('/gears/' + gear_id_1)
     assert r.ok
 
-    r = as_root.delete('/gears/' + gear_id_2)
+    r = as_admin.delete('/gears/' + gear_id_2)
     assert r.ok
 
     r = as_root.delete('/gears/' + gear_id_3)
@@ -94,21 +99,21 @@ def test_gear_add_with_ticket(default_payload, randstr, data_builder, as_root):
 	assert len(r.json()) == 1
 	assert str(r.json()[0]) == r.json()[0]
 
-def test_gear_add_invalid(default_payload, randstr, as_root):
+def test_gear_add_invalid(default_payload, randstr, as_admin):
     gear_name = 'test-gear-add-invalid-' + randstr()
 
     # try to add invalid gear - missing name
-    r = as_root.post('/gears/' + gear_name, json={})
+    r = as_admin.post('/gears/' + gear_name, json={})
     assert r.status_code == 400
 
     # try to add invalid gear - manifest validation error
-    r = as_root.post('/gears/' + gear_name, json={'gear': {'name': gear_name}})
+    r = as_admin.post('/gears/' + gear_name, json={'gear': {'name': gear_name}})
     assert r.status_code == 400
 
     # try to add invalid gear - manifest validation error of non-root-level key
     gear_payload = default_payload['gear']
     gear_payload['gear']['inputs'] = {'invalid': 'inputs'}
-    r = as_root.post('/gears/' + gear_name, json=gear_payload)
+    r = as_admin.post('/gears/' + gear_name, json=gear_payload)
     assert r.status_code == 400
 
 def test_gear_access(data_builder, as_public, as_admin, as_user):
@@ -157,6 +162,7 @@ def test_gear_invocation_and_suggest(data_builder, file_form, as_admin, as_user)
 
     user_id = as_user.get('/users/self').json()['_id']
     r = as_admin.post('/projects/' + project + '/permissions', json={'_id': user_id, 'access': 'rw'})
+    assert r.ok
 
     # Add collection with only the 3rd acquisition
     collection = as_admin.post('/collections', json={'label': 'test-collection'}).json()['_id']
@@ -168,35 +174,45 @@ def test_gear_invocation_and_suggest(data_builder, file_form, as_admin, as_user)
             ],
         }
     }).ok
+    r = as_admin.post('/collections/' + collection + '/permissions', json={'_id': user_id, 'access': 'rw'})
 
 
     # Add files to collection/project/sessions/acquisition
-    as_admin.post('/collections/' + collection + '/files', files=file_form(
+    as_user.post('/collections/' + collection + '/files', files=file_form(
         'one.csv', meta={'name': 'one.csv'}))
-    as_admin.post('/projects/' + project + '/files', files=file_form(
+    as_user.post('/projects/' + project + '/files', files=file_form(
         'one.csv', meta={'name': 'one.csv'}))
-    as_admin.post('/sessions/' + session + '/files', files=file_form(
+    as_user.post('/sessions/' + session + '/files', files=file_form(
         'one.csv', meta={'name': 'one.csv'}))
-    as_admin.post('/sessions/' + session2 + '/files', files=file_form(
+    as_user.post('/sessions/' + session2 + '/files', files=file_form(
         'one.csv', meta={'name': 'one.csv'}))
-    as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form(
+    as_user.post('/acquisitions/' + acquisition + '/files', files=file_form(
         'one.csv', meta={'name': 'one.csv'}))
-    as_admin.post('/acquisitions/' + acquisition2 + '/files', files=file_form(
+    as_user.post('/acquisitions/' + acquisition2 + '/files', files=file_form(
         'one.csv', meta={'name': 'one.csv'}))
-    as_admin.post('/acquisitions/' + acquisition3 + '/files', files=file_form(
+    as_user.post('/acquisitions/' + acquisition3 + '/files', files=file_form(
         'one.csv', meta={'name': 'one.csv'}))
 
 
     # Add analysis
-    analysis = as_admin.post('/sessions/' + session + '/analyses', files=file_form(
+    analysis = as_user.post('/sessions/' + session + '/analyses', files=file_form(
         'one.csv', meta={'label': 'test', 'outputs': [{'name': 'one.csv'}]})).json()['_id']
-    analysis2 = as_admin.post('/sessions/' + session2 + '/analyses', files=file_form(
+    analysis2 = as_user.post('/sessions/' + session2 + '/analyses', files=file_form(
         'one.csv', meta={'label': 'test', 'outputs': [{'name': 'one.csv'}]})).json()['_id']
 
     # test invocation
     r = as_user.get('/gears/' + gear + '/invocation')
     assert r.ok
 
+    r = as_user.delete('/projects/' + project + '/permissions/' + user_id)
+    assert r.ok
+
+    # Try to suggest project without access to project
+    r = as_user.get('/gears/' + gear + '/suggest/projects/' + project)
+    assert r.status_code == 403
+
+    r = as_admin.post('/projects/' + project + '/permissions', json={'_id': user_id, 'access': 'rw'})
+    assert r.ok
 
     # test suggest project
     r = as_user.get('/gears/' + gear + '/suggest/projects/' + project)
@@ -248,7 +264,7 @@ def test_gear_invocation_and_suggest(data_builder, file_form, as_admin, as_user)
     ### Test with collection context
 
     # test suggest project
-    r = as_admin.get('/gears/' + gear + '/suggest/collections/' + collection, params={'collection': collection})
+    r = as_user.get('/gears/' + gear + '/suggest/collections/' + collection, params={'collection': collection})
     assert r.ok
 
     assert len(r.json()['children']['subjects']) == 1
@@ -258,7 +274,7 @@ def test_gear_invocation_and_suggest(data_builder, file_form, as_admin, as_user)
 
 
     # test suggest subject
-    r = as_admin.get('/gears/' + gear + '/suggest/subjects/' + subject2, params={'collection': collection})
+    r = as_user.get('/gears/' + gear + '/suggest/subjects/' + subject2, params={'collection': collection})
     assert r.ok
 
     assert len(r.json()['children']['sessions']) == 1
@@ -268,7 +284,7 @@ def test_gear_invocation_and_suggest(data_builder, file_form, as_admin, as_user)
 
 
     # test suggest session
-    r = as_admin.get('/gears/' + gear + '/suggest/sessions/' + session2, params={'collection': collection})
+    r = as_user.get('/gears/' + gear + '/suggest/sessions/' + session2, params={'collection': collection})
     assert r.ok
 
     assert len(r.json()['children']['acquisitions']) == 1
@@ -278,7 +294,7 @@ def test_gear_invocation_and_suggest(data_builder, file_form, as_admin, as_user)
 
 
     # test suggest acquisition
-    r = as_admin.get('/gears/' + gear + '/suggest/acquisitions/' + acquisition3, params={'collection': collection})
+    r = as_user.get('/gears/' + gear + '/suggest/acquisitions/' + acquisition3, params={'collection': collection})
     assert r.ok
 
     assert len(r.json()['children']['analyses']) == 0
@@ -287,7 +303,7 @@ def test_gear_invocation_and_suggest(data_builder, file_form, as_admin, as_user)
 
 
     # test suggest analysis
-    r = as_admin.get('/gears/' + gear + '/suggest/analyses/' + analysis2, params={'collection': collection})
+    r = as_user.get('/gears/' + gear + '/suggest/analyses/' + analysis2, params={'collection': collection})
     assert r.ok
 
     assert len(r.json()['files']) == 1
@@ -297,7 +313,8 @@ def test_gear_invocation_and_suggest(data_builder, file_form, as_admin, as_user)
     # clean up
     as_admin.delete('/collections/' + collection)
 
-def test_gear_context(data_builder, default_payload, as_admin, as_root, as_user, randstr):
+
+def test_gear_context(data_builder, default_payload, as_admin, as_user, randstr):
     project_label = randstr()
     project_info = {
         'test_context_value': 3,
@@ -343,7 +360,7 @@ def test_gear_context(data_builder, default_payload, as_admin, as_root, as_user,
         }
     }
 
-    r = as_root.post('/gears/' + gear_name, json=gear_doc)
+    r = as_admin.post('/gears/' + gear_name, json=gear_doc)
     assert r.ok
     gear = r.json()['_id']
 
@@ -429,7 +446,7 @@ def test_gear_context(data_builder, default_payload, as_admin, as_root, as_user,
     assert result['test_context_value3'] == { 'found': False }
 
     # Cleanup
-    r = as_root.delete('/gears/' + gear)
+    r = as_admin.delete('/gears/' + gear)
     assert r.ok
 
 def test_filter_gears_read_only_key(randstr, data_builder, default_payload, as_admin):

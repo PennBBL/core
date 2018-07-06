@@ -47,7 +47,7 @@ class RefererHandler(base.RequestHandler):
         return update_validator
 
     def get_permchecker(self, parent_container):
-        if self.superuser_request:
+        if self.user_is_admin:
             return always_ok
         elif self.public_request:
             return containerauth.public_request(self, container=parent_container)
@@ -80,7 +80,7 @@ class AnalysesHandler(RefererHandler):
             # Legacy analysis - accept direct file uploads (inputs and outputs)
             analysis = upload.process_upload(self.request, upload.Strategy.analysis, self.log_user_access, origin=self.origin)
 
-        uid = None if self.superuser_request else self.uid
+        uid = None if self.user_is_admin else self.uid
         result = self.storage.create_el(analysis, cont_name, cid, self.origin, uid)
         return {'_id': result.inserted_id}
 

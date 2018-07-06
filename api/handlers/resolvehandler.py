@@ -22,7 +22,7 @@ class ResolveHandler(base.RequestHandler):
 
         # If we resolved a file, we can just return that file node
         path = result.get('path', [])
-        
+
         if not path:
             raise APINotFoundException('No node matched that path')
 
@@ -55,11 +55,11 @@ class ResolveHandler(base.RequestHandler):
     def _get_node_path(self, node):
         """Get the actual resource path for node"""
         try:
-            cname = containerutil.pluralize(node['container_type'])  
+            cname = containerutil.pluralize(node['container_type'])
         except ValueError:
             # Handle everything else...
             cname = node['container_type'] + 's'
-            
+
         return '{0}/{1}'.format(cname, node['_id'])
 
     def _resolve_and_check_permissions(self, id_only):
@@ -75,7 +75,7 @@ class ResolveHandler(base.RequestHandler):
 
         # Cancel the request if anything in the path is unauthorized; remove any children that are unauthorized.
         # Except for the group, only check permissions for groups if it's the only container in the path
-        if not self.superuser_request:
+        if not self.user_is_admin:
             for x in result["path"]:
                 ok = False
                 if (path_length == 1 and x['container_type'] == 'group') or x['container_type'] in ['acquisition', 'session', 'project']:
@@ -88,6 +88,7 @@ class ResolveHandler(base.RequestHandler):
                     if not ok:
                         self.abort(403, "Not authorized")
 
+        if not self.complete_list:
             filtered_children = []
             for x in result["children"]:
                 ok = False
@@ -106,4 +107,3 @@ class ResolveHandler(base.RequestHandler):
             result["children"] = filtered_children
 
         return result
-

@@ -21,7 +21,8 @@ def test_jobs_access(as_user):
     r = as_user.get('/jobs/test-job/config.json')
     assert r.status_code == 403
 
-def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_root, api_db, file_form):
+
+def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, api_db, file_form):
 
     # Dupe of test_queue.py
     gear_doc = default_payload['gear']['gear']
@@ -99,7 +100,7 @@ def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_ro
     job1_id = r.json()['_id']
 
     # get job
-    r = as_root.get('/jobs/' + job1_id)
+    r = as_admin.get('/jobs/' + job1_id)
     assert r.ok
 
     job = r.json()
@@ -111,14 +112,13 @@ def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_ro
     assert r.ok
     assert r.json()['logs'] == []
 
-    # try to add job log w/o root
-    # needed to use as_user because root = true for as_admin
+    # try to add job log w/o site admin
     job_logs = [{'fd': 1, 'msg': 'Hello'}, {'fd': 2, 'msg': 'World'}]
     r = as_user.post('/jobs/' + job1_id + '/logs', json=job_logs)
     assert r.status_code == 403
 
     # try to add job log to non-existent job
-    r = as_root.post('/jobs/000000000000000000000000/logs', json=job_logs)
+    r = as_admin.post('/jobs/000000000000000000000000/logs', json=job_logs)
     assert r.status_code == 404
 
     # get job log as text w/o logs
@@ -132,7 +132,7 @@ def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_ro
     assert r.text == '<span class="fd--1">No logs were found for this job.</span>'
 
     # start job (Adds logs)
-    r = as_root.get('/jobs/next')
+    r = as_admin.get('/jobs/next')
     assert r.ok
     started_job = r.json()
     assert started_job['transitions']['running'] == started_job['modified']
@@ -191,7 +191,7 @@ def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_ro
     })
     assert r.ok
 
-    r = as_root.get('/jobs/' + job1_id)
+    r = as_admin.get('/jobs/' + job1_id)
     assert r.ok
     updated_job = r.json()
     assert updated_job['profile']['versions']['engine'] == '9a12c5921a1d9206c2d82c0d1a60ebed3d55a338'
@@ -206,12 +206,16 @@ def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_ro
     assert updated_job['profile']['executor']['swap_bytes'] == 31457280
 
     # add job log
-    r = as_root.post('/jobs/' + job1_id + '/logs', json=job_logs)
+    r = as_admin.post('/jobs/' + job1_id + '/logs', json=job_logs)
     assert r.ok
 
     # try to get job log of non-existent job
     r = as_admin.get('/jobs/000000000000000000000000/logs')
     assert r.status_code == 404
+
+    # try to get job logs without access to inputs
+    r = as_user.get('/jobs/' + job1_id + '/logs')
+    assert r.status_code == 403
 
     # get job log (non-empty)
     r = as_admin.get('/jobs/' + job1_id + '/logs')
@@ -219,7 +223,7 @@ def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_ro
     assert len(r.json()['logs']) == 3
 
     # add same logs again (for testing text/html logs)
-    r = as_root.post('/jobs/' + job1_id + '/logs', json=job_logs)
+    r = as_admin.post('/jobs/' + job1_id + '/logs', json=job_logs)
     assert r.ok
 
     expected_job_logs = [{'fd': -1, 'msg': 'Gear Name: {}, Gear Version: {}\n'.format(job['gear_info']['name'], job['gear_info']['version'])}] + \
@@ -236,7 +240,7 @@ def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_ro
     assert r.text == ''.join('<span class="fd-{fd}">{msg}</span>\n'.format(fd=log.get('fd'), msg=log.get('msg').replace('\n', '<br/>\n')) for log in expected_job_logs)
 
     # get job config
-    r = as_root.get('/jobs/' + job1_id + '/config.json')
+    r = as_admin.get('/jobs/' + job1_id + '/config.json')
     assert r.ok
 
     # try to cancel job w/o permission (different user)
@@ -278,34 +282,34 @@ def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_ro
     assert r.status_code == 400
 
     # get next job - with nonexistent tag
-    r = as_root.get('/jobs/next', params={'tags': 'fake-tag'})
+    r = as_admin.get('/jobs/next', params={'tags': 'fake-tag'})
     assert r.status_code == 400
 
     # get next job - with excluding tag
-    r = as_root.get('/jobs/next', params={'tags': '!test-tag'})
+    r = as_admin.get('/jobs/next', params={'tags': '!test-tag'})
     assert r.status_code == 400
 
     # get next job - with excluding tag overlap
-    r = as_root.get('/jobs/next', params={'tags': ['test-tag', '!test-tag']})
+    r = as_admin.get('/jobs/next', params={'tags': ['test-tag', '!test-tag']})
     assert r.status_code == 400
 
     # get next job with peek
-    r = as_root.get('/jobs/next', params={'tags': 'test-tag', 'peek': True})
+    r = as_admin.get('/jobs/next', params={'tags': 'test-tag', 'peek': True})
     assert r.ok
     next_job_id_peek = r.json()['id']
 
     # get next job
-    r = as_root.get('/jobs/next', params={'tags': ['test-tag', '!fake-tag']})
+    r = as_admin.get('/jobs/next', params={'tags': ['test-tag', '!fake-tag']})
     assert r.ok
     next_job_id = r.json()['id']
     assert next_job_id == next_job_id_peek
 
     # set next job to failed
-    r = as_root.put('/jobs/' + next_job_id, json={'state': 'failed', 'failure_reason': 'gear_failure'})
+    r = as_admin.put('/jobs/' + next_job_id, json={'state': 'failed', 'failure_reason': 'gear_failure'})
     assert r.ok
 
-    # Get job and verify the 'failure' timestamp
-    r = as_root.get('/jobs/' + next_job_id)
+    # retry failed job
+    r = as_admin.get('/jobs/' + next_job_id)
     assert r.ok
     failed_job = r.json()
     assert failed_job['transitions']['failed'] == failed_job['modified']
@@ -372,7 +376,7 @@ def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_ro
     r = as_admin.post('/jobs/add', json=job6)
     assert r.status_code == 500
 
-    assert as_root.delete('/gears/' + gear3).ok
+    assert as_admin.delete('/gears/' + gear3).ok
 
     # Attempt to set a malformed file reference as input
     job7 = copy.deepcopy(job_data)
@@ -413,7 +417,7 @@ def test_jobs(data_builder, default_payload, as_public, as_user, as_admin, as_ro
         "batch" : None,
     }
     api_db.jobs.insert_one(job_instance)
-    r = as_root.post('/jobs/reap')
+    r = as_admin.post('/jobs/reap')
     assert r.ok
     assert r.json().get('orphaned') == 1
     r = as_admin.get('/jobs/'+str(job_instance['_id'])+'/logs')
@@ -726,7 +730,7 @@ def test_analysis_job_creation_errors(data_builder, default_payload, as_admin, f
     assert r.status_code == 400
     assert len(as_admin.get('/sessions/' + session).json().get('analyses', [])) == 0
 
-def test_job_context(data_builder, default_payload, as_admin, as_root, file_form):
+def test_job_context(data_builder, default_payload, as_admin, file_form):
     # Dupe of test_queue.py
     gear_doc = default_payload['gear']['gear']
     gear_doc['inputs'] = {
@@ -761,7 +765,7 @@ def test_job_context(data_builder, default_payload, as_admin, as_root, file_form
     job1_id = r.json()['_id']
 
     # get job
-    r = as_root.get('/jobs/' + job1_id)
+    r = as_admin.get('/jobs/' + job1_id)
     assert r.ok
     r_job = r.json()
     r_inputs = r_job['config']['inputs']
@@ -786,7 +790,7 @@ def test_job_context(data_builder, default_payload, as_admin, as_root, file_form
     job2_id = r.json()['_id']
 
     # get job
-    r = as_root.get('/jobs/' + job2_id)
+    r = as_admin.get('/jobs/' + job2_id)
     assert r.ok
     r_job = r.json()
     r_inputs = r_job['config']['inputs']
@@ -813,7 +817,7 @@ def test_job_context(data_builder, default_payload, as_admin, as_root, file_form
     job3_id = r.json()['_id']
 
     # get job
-    r = as_root.get('/jobs/' + job3_id)
+    r = as_admin.get('/jobs/' + job3_id)
     assert r.ok
     r_job = r.json()
     r_inputs = r_job['config']['inputs']
@@ -822,7 +826,8 @@ def test_job_context(data_builder, default_payload, as_admin, as_root, file_form
     assert r_inputs['test_context_value']['found'] == True
     assert r_inputs['test_context_value']['value'] == { 'session_value': 3 }
 
-def test_job_api_key(data_builder, default_payload, as_public, as_admin, as_user, as_root, api_db, file_form):
+
+def test_job_api_key(data_builder, default_payload, as_public, as_admin, as_user, api_db, file_form):
     project = data_builder.create_project()
     acquisition = data_builder.create_acquisition()
     assert as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('test.zip')).ok
@@ -865,11 +870,11 @@ def test_job_api_key(data_builder, default_payload, as_public, as_admin, as_user
     job_id = r.json()['_id']
 
     # get next job as admin
-    r = as_root.get('/jobs/next')
+    r = as_admin.get('/jobs/next')
     assert r.ok
 
     # get config
-    r = as_root.get('/jobs/'+ job_id +'/config.json')
+    r = as_admin.get('/jobs/'+ job_id +'/config.json')
     assert r.ok
     config = r.json()
 
@@ -885,7 +890,7 @@ def test_job_api_key(data_builder, default_payload, as_public, as_admin, as_user
     assert r.ok
 
     # complete job and ensure API key no longer works
-    r = as_root.put('/jobs/' + job_id, json={'state': 'complete'})
+    r = as_admin.put('/jobs/' + job_id, json={'state': 'complete'})
     assert r.ok
 
     r = as_job_key.get('/users/self')
@@ -903,11 +908,11 @@ def test_job_api_key(data_builder, default_payload, as_public, as_admin, as_user
     job_id = r.json()['_id']
 
     # get next job as admin
-    r = as_root.get('/jobs/next')
+    r = as_admin.get('/jobs/next')
     assert r.ok
 
     # get config
-    r = as_root.get('/jobs/'+ job_id +'/config.json')
+    r = as_admin.get('/jobs/'+ job_id +'/config.json')
     assert r.ok
     config = r.json()
 
@@ -929,13 +934,13 @@ def test_job_api_key(data_builder, default_payload, as_public, as_admin, as_user
     api_db.jobs.update_one({'_id': bson.ObjectId(job_id)}, {'$set': {'modified': datetime.datetime(1980, 1, 1)}})
 
     # reap orphans
-    r = as_root.post('/jobs/reap')
+    r = as_admin.post('/jobs/reap')
 
     # Make sure there is only one job that is pending
     assert api_db.jobs.count({'state': 'pending'}) == 1
 
     # get next job as admin
-    r = as_root.get('/jobs/next')
+    r = as_admin.get('/jobs/next')
     assert r.ok
     retried_job = r.json()
     retried_job_id = retried_job['id']
@@ -951,7 +956,7 @@ def test_job_api_key(data_builder, default_payload, as_public, as_admin, as_user
     assert found_config_uri
 
     # get config
-    r = as_root.get('/jobs/' + retried_job_id + '/config.json')
+    r = as_admin.get('/jobs/' + retried_job_id + '/config.json')
     assert r.ok
     config = r.json()
 
@@ -967,7 +972,7 @@ def test_job_api_key(data_builder, default_payload, as_public, as_admin, as_user
     assert r.ok
 
     # complete job and ensure API key no longer works
-    r = as_root.put('/jobs/' + retried_job_id, json={'state': 'complete'})
+    r = as_admin.put('/jobs/' + retried_job_id, json={'state': 'complete'})
     assert r.ok
 
     r = as_job_key.get('/users/self')
@@ -988,9 +993,9 @@ def test_job_api_key(data_builder, default_payload, as_public, as_admin, as_user
     job_id = r.json()['_id']
 
     # fail job and ensure API key no longer works
-    r = as_root.get('/jobs/next')
+    r = as_admin.get('/jobs/next')
     assert r.ok
-    r = as_root.put('/jobs/' + job_id, json={'state': 'failed'})
+    r = as_admin.put('/jobs/' + job_id, json={'state': 'failed'})
     assert r.ok
 
     # Retry it as the user
@@ -998,16 +1003,17 @@ def test_job_api_key(data_builder, default_payload, as_public, as_admin, as_user
     assert r.ok
     retried_job_id = r.json()['_id']
 
-    r = as_root.get('/jobs/next')
+    r = as_admin.get('/jobs/next')
     assert r.ok
-    r = as_root.put('/jobs/' + retried_job_id, json={'state': 'failed'})
+    r = as_admin.put('/jobs/' + retried_job_id, json={'state': 'failed'})
     assert r.ok
 
     # Make sure admins can retry any job
     r = as_admin.post('/jobs/' + retried_job_id + '/retry')
     assert r.ok
 
-def test_job_tagging(data_builder, default_payload, as_admin, as_root, api_db, file_form):
+def test_job_tagging(data_builder, default_payload, as_admin, as_user, api_db, file_form):
+
     # Dupe of test_queue.py
     gear_doc = default_payload['gear']['gear']
     gear_name = 'gear-name'
@@ -1017,6 +1023,9 @@ def test_job_tagging(data_builder, default_payload, as_admin, as_root, api_db, f
     project = data_builder.create_project()
     session = data_builder.create_session()
     acquisition = data_builder.create_acquisition()
+
+    user_id = as_user.get('/users/self').json()['_id']
+    as_admin.post('/projects/' + project + '/permissions', json={'_id': user_id, 'access': 'admin'})
 
     # Test the gear name tag with auto job rule
     rule = {
@@ -1030,13 +1039,13 @@ def test_job_tagging(data_builder, default_payload, as_admin, as_root, api_db, f
     }
 
     # add project rule
-    r = as_admin.post('/projects/' + project + '/rules', json=rule)
+    r = as_user.post('/projects/' + project + '/rules', json=rule)
     assert r.ok
     rule_id = r.json()['_id']
 
     # create job
     # print gear_doc
-    assert as_admin.post('/acquisitions/' + acquisition + '/files', files=file_form('test.csv')).ok
+    assert as_user.post('/acquisitions/' + acquisition + '/files', files=file_form('test.csv')).ok
 
     # Verify that job was created
     rule_jobs = [job for job in api_db.jobs.find({'gear_id': gear})]
@@ -1063,12 +1072,12 @@ def test_job_tagging(data_builder, default_payload, as_admin, as_root, api_db, f
     }
 
     # add job with explicit destination
-    r = as_admin.post('/jobs/add', json=job_data)
+    r = as_user.post('/jobs/add', json=job_data)
     assert r.ok
     manual_job_id = r.json()['_id']
 
     # get job
-    r = as_root.get('/jobs/' + manual_job_id)
+    r = as_admin.get('/jobs/' + manual_job_id)
     assert r.ok
 
     # Make sure that the job has the tag of the gear name
@@ -1076,7 +1085,7 @@ def test_job_tagging(data_builder, default_payload, as_admin, as_root, api_db, f
     assert gear_name in manual_job['tags']
 
     # Test the gear name tag with job-based analysis
-    r = as_admin.post('/sessions/' + session + '/analyses', json={
+    r = as_user.post('/sessions/' + session + '/analyses', json={
         'label': 'online',
         'job': job_data
     })
@@ -1084,12 +1093,12 @@ def test_job_tagging(data_builder, default_payload, as_admin, as_root, api_db, f
     analysis_id = r.json()['_id']
 
     # Verify job was created with it
-    r = as_admin.get('/analyses/' + analysis_id)
+    r = as_user.get('/analyses/' + analysis_id)
     assert r.ok
     analysis_job_id = r.json().get('job')
 
     # get job
-    r = as_root.get('/jobs/' + analysis_job_id)
+    r = as_admin.get('/jobs/' + analysis_job_id)
     assert r.ok
 
     # Make sure that the job has the tag of the gear name

@@ -25,6 +25,10 @@
         required: true
         schema:
           $ref: schemas/input/resolver.json
+      - in: query
+        type: boolean
+        name: exhaustive
+        description: 'Set to return a complete list regardless of permissions'
     responses:
       '200':
         description: ''

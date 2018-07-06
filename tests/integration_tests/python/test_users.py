@@ -1,4 +1,4 @@
-def test_users(data_builder, as_root, as_admin, as_user, as_public):
+def test_users(data_builder, as_admin, as_user, as_public):
     # List users
     r = as_user.get('/users')
     assert r.ok
@@ -13,7 +13,7 @@ def test_users(data_builder, as_root, as_admin, as_user, as_public):
     user_id = r.json()['_id']
 
     # Get self as admin
-    r = as_root.get('/users/self')
+    r = as_admin.get('/users/self')
     assert r.ok
     admin_id = r.json()['_id']
     assert admin_id != user_id
@@ -31,7 +31,7 @@ def test_users(data_builder, as_root, as_admin, as_user, as_public):
     assert r.status_code == 404
 
     # Try adding new user missing required attr
-    r = as_root.post('/users', json={
+    r = as_admin.post('/users', json={
         '_id': 'jane.doe@gmail.com',
         'lastname': 'Doe',
         'email': 'jane.doe@gmail.com',
@@ -41,13 +41,13 @@ def test_users(data_builder, as_root, as_admin, as_user, as_public):
 
     # Add new user
     new_user_id = 'new@user.com'
-    r = as_root.post('/users', json={
+    r = as_admin.post('/users', json={
         '_id': new_user_id,
         'firstname': 'New',
         'lastname': 'User',
     })
     assert r.ok
-    r = as_root.get('/users/' + new_user_id)
+    r = as_admin.get('/users/' + new_user_id)
     assert r.ok
 
     # Add new user as admin
@@ -58,7 +58,7 @@ def test_users(data_builder, as_root, as_admin, as_user, as_public):
         'lastname': 'User2',
     })
     assert r.ok
-    r = as_root.get('/users/' + new_user_id)
+    r = as_admin.get('/users/' + new_user_id)
     assert r.ok
 
     #Get another user as user
@@ -74,15 +74,15 @@ def test_users(data_builder, as_root, as_admin, as_user, as_public):
     assert r.ok
 
     # Try to update non-existent user
-    r = as_root.put('/users/nonexistent@user.com', json={'firstname': 'Realname'})
+    r = as_admin.put('/users/nonexistent@user.com', json={'firstname': 'Realname'})
     assert r.status_code == 404
 
     # Try empty update
-    r = as_root.put('/users/' + new_user_id, json={})
+    r = as_admin.put('/users/' + new_user_id, json={})
     assert r.status_code == 400
 
     # Update existing user
-    r = as_root.put('/users/' + new_user_id, json={'firstname': 'Realname'})
+    r = as_admin.put('/users/' + new_user_id, json={'firstname': 'Realname'})
     assert r.ok
     assert r.json()['modified'] == 1
 
@@ -108,11 +108,11 @@ def test_users(data_builder, as_root, as_admin, as_user, as_public):
         assert p['_id'] != new_user_id_admin
 
     # Try to delete non-existent user
-    r = as_root.delete('/users/nonexistent@user.com')
+    r = as_admin.delete('/users/nonexistent@user.com')
     assert r.status_code == 404
 
     # Delete user
-    r = as_root.delete('/users/' + new_user_id)
+    r = as_admin.delete('/users/' + new_user_id)
     assert r.ok
 
     # Delete user
@@ -121,25 +121,25 @@ def test_users(data_builder, as_root, as_admin, as_user, as_public):
 
     # Test HTTPS enforcement on avatar urls
     new_user_id = 'new@user.com'
-    r = as_root.post('/users', json={
+    r = as_admin.post('/users', json={
         '_id': new_user_id,
         'firstname': 'New',
         'lastname': 'User',
     })
     assert r.ok
-    r = as_root.get('/users/' + new_user_id)
+    r = as_admin.get('/users/' + new_user_id)
     assert r.ok
 
-    r = as_root.put('/users/' + new_user_id, json={'avatar': 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg'})
-    r = as_root.get('/users/' + new_user_id)
+    r = as_admin.put('/users/' + new_user_id, json={'avatar': 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg'})
+    r = as_admin.get('/users/' + new_user_id)
     assert r.json()['avatar'] == 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg'
 
-    r = as_root.put('/users/' + new_user_id, json={'avatar': 'http://media.nomadicmatt.com/maldivestop001.jpg', 'avatars': {'custom': 'http://media.nomadicmatt.com/maldivestop001.jpg', 'provider': 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg'}})
+    r = as_admin.put('/users/' + new_user_id, json={'avatar': 'http://media.nomadicmatt.com/maldivestop001.jpg', 'avatars': {'custom': 'http://media.nomadicmatt.com/maldivestop001.jpg', 'provider': 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg'}})
     assert r.status_code == 400
-    r = as_root.get('/users/' + new_user_id)
+    r = as_admin.get('/users/' + new_user_id)
     assert r.json()['avatar'] != 'http://media.nomadicmatt.com/maldivestop001.jpg'
 
-    r = as_root.delete('/users/' + new_user_id)
+    r = as_admin.delete('/users/' + new_user_id)
     assert r.ok
 
 def test_generate_api_key(data_builder, as_public):

@@ -43,7 +43,7 @@ def has_access(uid, container, perm):
 def always_ok(exec_op):
     """
     This decorator leaves the original method unchanged.
-    It is used as permissions checker when the request is a superuser_request
+    It is used as permissions checker when the request is from a site admin
     """
     return exec_op
 
@@ -51,7 +51,6 @@ def require_login(handler_method):
     """
     A decorator to ensure the request is not a public request.
 
-    Accepts superuser and non-superuser requests.
     Accepts drone and user requests.
     """
     def check_login(self, *args, **kwargs):
@@ -62,7 +61,7 @@ def require_login(handler_method):
 
 def require_admin(handler_method):
     """
-    A decorator to ensure the request is made as superuser.
+    A decorator to ensure the request is made as a site admin.
 
     Accepts drone and user requests.
     """
@@ -72,28 +71,16 @@ def require_admin(handler_method):
         return handler_method(self, *args, **kwargs)
     return check_admin
 
-def require_superuser(handler_method):
-    """
-    A decorator to ensure the request is made as superuser.
-
-    Accepts drone and user requests.
-    """
-    def check_superuser(self, *args, **kwargs):
-        if not self.superuser_request:
-            raise APIPermissionException('Superuser required.')
-        return handler_method(self, *args, **kwargs)
-    return check_superuser
-
 def require_drone(handler_method):
     """
     A decorator to ensure the request is made as a drone.
 
-    Will also ensure superuser, which is implied with a drone request.
+    Will also ensure site admin, which is implied with a drone request.
     """
     def check_drone(self, *args, **kwargs):
         if self.origin.get('type', '') != Origin.device:
             raise APIPermissionException('Drone request required.')
-        if not self.superuser_request:
+        if not self.user_is_admin:
             raise APIPermissionException('Superuser required.')
         return handler_method(self, *args, **kwargs)
     return check_drone

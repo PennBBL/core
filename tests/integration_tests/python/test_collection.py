@@ -8,6 +8,16 @@ def test_collections(data_builder, as_admin, as_user, as_public):
     })
     assert r.status_code == 403
 
+    # create and delete collection as user
+    r = as_user.post('/collections', json={
+        'label': 'SciTran/Testing'
+    })
+    assert r.ok
+    collection = r.json()['_id']
+
+    r = as_user.delete('/collections/' + collection)
+    assert r.ok
+
     # create collection
     r = as_admin.post('/collections', json={
         'label': 'SciTran/Testing'
@@ -19,6 +29,11 @@ def test_collections(data_builder, as_admin, as_user, as_public):
     r = as_admin.get('/collections', params={'stats': 'true'})
     assert r.ok
     assert all('session_count' in coll for coll in r.json())
+
+    # get all collections as user, should be none
+    r = as_user.get('/collections')
+    assert r.ok
+    assert len(r.json()) == 0
 
     # get collection
     r = as_admin.get('/collections/' + collection)
@@ -53,8 +68,26 @@ def test_collections(data_builder, as_admin, as_user, as_public):
     session2 = data_builder.create_session(project=project2)
     acquisition2 = data_builder.create_acquisition(session=session2)
 
+    # test user cannot access sessions/acquisitions of collection without perms
+    r = as_user.get('/collections/' + collection)
+    assert r.status_code == 403
+    r = as_user.get('/collections/' + collection + '/sessions')
+    assert r.status_code == 403
+    r = as_user.get('/collections/' + collection + '/acquisitions')
+    assert r.status_code == 403
+
+    # add user to collection
+    r = as_user.get('/users/self')
+    assert r.ok
+    uid = r.json()['_id']
+
+    r = as_admin.post('/collections/' + collection + '/permissions', json={'_id': uid, 'access': 'rw'})
+    assert r.ok
+    r = as_admin.post('/projects/' + project2 + '/permissions', json={'_id': uid, 'access': 'rw'})
+    assert r.ok
+
     # add session2 to collection
-    r = as_admin.put('/collections/' + collection, json={
+    r = as_user.put('/collections/' + collection, json={
         'contents': {
             'operation': 'add',
             'nodes': [
@@ -64,21 +97,9 @@ def test_collections(data_builder, as_admin, as_user, as_public):
     })
     assert r.ok
 
-    # test user cannot access sessions/acquisitions of collection without perms
-    r = as_user.get('/collections/' + collection)
-    assert r.status_code == 403
-    r = as_user.get('/collections/' + collection + '/sessions')
-    assert r.status_code == 403
-    r = as_user.get('/collections/' + collection + '/acquisitions')
-    assert r.status_code == 403
-
-
-    # add user to collection
-    r = as_user.get('/users/self')
+    r = as_admin.put('/collections/' + collection + '/permissions/' + uid, json={'access': 'ro'})
     assert r.ok
-    uid = r.json()['_id']
-
-    r = as_admin.post('/collections/' + collection + '/permissions', json={'_id': uid, 'access': 'ro'})
+    r = as_admin.delete('/projects/' + project2 + '/permissions/' + uid)
     assert r.ok
 
     # test user cannot see sessions or acquisitions
@@ -107,15 +128,16 @@ def test_collections(data_builder, as_admin, as_user, as_public):
     assert len(acquisitions) == 1
     assert acquisitions[0]['_id'] == acquisition2
 
+    r = as_admin.put('/collections/' + collection + '/permissions/' + uid, json={'access': 'admin'})
 
     # delete collection
-    r = as_admin.delete('/collections/' + collection)
+    r = as_user.delete('/collections/' + collection)
     assert r.ok
 
     # try to get deleted collection
-    r = as_admin.get('/collections/' + collection)
+    r = as_user.get('/collections/' + collection)
     assert r.status_code == 404
 
     # test if collection is listed at acquisition
-    r = as_admin.get('/acquisitions/' + acquisition)
+    r = as_user.get('/acquisitions/' + acquisition)
     assert collection not in r.json()['collections']

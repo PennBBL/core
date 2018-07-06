@@ -94,7 +94,7 @@ class Download(base.RequestHandler):
                 # Try to find the file reference in the database (filtering on user permissions)
                 bid = bson.ObjectId(cont_id)
                 query = {'_id': bid}
-                if not self.superuser_request:
+                if not self.user_is_admin:
                     query['permissions._id'] = self.uid
                 file_obj = config.db[cont_name].find_one(
                     query,
@@ -132,7 +132,7 @@ class Download(base.RequestHandler):
 
         ids_of_paths = {}
         base_query = {'deleted': {'$exists': False}}
-        if not self.superuser_request:
+        if not self.user_is_admin:
             base_query['permissions._id'] = self.uid
 
         for item in req_spec['nodes']:

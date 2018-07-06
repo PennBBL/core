@@ -19,6 +19,11 @@ template: |
     x-fw-default-limit: 1000
     tags:
       - '{{tag}}'
+    parameters:
+      - in: query
+        type: boolean
+        name: exhaustive
+        description: 'Set to return a complete list regardless of permissions'
     responses:
       '200':
         description: ''

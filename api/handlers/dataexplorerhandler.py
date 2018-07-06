@@ -5,7 +5,7 @@ from elasticsearch import ElasticsearchException, TransportError, RequestError, 
 
 from ..web import base
 from .. import config, validators
-from ..auth import require_login, require_superuser, groupauth
+from ..auth import require_login, groupauth, require_admin
 from ..dao import noop
 from ..dao.containerstorage import QueryStorage
 from ..web.errors import APIStorageException, APIPermissionException
@@ -379,7 +379,6 @@ class DataExplorerHandler(base.RequestHandler):
             if not self.user_is_admin:
                 raise APIPermissionException("Must have site admin privileges to search across all data")
         else:
-            # Add permissions filter to list if user is not requesting all data
             modified_filters.append({'term': {'permissions._id': self.uid}})
 
         # Only return objects that have not been marked as deleted
@@ -428,7 +427,7 @@ class DataExplorerHandler(base.RequestHandler):
         except (KeyError, ValueError):
             self.abort(400, 'Field name is required')
         filters = [{'term': {'deleted': False}}]
-        if not self.superuser_request:
+        if not self.user_is_admin:
             filters.append({'term': {'permissions._id': self.uid}})
         try:
             field = config.es.get(index='data_explorer_fields', id=field_name, doc_type='flywheel_field')
@@ -835,7 +834,7 @@ class DataExplorerHandler(base.RequestHandler):
                 doc_s = json.dumps(doc)
                 config.es.index(index='data_explorer_fields', id=field_name, doc_type='flywheel_field', body=doc_s)
 
-    @require_superuser
+    @require_admin
     def index_field_names(self):
 
         try:

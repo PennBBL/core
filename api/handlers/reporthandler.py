@@ -65,7 +65,7 @@ class ReportHandler(base.RequestHandler):
         else:
             raise NotImplementedError('Report type {} is not supported'.format(report_type))
 
-        if self.superuser_request or report.user_can_generate(self.uid):
+        if self.user_is_admin or report.user_can_generate(self.uid):
 
             if self.is_true('csv'):
                 tempdir = tempfile.TemporaryDirectory(prefix='.tmp', dir=config.get_item('persistent', 'data_path'))
@@ -163,8 +163,6 @@ class SiteReport(Report):
         """
         User generating report must be superuser
         """
-        if config.db.users.count({'_id': uid, 'root': True}) > 0:
-            return True
         return False
 
     def build(self):
@@ -500,8 +498,6 @@ class AccessLogReport(Report):
         """
         User generating report must be superuser
         """
-        if config.db.users.count({'_id': uid, 'root': True}) > 0:
-            return True
         return False
 
     def build(self):
@@ -593,8 +589,6 @@ class UsageReport(Report):
         """
         User generating report must be superuser
         """
-        if config.db.users.count({'_id': uid, 'root': True}) > 0:
-            return True
         return False
 
 

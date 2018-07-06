@@ -110,7 +110,7 @@ class CollectionsHandler(ContainerHandler):
 
     def get_all(self):
         projection = self.get_list_projection('collections')
-        if self.superuser_request:
+        if self.user_is_admin:
             permchecker = always_ok
         elif self.public_request:
             permchecker = containerauth.list_public_request
@@ -119,7 +119,7 @@ class CollectionsHandler(ContainerHandler):
         query = {}
         page = permchecker(self.storage.exec_op)('GET', query=query, public=self.public_request, projection=projection, pagination=self.pagination)
         results = page['results']
-        if not self.superuser_request and not self.is_true('join_avatars'):
+        if not self.user_is_admin and not self.is_true('join_avatars'):
             self._filter_all_permissions(results, self.uid)
         if self.is_true('join_avatars'):
             self.storage.join_avatars(results)
@@ -154,7 +154,7 @@ class CollectionsHandler(ContainerHandler):
                 ])
         query = {'_id': {'$in': [ar['_id'] for ar in agg_res]}}
 
-        if not self.superuser_request:
+        if not self.user_is_admin:
             query['permissions._id'] = self.uid
 
         projection = self.get_list_projection('sessions')
@@ -183,7 +183,7 @@ class CollectionsHandler(ContainerHandler):
         elif sid != '':
             self.abort(400, sid + ' is not a valid ObjectId')
 
-        if not self.superuser_request:
+        if not self.user_is_admin:
             query['permissions._id'] = self.uid
 
         projection = self.get_list_projection('acquisitions')

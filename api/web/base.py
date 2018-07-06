@@ -23,7 +23,7 @@ class RequestHandler(webapp2.RequestHandler):
     json_schema = None
 
     def __init__(self, request=None, response=None): # pylint: disable=super-init-not-called
-        """Set uid, public_request, and superuser"""
+        """Set uid and public_request"""
         self.log = request.logger if request else config.log
         self.initialize(request, response)
 
@@ -118,14 +118,14 @@ class RequestHandler(webapp2.RequestHandler):
         self.public_request = not drone_request and not self.uid and not self.scope
 
         if self.public_request:
-            self.superuser_request = False
             self.user_is_admin = False
+            self.complete_list = False
         elif drone_request:
-            self.superuser_request = True
             self.user_is_admin = True
+            self.complete_list = True
         elif self.scope is not None:
-            self.superuser_request = False
             self.user_is_admin = False
+            self.complete_list = False
         else:
             user = config.db.users.find_one({'_id': self.uid}, ['root', 'disabled'])
             if not user:
@@ -136,13 +136,13 @@ class RequestHandler(webapp2.RequestHandler):
                 self.user_is_admin = True
             else:
                 self.user_is_admin = False
-            if self.is_true('root'):
-                if user.get('root'):
-                    self.superuser_request = True
+            if self.is_true('root') or self.is_true('exhaustive'):
+                if self.user_is_admin:
+                    self.complete_list = True
                 else:
-                    self.abort(403, 'user ' + self.uid + ' is not authorized to make superuser requests')
+                    self.abort(403, 'user ' + self.uid + ' is not authorized to request complete lists.')
             else:
-                self.superuser_request = False
+                self.complete_list = False
 
         # Format origin object to str
         if self.origin.get('type'):

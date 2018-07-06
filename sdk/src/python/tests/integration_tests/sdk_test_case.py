@@ -32,9 +32,6 @@ def make_clients():
     fw = flywheel.Flywheel(api_key)
     fw.enable_feature('beta')
 
-    fw_root = flywheel.Flywheel(api_key, root=True)
-    fw_root.enable_feature('beta')
-
     # Mock cli login
     home = os.environ['HOME']
     os.environ['HOME'] = tmp_path = tempfile.mkdtemp()
@@ -51,10 +48,10 @@ def make_clients():
     shutil.rmtree(tmp_path)
     os.environ['HOME'] = home
 
-    return fw, fw_root, client
+    return fw, client
 
 class SdkTestCase(unittest.TestCase):
-    fw, fw_root, client = make_clients()
+    fw, client = make_clients()
 
     @classmethod
     def rand_string_lower(self, length=10):

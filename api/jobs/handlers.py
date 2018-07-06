@@ -515,7 +515,7 @@ class JobsHandler(base.RequestHandler):
             raise InputValidationException('Cannot use analysis as destination for a job')
 
         uid = None
-        if not self.superuser_request:
+        if not self.user_is_admin:
             uid = self.uid
 
         job = Queue.enqueue_job(payload, self.origin, perm_check_uid=uid)
@@ -648,8 +648,8 @@ class JobHandler(base.RequestHandler):
             if self.origin.get('type', '') != Origin.device:
                 raise APIPermissionException('Only a drone can start a job with this endpoint')
 
-        # If user is not superuser, can only cancel jobs they spawned
-        if not self.superuser_request and not self.user_is_admin:
+        # If user is not site admin, can only cancel jobs they spawned
+        if not self.user_is_admin:
             if j.origin.get('id') != self.uid:
                 raise APIPermissionException('User does not have permission to access job {}'.format(_id))
             if mutation != {'state': 'cancelled'}:
@@ -687,7 +687,7 @@ class JobHandler(base.RequestHandler):
             self.abort(404, 'Job not found')
 
         # Permission check
-        if not self.superuser_request:
+        if not self.user_is_admin:
             if job.inputs is not None:
                 for x in job.inputs:
                     if hasattr(job.inputs[x], 'check_access'):
@@ -786,7 +786,7 @@ class JobHandler(base.RequestHandler):
         j = Job.get(_id)
 
         # Permission check
-        if not self.superuser_request:
+        if not self.user_is_admin:
             j.destination.check_access(self.uid, 'rw')
 
         if j.state != 'failed':
@@ -821,11 +821,11 @@ class BatchHandler(base.RequestHandler):
     def get_all(self):
         """
         Get a list of batch jobs user has created.
-        Make a superuser request to see all batch jobs.
+        Site admins see all batch jobs.
         """
 
-        if self.superuser_request:
-            # Don't enforce permissions for superuser requests or drone requests
+        if self.user_is_admin:
+            # Don't enforce permissions for site admin requests or drone requests
             query = {}
         else:
             query = {'origin.id': self.uid}
@@ -914,7 +914,7 @@ class BatchHandler(base.RequestHandler):
 
         # Make sure user has read-write access, add those to acquisition list
         for c in containers:
-            if self.superuser_request or has_access(self.uid, c, 'rw'):
+            if self.user_is_admin or has_access(self.uid, c, 'rw'):
                 c.pop('permissions')
                 perm_checked_conts.append(c)
             else:
@@ -923,8 +923,8 @@ class BatchHandler(base.RequestHandler):
         if not perm_checked_conts:
             self.abort(403, 'User does not have write access to targets.')
 
-        # For superuser requests, don't check permissions when building context
-        if self.superuser_request:
+        # For site admin requests, don't check permissions when building context
+        if self.user_is_admin:
             context_uid = None
         else:
             context_uid = self.uid
@@ -1003,7 +1003,7 @@ class BatchHandler(base.RequestHandler):
         jobs_ = payload.get('jobs', [])
 
         uid = None
-        if not self.superuser_request:
+        if not self.user_is_admin:
             uid = self.uid
 
         for job_number, job_ in enumerate(jobs_):
@@ -1051,6 +1051,6 @@ class BatchHandler(base.RequestHandler):
         return {'number_cancelled': batch.cancel(batch_job)}
 
     def _check_permission(self, batch_job):
-        if not self.superuser_request:
+        if not self.user_is_admin:
             if batch_job['origin'].get('id') != self.uid:
                 raise APIPermissionException('User does not have permission to access batch {}'.format(batch_job.get('_id')))

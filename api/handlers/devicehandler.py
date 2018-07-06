@@ -3,7 +3,7 @@ import datetime as dt
 from ..web import base
 from .. import config
 from .. import util
-from ..auth import require_drone, require_login, require_superuser
+from ..auth import require_drone, require_login, require_admin
 from ..auth.apikeys import DeviceApiKey
 from ..dao import containerstorage
 from ..web.errors import APINotFoundException, APIValidationException, APIException
@@ -64,7 +64,7 @@ class DeviceHandler(base.RequestHandler):
         api_key = DeviceApiKey.get(device['_id'])
         device['key'] = api_key['_id'] if api_key else DeviceApiKey.generate(device['_id'])
 
-    @require_superuser
+    @require_admin
     def post(self):
         payload = self.request.json_body if self.request.body else {}
 
@@ -79,7 +79,7 @@ class DeviceHandler(base.RequestHandler):
         key = DeviceApiKey.generate(result.inserted_id)
         return {'_id': result.inserted_id, 'key': key}
 
-    @require_superuser
+    @require_admin
     def delete(self, device_id):
         result = self.storage.delete_el(device_id)
         if result.deleted_count != 1:

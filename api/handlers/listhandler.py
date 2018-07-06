@@ -179,7 +179,7 @@ class ListHandler(base.RequestHandler):
             query_params = None
         container = storage.get_container(_id, query_params)
         if container is not None:
-            if self.superuser_request or self.user_is_admin:
+            if self.user_is_admin:
                 permchecker = always_ok
             elif self.public_request:
                 permchecker = listauth.public_request(self, container)
@@ -701,7 +701,7 @@ class FileListHandler(ListHandler):
             raise Exception('Project ' + _id + ' does not exist')
 
         # Authorize: confirm user has admin/write perms
-        if not self.superuser_request:
+        if not self.user_is_admin:
             perms = project.get('permissions', [])
 
             for p in perms:

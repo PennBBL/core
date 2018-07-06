@@ -14,8 +14,8 @@ class ResolverTestCases(SdkTestCase):
         self.gear_id = None
 
     def tearDown(self):
-        self.fw_root.delete_project(self.project_id)
-        self.fw_root.delete_group(self.group_id)
+        self.fw.delete_project(self.project_id)
+        self.fw.delete_group(self.group_id)
 
         if self.gear_id is not None:
             self.fw.delete_gear(self.gear_id)
@@ -195,15 +195,13 @@ class ResolverTestCases(SdkTestCase):
         r_group = result.path[0]
         self.assertEmpty(result.children)
 
-        # Try to resolve project
-        try:
-            fw.resolve([group_id, r_project.label])
-            self.fail('Expected ApiException')
-        except flywheel.ApiException as e:
-            self.assertEqual(e.status, 403)
+        # Resolve project, but no children
+        result = fw.resolve([group_id, r_project.label])
+        self.assertEqual(len(result.path), 2)
+        self.assertEqual(len(result.children), 0)
 
-        # Try to resolve project as root
-        result = self.fw_root.resolve([group_id])
+        # Try to resolve project with exhaustive flag
+        result = fw.resolve([group_id], exhaustive=True)
 
         self.assertEqual(len(result.path), 1)
         self.assertEqual(len(result.children), 1)
@@ -211,7 +209,7 @@ class ResolverTestCases(SdkTestCase):
         self.assertEqual(r_project.id, self.project_id)
 
         # Resolve project children
-        result = self.fw_root.resolve('{0}/{1}'.format(group_id, r_project.label))
+        result = fw.resolve('{0}/{1}'.format(group_id, r_project.label), exhaustive=True)
         self.assertEqual(len(result.path), 2)
 
         self.assertEqual(result.path[0].to_dict(), r_group.to_dict())

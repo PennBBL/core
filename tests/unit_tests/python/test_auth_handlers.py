@@ -7,10 +7,9 @@ from api.web.errors import APIPermissionException
 from pprint import pprint
 
 class MockRequestHandler(object):
-    def __init__(self, method, uid, superuser_request=False, public_request=False, user_is_admin=False):
+    def __init__(self, method, uid, public_request=False, user_is_admin=False):
         self.method = method
         self.uid = uid
-        self.superuser_request = superuser_request
         self.public_request = public_request
         self.user_is_admin = user_is_admin
 
@@ -41,7 +40,7 @@ private_data_view = {}
 
 def test_any_referer_with_site():
     uid = 'user@user.com'
-    
+
     # Public access
     referer = curry_referer(any_referer, container=public_data_view, parent_container='site')
     verify_has_access('GET', uid, referer)
@@ -81,8 +80,8 @@ def test_any_referer_with_user():
     verify_has_access('PUT', uid, referer)
 
     # Private access, superuser
-    verify_has_access('GET', uid2, referer, superuser_request=True)
-    verify_has_access('PUT', uid2, referer, superuser_request=True)
+    verify_has_access('GET', uid2, referer, user_is_admin=True)
+    verify_has_access('PUT', uid2, referer, user_is_admin=True)
 
 def test_any_referer_with_group():
     uid = 'user@user.com'
@@ -117,8 +116,8 @@ def test_any_referer_with_group():
     verify_has_no_access('PUT', uid4, referer)
 
     # Public access, superuser
-    verify_has_access('GET', uid4, referer, superuser_request=True)
-    verify_has_access('PUT', uid4, referer, superuser_request=True)
+    verify_has_access('GET', uid4, referer, user_is_admin=True)
+    verify_has_access('PUT', uid4, referer, user_is_admin=True)
 
     # Private access, admin user
     referer = curry_referer(any_referer, container=private_data_view, parent_container=parent_container)
@@ -138,8 +137,8 @@ def test_any_referer_with_group():
     verify_has_no_access('PUT', uid4, referer)
 
     # Private access, superuser
-    verify_has_access('GET', uid4, referer, superuser_request=True)
-    verify_has_access('PUT', uid4, referer, superuser_request=True)
+    verify_has_access('GET', uid4, referer, user_is_admin=True)
+    verify_has_access('PUT', uid4, referer, user_is_admin=True)
 
 def test_any_referer_with_container():
     uid = 'user@user.com'
@@ -174,8 +173,8 @@ def test_any_referer_with_container():
     verify_has_no_access('PUT', uid4, referer)
 
     # Public access, superuser
-    verify_has_access('GET', uid4, referer, superuser_request=True)
-    verify_has_access('PUT', uid4, referer, superuser_request=True)
+    verify_has_access('GET', uid4, referer, user_is_admin=True)
+    verify_has_access('PUT', uid4, referer, user_is_admin=True)
 
     # Private access, admin user
     referer = curry_referer(any_referer, container=private_data_view, parent_container=parent_container)
@@ -195,6 +194,6 @@ def test_any_referer_with_container():
     verify_has_no_access('PUT', uid4, referer)
 
     # Private access, superuser
-    verify_has_access('GET', uid4, referer, superuser_request=True)
-    verify_has_access('PUT', uid4, referer, superuser_request=True)
+    verify_has_access('GET', uid4, referer, user_is_admin=True)
+    verify_has_access('PUT', uid4, referer, user_is_admin=True)
 

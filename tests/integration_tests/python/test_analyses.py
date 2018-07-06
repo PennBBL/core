@@ -240,6 +240,7 @@ def test_legacy_analysis(data_builder, as_admin, file_form, api_db):
 
 
 def test_analysis_download(data_builder, as_admin, as_root, file_form, api_db):
+    project = data_builder.create_project()
     session = data_builder.create_session()
 
     # Create legacy analysis
@@ -250,6 +251,8 @@ def test_analysis_download(data_builder, as_admin, as_root, file_form, api_db):
     }))
     assert r.ok
     analysis = r.json()['_id']
+
+    as_admin.post('/projects/' + project + '/permissions', json={'_id': 'user@user.com', 'access': 'admin'})
 
     # Get download ticket for analysis via /download
     r = as_admin.get('/download', params={'ticket': ''}, json={'optional': True, 'nodes': [{'level':'analysis','_id': analysis}]})

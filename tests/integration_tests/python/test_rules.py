@@ -244,6 +244,13 @@ def test_site_rules_copied_to_new_projects(randstr, data_builder, file_form, as_
             project_2 = p['_id']
             break
 
+    # Find newly created project id using exhaustive
+    projects = as_admin.get('/projects', params={'exhaustive': True}).json()
+    for p in projects:
+        if p['label'] == 'test_project':
+            project_2 = p['_id']
+            break
+
     assert project_2
     r = as_admin.get('/projects/'+project_2+'/rules')
     assert r.ok
@@ -480,7 +487,7 @@ def test_project_rules(randstr, data_builder, file_form, as_root, as_admin, with
         }
     }
 
-    r = as_root.post('/engine',
+    r = as_admin.post('/engine',
         params={'level': 'project', 'id': project},
         files=file_form(meta=metadata)
     )
@@ -528,7 +535,7 @@ def test_project_rules(randstr, data_builder, file_form, as_root, as_admin, with
     assert r.ok
 
 
-def test_context_input_rule(randstr, data_builder, default_payload, api_db, as_admin, as_root, file_form):
+def test_context_input_rule(randstr, data_builder, default_payload, api_db, as_admin, file_form):
     project = data_builder.create_project()
     session = data_builder.create_session(project=project)
     acquisition = data_builder.create_acquisition(session=session)
@@ -546,7 +553,7 @@ def test_context_input_rule(randstr, data_builder, default_payload, api_db, as_a
         }
     }
 
-    r = as_root.post('/gears/' + gear_name, json=gear_doc)
+    r = as_admin.post('/gears/' + gear_name, json=gear_doc)
     assert r.ok
     gear = r.json()['_id']
 
@@ -614,7 +621,7 @@ def test_context_input_rule(randstr, data_builder, default_payload, api_db, as_a
     assert project_job['config']['inputs']['A']['found'] == False
 
     # Cleanup
-    r = as_root.delete('/gears/' + gear)
+    r = as_admin.delete('/gears/' + gear)
     assert r.ok
 
     # must remove jobs manually because gears were added manually

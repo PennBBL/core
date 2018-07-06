@@ -49,7 +49,12 @@ def test_resolver(data_builder, as_admin, as_user, as_public, file_form):
 
     # resolve root (1 group)
     group = data_builder.create_group()
-    r = as_admin.post('/resolve', json={'path': []})
+
+    uid = as_user.get('/users/self').json()['_id']
+    r = as_admin.post('/groups/' + group + '/permissions', json={'_id': uid, 'access': 'admin'})
+    assert r.ok
+
+    r = as_user.post('/resolve', json={'path': []})
     result = r.json()
     assert r.ok
     assert result['path'] == []
@@ -60,7 +65,9 @@ def test_resolver(data_builder, as_admin, as_user, as_public, file_form):
     assert r.status_code == 404
 
     # GROUP
-    # try to resolve root/group as different (and non-root) user
+    # try to resolve root/group without permission
+    r = as_admin.delete('/groups/' + group + '/permissions/' + uid)
+    assert r.ok
     r = as_user.post('/resolve', json={'path': [group]})
     assert r.status_code == 403
 

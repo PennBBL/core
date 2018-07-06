@@ -128,14 +128,11 @@ def has_any_referer_access(handler, method, container, parent_container):
     """
     has_access = False
 
-    # if parent container is "site", then the user must be a superuser to make changes
-    if handler.superuser_request:
+    # if parent container is "site", then the user must be a admin to make changes
+    if handler.user_is_admin:
         has_access = True
     elif parent_container == 'site':
-        if handler.user_is_admin:
-            has_access = True
-        else:
-            has_access = method == 'GET' and container.get('public', False)
+        has_access = method == 'GET' and container.get('public', False)
     elif method == 'GET' and (container.get('public', False) or parent_container.get('public', False)):
         has_access = True
     elif parent_container.get('cont_name') == 'user':
