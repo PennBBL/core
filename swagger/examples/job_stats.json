@@ -1,15 +1,9 @@
 {
-  "by-state": {
-    "pending":1,
-    "running":3,
-    "failed":0,
-    "complete":17
-  },
-  "by-tag": [
-    {
-      "tags":["tag1"],
-      "count":4
-    } 
-  ],
-  "permafailed": 0
+    "states": {
+        "complete": 4503,
+        "failed": 5141,
+        "running": 0,
+        "cancelled": 63,
+        "pending": 0
+    }
 }
