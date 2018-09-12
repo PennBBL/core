@@ -8,6 +8,7 @@ from .handlers.confighandler            import Config, Version
 from .handlers.containerhandler         import ContainerHandler
 from .handlers.dataexplorerhandler      import DataExplorerHandler, QueryHandler
 from .handlers.devicehandler            import DeviceHandler
+from .handlers.ghchandler               import GoogleHealthcareHandler
 from .handlers.grouphandler             import GroupHandler
 from .handlers.listhandler              import FileListHandler, NotesListHandler, PermissionsListHandler, TagsListHandler
 from .handlers.modalityhandler          import ModalityHandler
@@ -369,6 +370,8 @@ endpoints = [
         route('/<par_cont_name:groups>/<par_id:{gid}>/<cont_name:projects>', ContainerHandler, h='get_all', m=['GET']),
         route('/<par_cont_name:{cname}>/<par_id:{oid}>/<cont_name:{cname}>', ContainerHandler, h='get_all', m=['GET']),
 
-
+        prefix('/ghc', [
+            route('/query',             GoogleHealthcareHandler, m=['POST'])
+        ]),
     ]),
 ]

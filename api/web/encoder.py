@@ -6,11 +6,14 @@ import pytz
 
 from ..jobs.jobs import Job
 
+
 def custom_json_serializer(obj):
     if isinstance(obj, bson.objectid.ObjectId):
         return str(obj)
     elif isinstance(obj, datetime.datetime):
         return pytz.timezone('UTC').localize(obj).isoformat()
+    elif isinstance(obj, datetime.date):
+        return obj.isoformat()
     elif isinstance(obj, Job):
         return obj.map()
     elif isinstance(obj, Cursor):

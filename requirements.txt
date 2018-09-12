@@ -21,3 +21,4 @@ urllib3==1.23
 webapp2==2.5.2
 WebOb==1.8.2
 git+https://github.com/flywheel-io/gears.git@v0.1.8#egg=gears
+google-cloud-bigquery==1.5.0

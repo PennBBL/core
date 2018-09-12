@@ -7,10 +7,12 @@ import datetime
 import elasticsearch
 
 from fs import open_fs
+from google.cloud import bigquery
 
 from . import util
 from . import logutil
 from .dao.dbutil import try_replace_one, try_update_one
+
 
 logging.basicConfig(
     format='%(asctime)s %(name)16.16s %(filename)24.24s %(lineno)5d:%(levelname)4.4s %(message)s',
@@ -307,3 +309,6 @@ if os.path.exists(data_path2):
 else:
     local_fs2 = None
 ###
+
+
+bq_client = bigquery.Client.from_service_account_json('/healthcare-key.json')
