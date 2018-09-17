@@ -219,16 +219,74 @@
       "required": ["success", "elapsed"]
     },
     "job-completion-ticket": {
-        "type":"object",
-        "properties":{
-            "ticket":{
-                "type":"string",
-                "description": "The ticket to use to perform file uploads to a job"
-            }
+      "type":"object",
+      "properties":{
+          "ticket":{
+              "type":"string",
+              "description": "The ticket to use to perform file uploads to a job"
+          }
+      },
+      "additionalProperties":false,
+      "required":["ticket"],
+      "description": "A ticket for uploading files and completing a job"
+    },
+    "stats-job-array": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "allOf": [{"$ref":"#/definitions/job-list-entry"}],
+        "required": [
+          "_id", "modified"
+        ]
+      }
+    },
+    "stats-recent": {
+      "type": "object",
+      "properties": {
+        "pending": {"$ref": "#/definitions/stats-job-array"},
+        "running": {"$ref": "#/definitions/stats-job-array"},
+        "failed": {"$ref": "#/definitions/stats-job-array"},
+        "complete": {"$ref": "#/definitions/stats-job-array"},
+        "cancelled": {"$ref": "#/definitions/stats-job-array"}
+      },
+      "additionalProperties": false
+    },
+    "stats-states": {
+      "type": "object",
+      "properties": {
+        "pending": {
+          "type": "integer",
+          "description": "Number of jobs that are pending"
         },
-        "additionalProperties":false,
-        "required":["ticket"],
-        "description": "A ticket for uploading files and completing a job"
+        "running": {
+          "type": "integer",
+          "description": "Number of jobs that are running"
+        },
+        "failed": {
+          "type": "integer",
+          "description": "Number of jobs that are failed"
+        },
+        "complete": {
+          "type": "integer",
+          "description": "Number of jobs that are complete"
+        },
+        "cancelled": {
+          "type": "integer",
+          "description": "Number of jobs that are cancelled"
+        }
+      },
+      "additionalProperties": false
+    },
+    "job-stats-output": {
+      "type": "object",
+      "properties": {
+        "states": {"$ref": "#/definitions/stats-states"},
+        "unique": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "recent": {"$ref": "#/definitions/stats-recent"}
+      }
     }
   }
 }

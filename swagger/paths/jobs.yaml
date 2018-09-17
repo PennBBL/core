@@ -81,7 +81,7 @@
           $ref: schemas/output/job.json
         examples:
           response:
-            $ref: examples/output/job.json        
+            $ref: examples/output/job.json
 /jobs/stats:
   get:
     summary: Get stats about all current jobs
@@ -92,8 +92,9 @@
       '200':
         description: ''
         schema:
+          $ref: schemas/output/job-stats.json
           example:
-            $ref: examples/job_stats.json
+            $ref: examples/output/job_stats.json
 /jobs/reap:
   post:
     summary: Reap stale jobs
@@ -197,7 +198,7 @@
       type: string
       in: path
       name: JobId
-  get: 
+  get:
     summary: Get job logs
     operationId: get_job_logs
     tags:
