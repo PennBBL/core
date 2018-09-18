@@ -20,7 +20,7 @@ EXAMPLE_SESSION_QUERY = {
   "size": 0,
   "query": {
     "match": {
-      "_all": "test'"
+      "all_fields": "test'"
     }
   },
   "aggs": {
@@ -44,7 +44,7 @@ EXAMPLE_ACQUISITION_QUERY = {
   "size": 0,
   "query": {
     "match": {
-      "_all": "megan'"
+      "all_fields": "megan'"
     }
   },
   "aggs": {
@@ -70,7 +70,7 @@ EXAMPLE_FILE_QUERY = {
     "bool": {
       "must": {
         "match": {
-          "_all": "brain"
+          "all_fields": "brain"
         }
       },
       "filter": {
@@ -702,7 +702,7 @@ class DataExplorerHandler(base.RequestHandler):
                 "bool": {
                   "must": {
                     "match": {
-                      "_all": search_string
+                      "all_fields": search_string
                     }
                   },
                   "filter": {
@@ -733,7 +733,7 @@ class DataExplorerHandler(base.RequestHandler):
             }
 
 
-        # Add search_string to "match on _all fields" query, otherwise remove unneeded logic
+        # Add search_string to "match on all_fields fields" query, otherwise remove unneeded logic
         if not search_string:
             query['query']['bool'].pop('must')
 
@@ -754,7 +754,7 @@ class DataExplorerHandler(base.RequestHandler):
             "bool": {
               "must": {
                 "match": {
-                  "_all": ""
+                  "all_fields": ""
                 }
               },
               "filter": {
@@ -771,9 +771,9 @@ class DataExplorerHandler(base.RequestHandler):
             "info_exists" : INFO_EXISTS_SCRIPT
         }
 
-        # Add search_string to "match on _all fields" query, otherwise remove unneeded logic
+        # Add search_string to "match on all_fields fields" query, otherwise remove unneeded logic
         if search_string:
-            query['query']['bool']['must']['match']['_all'] = search_string
+            query['query']['bool']['must']['match']['all_fields'] = search_string
         else:
             query['query']['bool'].pop('must')
 
@@ -842,7 +842,7 @@ class DataExplorerHandler(base.RequestHandler):
     def _handle_properties(cls, properties, current_field_name):
 
         ignore_fields = [
-            '_all', 'dynamic_templates', 'analysis_reference', 'file_reference',
+            'all_fields', 'dynamic_templates', 'analysis_reference', 'file_reference',
             'parent', 'container_type', 'origin', 'permissions', '_id',
             'project_has_template', 'hash'
         ]
@@ -936,7 +936,7 @@ class DataExplorerHandler(base.RequestHandler):
                 },
                 'mappings': {
                     '_default_' : {
-                        '_all' : {'enabled' : True},
+                        'all_fields' : {'enabled' : True},
                         'dynamic_templates': DYNAMIC_TEMPLATES
                     },
                     'flywheel': {}
