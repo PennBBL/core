@@ -125,7 +125,8 @@ DYNAMIC_TEMPLATES = [
                         "index": True,
                         "ignore_above": 256
                     }
-                }
+                },
+                'copy_to': 'all_fields'
             }
         }
     }
@@ -935,18 +936,17 @@ class DataExplorerHandler(base.RequestHandler):
                     'analysis' : ANALYSIS
                 },
                 'mappings': {
-                    '_default_' : {
-                        'all_fields' : {'enabled' : True},
+                    'flywheel' : {
+                        'properties': {'all_fields' : {'type' : 'text'}},
                         'dynamic_templates': DYNAMIC_TEMPLATES
-                    },
-                    'flywheel': {}
+                    }
                 }
             }
 
             self.log.debug('creating data_explorer_fields index ...')
             try:
                 config.es.indices.create(index='data_explorer_fields', body=request)
-            except ElasticsearchException:
+            except ElasticsearchException as e:
                 self.abort(500, 'Unable to create data_explorer_fields index: {}'.format(e))
 
         try:

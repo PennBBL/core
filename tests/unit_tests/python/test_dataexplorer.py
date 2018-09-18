@@ -44,7 +44,7 @@ def test_search(as_public, as_drone, es, as_user):
         body={
             'size': 0,
             'query': {'bool': {
-                'must': {'match': {'_all': 'search'}},
+                'must': {'match': {'all_fields': 'search'}},
                 'filter': {'bool': {'must': [
                     {'terms': {filter_key + '.raw': filter_value}},
                     {'range': filter_range},
@@ -145,7 +145,7 @@ def test_search(as_public, as_drone, es, as_user):
         body={
             '_source': deh.SOURCE[cont_type],
             'query': {'bool': {
-                'must': {'match': {'_all': search_str}},
+                'must': {'match': {'all_fields': search_str}},
                 'filter': {'bool': {'must': [
                     {'term': {'container_type': cont_type}},
                     {'terms': {filter_key + '.raw': filter_value}},
@@ -182,7 +182,7 @@ def test_search(as_public, as_drone, es, as_user):
                         }
                     },
                     'must': {
-                        'match': {'_all': search_str}
+                        'match': {'all_fields': search_str}
                     }
                 }
             },
@@ -412,11 +412,11 @@ def test_index_fields(as_public, as_drone, es):
     r = as_drone.post('/dataexplorer/index/fields?hard-reset=true')
     es.indices.create.assert_called_with(index='data_explorer_fields', body={
         'settings': {'number_of_shards': 1, 'number_of_replicas': 0, 'analysis': deh.ANALYSIS},
-        'mappings': {'_default_': {'_all': {'enabled' : True}, 'dynamic_templates': deh.DYNAMIC_TEMPLATES}, 'flywheel': {}}})
+        'mappings': {'flywheel': {'properties': {'all_fields' : {"type": "text"}}, 'dynamic_templates': deh.DYNAMIC_TEMPLATES}}})
     assert r.ok
 
     # index data_explorer_fields - test ignored fields
-    ignored_fields = ['_all', 'dynamic_templates', 'analysis_reference', 'file_reference', 'parent', 'container_type', 'origin', 'permissions', '_id']
+    ignored_fields = ['all_fields', 'dynamic_templates', 'analysis_reference', 'file_reference', 'parent', 'container_type', 'origin', 'permissions', '_id']
     fields = {field: None for field in ignored_fields}
     es.indices.get_mapping.return_value = {'data_explorer': {'mappings': {'flywheel': {'properties': fields}}}}
     es.index.reset_mock()
