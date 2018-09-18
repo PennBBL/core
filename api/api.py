@@ -371,7 +371,9 @@ endpoints = [
         route('/<par_cont_name:{cname}>/<par_id:{oid}>/<cont_name:{cname}>', ContainerHandler, h='get_all', m=['GET']),
 
         prefix('/ghc', [
-            route('/query',             GoogleHealthcareHandler, m=['POST'])
+            route('/query',             GoogleHealthcareHandler,                        m=['POST']),
+            route('/import',            GoogleHealthcareHandler, h='import_job',        m=['POST']),
+            route('/token',             GoogleHealthcareHandler, h='get_ghc_token',     m=['GET'])
         ]),
     ]),
 ]

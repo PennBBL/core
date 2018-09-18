@@ -1,10 +1,15 @@
+from google.auth.transport.requests import Request
 from google.cloud import bigquery
+from google.oauth2 import service_account
 
 from .. import config
 from ..auth import require_login
+from ..jobs.queue import Queue
 from ..web import base
 
 log = config.log
+
+SCOPES = ('https://www.googleapis.com/auth/cloud-platform', )
 
 
 class GoogleHealthcareHandler(base.RequestHandler):
@@ -31,10 +36,46 @@ class GoogleHealthcareHandler(base.RequestHandler):
         return response
 
     @require_login
-    def query_result(self, job_id):
+    def import_job(self):
         # Just an example endpoint how to retrieve the results of a job
-        query_job = config.bq_client.get_job(job_id)
-        return self._prepare_response(query_job)
+        query_job_id = self.request.json_body['jobId']
+        query_job = config.bq_client.get_job(query_job_id)
+
+        series_to_import = []
+
+        for row in query_job:
+            series_to_import.append('%s/%s' % (row['StudyInstanceUID'], row['SeriesInstanceUID']))
+
+        gear_doc = config.db.gears.find_one({
+            'gear.name': 'ghc-import'
+        }, sort=[('gear.version', -1)])
+
+        project = config.db.projects.find_one({})
+
+        job_payload = {
+            'gear_id': gear_doc['_id'],
+            'destination': {
+                'type': 'project',
+                'id': project['_id']
+            },
+            'config': {
+                'series': series_to_import
+            }
+        }
+
+        job = Queue.enqueue_job(job_payload, self.origin)
+        job.insert()
+
+        return {'_id': job.id_}
+
+    @require_login
+    def get_ghc_token(self):
+        credentials = service_account.Credentials.from_service_account_file('/test_account.json', scopes=SCOPES)
+
+        credentials.refresh(Request())
+        token = credentials.token
+
+        return {'token': token}
 
     @require_login
     def post(self):
