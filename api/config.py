@@ -310,5 +310,10 @@ else:
     local_fs2 = None
 ###
 
-
-bq_client = bigquery.Client.from_service_account_json('/healthcare-key.json')
+# TODO enable bring-your-own-key
+ghc_key_path = '/ghc-key.json'
+if os.path.exists(ghc_key_path):
+    log.info('Loading Google Healthcare API access key from %s', ghc_key_path)
+    bq_client = bigquery.Client.from_service_account_json(ghc_key_path)
+else:
+    bq_client = None
