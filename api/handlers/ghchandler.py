@@ -39,6 +39,10 @@ class GoogleHealthcareHandler(base.RequestHandler):
     def import_job(self):
         # Just an example endpoint how to retrieve the results of a job
         query_job_id = self.request.json_body['jobId']
+        g_project = self.request.json_body['project']
+        location = self.request.json_body['location']
+        dataset = self.request.json_body['dataset']
+        store = self.request.json_body['store']
         query_job = config.bq_client.get_job(query_job_id)
 
         series_to_import = []
@@ -50,7 +54,9 @@ class GoogleHealthcareHandler(base.RequestHandler):
             'gear.name': 'ghc-import'
         }, sort=[('gear.version', -1)])
 
-        project = config.db.projects.find_one({})
+        project = config.db.projects.find_one({'label': 'ghc'})
+        if not project:
+            self.abort(404, "Project with label 'ghc' is required")
 
         job_payload = {
             'gear_id': gear_doc['_id'],
@@ -59,7 +65,11 @@ class GoogleHealthcareHandler(base.RequestHandler):
                 'id': project['_id']
             },
             'config': {
-                'series': series_to_import
+                'series': series_to_import,
+                'project': g_project,
+                'location': location,
+                'dataset': dataset,
+                'dicomstore': store
             }
         }
 
@@ -82,7 +92,7 @@ class GoogleHealthcareHandler(base.RequestHandler):
         payload = self.request.json_body
 
         dataset_ref = config.bq_client.dataset(payload['dataset'])
-        table_ref = dataset_ref.table(payload['table'])
+        table_ref = dataset_ref.table(payload['store'])
         table = config.bq_client.get_table(table_ref)
 
         req_group_by_fields = [
@@ -100,7 +110,7 @@ class GoogleHealthcareHandler(base.RequestHandler):
                 group_by_fields.append(field.name)
 
         query = (
-            'SELECT {fields} FROM `{dataset}.{table}` '
+            'SELECT {fields} FROM `{dataset}.{store}` '
             'WHERE {where} GROUP BY {fields} '
             'LIMIT 100'.format(fields=', '.join(group_by_fields), **payload))
 
