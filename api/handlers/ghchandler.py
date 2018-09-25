@@ -80,7 +80,7 @@ class GoogleHealthcareHandler(base.RequestHandler):
 
     @require_login
     def get_ghc_token(self):
-        credentials = service_account.Credentials.from_service_account_file('/test_account.json', scopes=SCOPES)
+        credentials = service_account.Credentials.from_service_account_file(config.ghc_key_path, scopes=SCOPES)
 
         credentials.refresh(Request())
         token = credentials.token
