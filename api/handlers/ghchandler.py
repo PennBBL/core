@@ -16,47 +16,90 @@ class GoogleHealthcareHandler(base.RequestHandler):
 
     @staticmethod
     def _prepare_response(query_job):
-        cols = []
-
-        for field in query_job.result().schema:
-            cols.append(field.name)
-
-        response = {
-            'jobId': query_job.job_id,
-            'rows': [],
-            'columns': cols
+        result = {
+            'TotalNumberOfStudies': 0,
+            'TotalNumberOfSeries': 0,
+            'TotalNumberOfInstances': 0,
+            'Studies': []
         }
 
-        for row in query_job:  # API request - fetches results
-            # Row values can be accessed by field name or index
-            result_row = []
-            for field in cols:
-                result_row.append(row[field])
-            response['rows'].append(result_row)
-        return response
+        curr_study = {}
+        for row in query_job:
+            if curr_study.get('StudyInstanceUID') == row.get('StudyInstanceUID'):
+                curr_study['series'].append(
+                    {
+                        'SeriesInstanceUID': row.get('SeriesInstanceUID'),
+                        'SeriesDescription': row.get('SeriesDescription'),
+                        'NumberOfInstances': row.get('NumberOfInstances'),
+                    }
+                )
+                curr_study['NumberOfSeries'] += 1
+            else:
+                if curr_study:
+                    result['Studies'].append(curr_study)
+                    result['TotalNumberOfSeries'] += len(curr_study['series'])
+
+                curr_study = {
+                    'StudyInstanceUID': row.get('StudyInstanceUID'),
+                    'StudyDescription': row.get('StudyDescription'),
+                    'NumberOfSeries': 1,
+                    'StudyDate': row.get('StudyDate'),
+                    'series': [
+                        {
+                            'SeriesInstanceUID': row.get('SeriesInstanceUID'),
+                            'SeriesDescription': row.get('SeriesDescription'),
+                            'NumberOfInstances': row.get('NumberOfInstances'),
+                        }
+                    ]
+                }
+
+            result['TotalNumberOfInstances'] += row.get('NumberOfInstances')
+
+        if curr_study:
+            result['Studies'].append(curr_study)
+            result['TotalNumberOfSeries'] += len(curr_study['series'])
+
+        result['TotalNumberOfStudies'] = len(result['Studies'])
+        result['JobId'] = query_job.job_id
+
+        return result
 
     @require_login
     def import_job(self):
-        # Just an example endpoint how to retrieve the results of a job
-        query_job_id = self.request.json_body['jobId']
-        g_project = self.request.json_body['project']
-        location = self.request.json_body['location']
-        dataset = self.request.json_body['dataset']
-        store = self.request.json_body['store']
-        query_job = config.bq_client.get_job(query_job_id)
+        payload = self.request.json_body
+        import_level = payload['level']
 
-        series_to_import = []
+        query_job_id = payload.get('jobId')
+        uids = payload.get('uids') or []
+        exclude = payload['exclude'] or []
 
-        for row in query_job:
-            series_to_import.append('%s/%s' % (row['StudyInstanceUID'], row['SeriesInstanceUID']))
+        to_import = []
+
+        if query_job_id:
+            query_job = config.bq_client.get_job(query_job_id)
+
+            for row in query_job:
+                uid_field_name = 'SeriesInstanceUID' if import_level == 'series' else 'StudyInstanceUID'
+                if row[uid_field_name] not in exclude:
+                    to_import.append(row[uid_field_name])
+        else:
+            for uid in set(uids) - set(exclude):
+                if import_level == 'series':
+                    to_import.append(uid)
+
+        if not to_import:
+            return self.abort(400, 'Nothing to import')
 
         gear_doc = config.db.gears.find_one({
             'gear.name': 'ghc-import'
         }, sort=[('gear.version', -1)])
 
+        if not gear_doc:
+            return self.abort(404, 'ghc-import gear is not installed, you have to install it to use this feature')
+
         project = config.db.projects.find_one({'label': 'ghc'})
         if not project:
-            self.abort(404, "Project with label 'ghc' is required")
+            return self.abort(404, "Project with label 'ghc' is required")
 
         job_payload = {
             'gear_id': gear_doc['_id'],
@@ -65,11 +108,13 @@ class GoogleHealthcareHandler(base.RequestHandler):
                 'id': project['_id']
             },
             'config': {
-                'series': series_to_import,
-                'project': g_project,
-                'location': location,
-                'dataset': dataset,
-                'dicomstore': store
+                'uids': to_import,
+                'level': import_level,
+                'project': payload['project'],
+                'location': payload['location'],
+                'dataset': payload['dataset'],
+                'dicomstore': payload['store'],
+                'log-level': payload['log-level']
             }
         }
 
@@ -90,6 +135,7 @@ class GoogleHealthcareHandler(base.RequestHandler):
     @require_login
     def post(self):
         payload = self.request.json_body
+        print(payload)
 
         dataset_ref = config.bq_client.dataset(payload['dataset'])
         table_ref = dataset_ref.table(payload['store'])
@@ -110,13 +156,15 @@ class GoogleHealthcareHandler(base.RequestHandler):
                 group_by_fields.append(field.name)
 
         query = (
-            'SELECT {fields} FROM `{dataset}.{store}` '
+            'SELECT {fields}, '
+            'COUNT(DISTINCT SOPInstanceUID) AS NumberOfInstances '
+            'FROM `{dataset}.{store}` '
             'WHERE {where} GROUP BY {fields} '
             'LIMIT 100'.format(fields=', '.join(group_by_fields), **payload))
 
         query_job = config.bq_client.query(
             query,
             # Location must match that of the dataset(s) referenced in the query.
-            location='US')  # API request - starts the query
+            location=payload['location'])  # API request - starts the query
 
         return self._prepare_response(query_job)
