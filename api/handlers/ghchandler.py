@@ -145,6 +145,7 @@ class GoogleHealthcareHandler(base.RequestHandler):
             bigquery.SchemaField('StudyInstanceUID', 'STRING', 'NULLABLE'),
             bigquery.SchemaField('SeriesInstanceUID', 'STRING', 'NULLABLE'),
             bigquery.SchemaField('StudyDate', 'DATE', 'NULLABLE'),
+            bigquery.SchemaField('StudyTime', 'TIME', 'NULLABLE'),
             bigquery.SchemaField('SeriesDescription', 'STRING', 'NULLABLE'),
             bigquery.SchemaField('StudyDescription', 'STRING', 'NULLABLE')
         ]
@@ -160,6 +161,7 @@ class GoogleHealthcareHandler(base.RequestHandler):
             'COUNT(DISTINCT SOPInstanceUID) AS NumberOfInstances '
             'FROM `{dataset}.{store}` '
             'WHERE {where} GROUP BY {fields} '
+            'ORDER BY StudyDate, StudyTime, StudyInstanceUID '
             'LIMIT 100'.format(fields=', '.join(group_by_fields), **payload))
 
         query_job = config.bq_client.query(
