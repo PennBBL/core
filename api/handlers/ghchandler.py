@@ -84,8 +84,7 @@ class GoogleHealthcareHandler(base.RequestHandler):
                     to_import.append(row[uid_field_name])
         else:
             for uid in set(uids) - set(exclude):
-                if import_level == 'series':
-                    to_import.append(uid)
+                to_import.append(uid)
 
         if not to_import:
             return self.abort(400, 'Nothing to import')
