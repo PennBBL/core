@@ -370,10 +370,12 @@ endpoints = [
         route('/<par_cont_name:groups>/<par_id:{gid}>/<cont_name:projects>', ContainerHandler, h='get_all', m=['GET']),
         route('/<par_cont_name:{cname}>/<par_id:{oid}>/<cont_name:{cname}>', ContainerHandler, h='get_all', m=['GET']),
 
+        # Google Healthcare
         prefix('/ghc', [
-            route('/query',             GoogleHealthcareHandler,                        m=['POST']),
-            route('/import',            GoogleHealthcareHandler, h='import_job',        m=['POST']),
-            route('/token',             GoogleHealthcareHandler, h='get_ghc_token',     m=['GET'])
+            route('/query',   GoogleHealthcareHandler, h='run_query',         m=['POST']),
+            route('/details', GoogleHealthcareHandler, h='run_details_query', m=['POST']),
+            route('/import',  GoogleHealthcareHandler, h='run_import',        m=['POST']),
+            route('/token',   GoogleHealthcareHandler, h='generate_token',    m=['GET']),
         ]),
     ]),
 ]

@@ -1,171 +1,241 @@
+import itertools
+import json
+import os
+
 from google.auth.transport.requests import Request
-from google.cloud import bigquery
-from google.oauth2 import service_account
+from google.oauth2.service_account import Credentials
+import requests
 
 from .. import config
 from ..auth import require_login
+from ..jobs.gears import get_latest_gear
 from ..jobs.queue import Queue
 from ..web import base
+from ..web.errors import APIException
 
-log = config.log
 
-SCOPES = ('https://www.googleapis.com/auth/cloud-platform', )
+# get default config from env
+GHC_KEY_JSON = os.environ.get('GHC_KEY_JSON')
+GHC_PROJECT = os.environ.get('GHC_PROJECT')
+if GHC_KEY_JSON and not GHC_PROJECT:
+    GHC_PROJECT = json.load(open(GHC_KEY_JSON))['project_id']
+GHC_LOCATION = os.environ.get('GHC_LOCATION', 'us-central1')
+GHC_DATASET = os.environ.get('GHC_DATASET', 'ghc')
+GHC_DICOMSTORE = os.environ.get('GHC_DICOMSTORE', 'ghc')
+
+DICOMWEB_URI_TEMPLATE = (
+    'https://healthcare.googleapis.com/v1alpha/projects/{project}'
+    '/locations/{location}/datasets/{dataset}/dicomStores/{dicomstore}/dicomWeb')
+SQL_LIMIT = 100
+SQL_TEMPLATE = """
+SELECT
+  StudyInstanceUID, SeriesInstanceUID,
+  MIN(AccessionNumber) AS AccessionNumber,
+  MIN(PatientID) AS PatientID,
+  MIN(StudyID) AS StudyID,
+  MIN(StudyDate) AS StudyDate,
+  MIN(StudyTime) AS StudyTime,
+  MIN(StudyDescription) AS StudyDescription,
+  MIN(SeriesDate) AS SeriesDate,
+  MIN(SeriesTime) AS SeriesTime,
+  MIN(SeriesDescription) AS SeriesDescription,
+  COUNT(DISTINCT SOPInstanceUID) AS instance_count
+FROM {dataset}.{table}
+WHERE {where}
+GROUP BY StudyInstanceUID, SeriesInstanceUID
+ORDER BY StudyInstanceUID, SeriesInstanceUID
+LIMIT {limit}
+OFFSET {offset}
+"""
+SQL_DETAIL_TEMPLATE = """
+SELECT *
+FROM {dataset}.{table}
+WHERE StudyInstanceUID="{uid}" OR SeriesInstanceUID="{uid}"
+ORDER BY StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID
+LIMIT 1
+"""
 
 
 class GoogleHealthcareHandler(base.RequestHandler):
-
-    @staticmethod
-    def _prepare_response(query_job):
-        result = {
-            'TotalNumberOfStudies': 0,
-            'TotalNumberOfSeries': 0,
-            'TotalNumberOfInstances': 0,
-            'Studies': []
+    @require_login
+    def run_query(self):
+        """Run BigQuery and return formatted results (studies and sessions in hierarchy)"""
+        payload = self.request.json_body
+        params = {
+            'dataset': payload.get('dataset', GHC_DATASET),
+            'table': payload.get('table', GHC_DICOMSTORE),
+            'where': payload.get('where', '1=1'),
+            'limit': min(payload.get('limit', SQL_LIMIT), SQL_LIMIT),
+            'offset': payload.get('offset', 0),
         }
-
-        curr_study = {}
-        for row in query_job:
-            if curr_study.get('StudyInstanceUID') == row.get('StudyInstanceUID'):
-                curr_study['series'].append(
-                    {
-                        'SeriesInstanceUID': row.get('SeriesInstanceUID'),
-                        'SeriesDescription': row.get('SeriesDescription'),
-                        'NumberOfInstances': row.get('NumberOfInstances'),
-                    }
-                )
-                curr_study['NumberOfSeries'] += 1
-            else:
-                if curr_study:
-                    result['Studies'].append(curr_study)
-                    result['TotalNumberOfSeries'] += len(curr_study['series'])
-
-                curr_study = {
-                    'StudyInstanceUID': row.get('StudyInstanceUID'),
-                    'StudyDescription': row.get('StudyDescription'),
-                    'NumberOfSeries': 1,
-                    'StudyDate': row.get('StudyDate'),
-                    'series': [
-                        {
-                            'SeriesInstanceUID': row.get('SeriesInstanceUID'),
-                            'SeriesDescription': row.get('SeriesDescription'),
-                            'NumberOfInstances': row.get('NumberOfInstances'),
-                        }
-                    ]
-                }
-
-            result['TotalNumberOfInstances'] += row.get('NumberOfInstances')
-
-        if curr_study:
-            result['Studies'].append(curr_study)
-            result['TotalNumberOfSeries'] += len(curr_study['series'])
-
-        result['TotalNumberOfStudies'] = len(result['Studies'])
-        result['JobId'] = query_job.job_id
-
-        return result
+        result = self.bigquery.run_query(SQL_TEMPLATE.format(**params))
+        return format_query_result(result)
 
     @require_login
-    def import_job(self):
+    def run_details_query(self):
+        """Run BigQuery and return all cols of the 1st instance matching study/session uid"""
         payload = self.request.json_body
-        import_level = payload['level']
+        if 'uid' not in payload:
+            self.abort(400, 'uid not in payload')
+        params = {
+            'dataset': payload.get('dataset', GHC_DATASET),
+            'table': payload.get('table', GHC_DICOMSTORE),
+            'uid': payload['uid'],
+        }
+        result = self.bigquery.run_query(SQL_DETAIL_TEMPLATE.format(**params))
+        record = next(result['rows'], None)
+        if not record:
+            self.abort(404, 'cannot find study/series {}'.format(payload['uid']))
+        return {key: value for key, value in record.iteritems() if value}
 
-        query_job_id = payload.get('jobId')
-        uids = payload.get('uids') or []
-        exclude = payload['exclude'] or []
+    @require_login
+    def run_import(self):
+        """Run ghc-importer gear"""
+        payload = self.request.json_body
+        query_id = payload.get('query_id')
+        dcm_field = 'StudyInstanceUID' if payload.get('study') else 'SeriesInstanceUID'
+        dcm_uids = payload.get('uids', [])
+        exclude_uids = payload.get('exclude', [])
 
-        to_import = []
-
-        if query_job_id:
-            query_job = config.bq_client.get_job(query_job_id)
-
-            for row in query_job:
-                uid_field_name = 'SeriesInstanceUID' if import_level == 'series' else 'StudyInstanceUID'
-                if row[uid_field_name] not in exclude:
-                    to_import.append(row[uid_field_name])
-        else:
-            for uid in set(uids) - set(exclude):
-                to_import.append(uid)
-
-        if not to_import:
-            return self.abort(400, 'Nothing to import')
-
-        gear_doc = config.db.gears.find_one({
-            'gear.name': 'ghc-import'
-        }, sort=[('gear.version', -1)])
-
-        if not gear_doc:
-            return self.abort(404, 'ghc-import gear is not installed, you have to install it to use this feature')
-
-        project = config.db.projects.find_one({'label': 'ghc'})
+        if query_id:
+            result = self.bigquery.get_query(query_id)
+            uids = set(row[dcm_field] for row in result['rows'])
+        elif dcm_uids:
+            uids = set(dcm_uids)
+        uids.difference_update(exclude_uids)
+        gear = get_latest_gear('ghc-import')
+        project_label = payload.get('project_label', GHC_DATASET)
+        project = config.db.projects.find_one({'label': project_label})
+        if not uids:
+            self.abort(400, 'nothing to import')
+        if not gear:
+            self.abort(404, 'ghc-import gear is not installed')
         if not project:
-            return self.abort(404, "Project with label 'ghc' is required")
+            self.abort(404, 'project "{}" does not exist'.format(project_label))
 
         job_payload = {
-            'gear_id': gear_doc['_id'],
-            'destination': {
-                'type': 'project',
-                'id': project['_id']
-            },
+            'gear_id': gear['_id'],
+            'destination': {'type': 'project', 'id': project['_id']},
             'config': {
-                'uids': to_import,
-                'level': import_level,
-                'project': payload['project'],
-                'location': payload['location'],
-                'dataset': payload['dataset'],
-                'dicomstore': payload['store'],
-                'log-level': payload['log-level']
+                'dicomweb': DICOMWEB_URI_TEMPLATE.format(
+                    project=payload.get('project', GHC_PROJECT),
+                    location=payload.get('location', GHC_LOCATION),
+                    dataset=payload.get('dataset', GHC_DATASET),
+                    dicomstore=payload.get('dicomstore', GHC_DICOMSTORE)),
+                'dcm_field': dcm_field,
+                'uids': uids,
             }
         }
-
         job = Queue.enqueue_job(job_payload, self.origin)
         job.insert()
-
         return {'_id': job.id_}
 
+    @property
+    def bigquery(self):
+        payload = self.request.json_body
+        project = payload.get('project', GHC_PROJECT)
+        if not project:
+            self.abort(400, 'project not in payload (default not configured)')
+        elif 'token' not in payload and project != GHC_PROJECT:
+            self.abort(400, 'token not in payload (required with custom project)')
+        token = payload.get('token') or generate_service_account_token()
+        if not token:
+            self.abort(400, 'token not in payload (service account not configured)')
+        return BigQuery(project, token)
+
     @require_login
-    def get_ghc_token(self):
-        credentials = service_account.Credentials.from_service_account_file(config.ghc_key_path, scopes=SCOPES)
-
-        credentials.refresh(Request())
-        token = credentials.token
-
+    def generate_token(self):
+        """Generate temp GHC access token using FW Core's service account if available"""
+        token = generate_service_account_token()
+        if not token:
+            self.abort(500, 'service account not configured')
         return {'token': token}
 
-    @require_login
-    def post(self):
-        payload = self.request.json_body
-        print(payload)
 
-        dataset_ref = config.bq_client.dataset(payload['dataset'])
-        table_ref = dataset_ref.table(payload['store'])
-        table = config.bq_client.get_table(table_ref)
+def generate_service_account_token():
+    if not GHC_KEY_JSON:
+        return None
+    scopes = ('https://www.googleapis.com/auth/cloud-platform',)
+    credentials = Credentials.from_service_account_file(GHC_KEY_JSON, scopes=scopes)
+    credentials.refresh(Request())
+    return credentials.token
 
-        req_group_by_fields = [
-            bigquery.SchemaField('StudyInstanceUID', 'STRING', 'NULLABLE'),
-            bigquery.SchemaField('SeriesInstanceUID', 'STRING', 'NULLABLE'),
-            bigquery.SchemaField('StudyDate', 'DATE', 'NULLABLE'),
-            bigquery.SchemaField('StudyTime', 'TIME', 'NULLABLE'),
-            bigquery.SchemaField('SeriesDescription', 'STRING', 'NULLABLE'),
-            bigquery.SchemaField('StudyDescription', 'STRING', 'NULLABLE')
-        ]
 
-        group_by_fields = []
+def format_query_result(result):
+    total_studies = 0
+    total_series = 0
+    total_instances = 0
+    studies = []
 
-        for field in req_group_by_fields:
-            if field in table.schema:
-                group_by_fields.append(field.name)
+    for _, rows in itertools.groupby(result['rows'], key=lambda row: row['StudyInstanceUID']):
+        total_studies += 1
+        series = []
+        for row in rows:
+            total_series += 1
+            total_instances += int(row['instance_count'])
+            series.append({'SeriesDate': row['SeriesDate'],
+                           'SeriesTime': row['SeriesTime'],
+                           'SeriesInstanceUID': row['SeriesInstanceUID'],
+                           'SeriesDescription': row['SeriesDescription'],
+                           'instance_count': int(row['instance_count']),
+                          })
 
-        query = (
-            'SELECT {fields}, '
-            'COUNT(DISTINCT SOPInstanceUID) AS NumberOfInstances '
-            'FROM `{dataset}.{store}` '
-            'WHERE {where} GROUP BY {fields} '
-            'ORDER BY StudyDate, StudyTime, StudyInstanceUID '
-            'LIMIT 100'.format(fields=', '.join(group_by_fields), **payload))
+        studies.append({'StudyDate': row.get('StudyDate'),
+                       'StudyTime': row.get('StudyTime'),
+                       'StudyInstanceUID': row.get('StudyInstanceUID'),
+                       'StudyDescription': row.get('StudyDescription'),
+                       'series_count': len(series),
+                       'series': sorted(series, key=lambda s: (s['SeriesDate'], s['SeriesTime']), reversed=True),
+                       'subject': row['PatientID'].rpartition('@')[0] or 'ex' + row['StudyID'],
+                      })
 
-        query_job = config.bq_client.query(
-            query,
-            # Location must match that of the dataset(s) referenced in the query.
-            location=payload['location'])  # API request - starts the query
+    return {
+        'query_id': result['query_id'],
+        'total_studies': total_studies,
+        'total_series': total_series,
+        'total_instances': total_instances,
+        'study_count': len(studies),
+        'studies': sorted(studies, key=lambda s: (s['StudyDate'], s['StudyTime']), reversed=True),
+    }
 
-        return self._prepare_response(query_job)
+
+class Session(requests.Session):
+    def __init__(self, baseurl, headers=None, params=None):
+        super(Session, self).__init__()
+        self.baseurl = baseurl
+        self.headers.update(headers or {})
+        self.params.update(params or {})
+
+    def request(self, method, url, **kwargs):
+        return super(Session, self).request(method, self.baseurl + url, **kwargs)
+
+
+class BigQuery(Session):
+    def __init__(self, project, token):
+        self.project = project
+        super(BigQuery, self).__init__(
+            'https://www.googleapis.com/bigquery/v2',
+            headers={'Authorization': 'Bearer ' + token})
+
+    def run_query(self, query):
+        resp = self.post('/projects/{}/queries'.format(self.project), json={'query': query, 'useLegacySql': False})
+        return self.get_resultset(resp)
+
+    def get_query(query_id):
+        resp = self.get('/projects/{}/queries/{}'.format(self.project, query_id))
+        return self.get_resultset(resp)
+
+    def get_resultset(self, response):
+        if not response.ok:
+            raise BigQueryError(response)
+        resultset = response.json()
+        fields = [field['name'] for field in resultset['schema']['fields']]
+        return {'query_id': resultset['jobReference']['jobId'],
+                'rows': (dict(zip(fields, (col['v'] for col in row['f']))) for row in resultset['rows'])}
+
+
+class BigQueryError(APIException):
+    def __init__(self, response):
+        error = response.json()['error']
+        super(BigQueryError, self).__init__(msg=error['message'])
+        self.status_code = error['code']

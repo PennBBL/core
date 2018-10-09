@@ -7,7 +7,6 @@ import datetime
 import elasticsearch
 
 from fs import open_fs
-from google.cloud import bigquery
 
 from . import util
 from . import logutil
@@ -309,11 +308,3 @@ if os.path.exists(data_path2):
 else:
     local_fs2 = None
 ###
-
-# TODO enable bring-your-own-key
-ghc_key_path = '/ghc-key.json'
-if os.path.exists(ghc_key_path):
-    log.info('Loading Google Healthcare API access key from %s', ghc_key_path)
-    bq_client = bigquery.Client.from_service_account_json(ghc_key_path)
-else:
-    bq_client = None
