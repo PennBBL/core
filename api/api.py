@@ -376,6 +376,7 @@ endpoints = [
             route('/details', GoogleHealthcareHandler, h='run_details_query', m=['POST']),
             route('/import',  GoogleHealthcareHandler, h='run_import',        m=['POST']),
             route('/token',   GoogleHealthcareHandler, h='generate_token',    m=['GET']),
+            route('/jobs',    GoogleHealthcareHandler, h='get_jobs',          m=['GET']),
         ]),
     ]),
 ]

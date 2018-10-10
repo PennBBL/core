@@ -151,6 +151,31 @@ class GoogleHealthcareHandler(base.RequestHandler):
             self.abort(500, 'service account not configured')
         return {'token': token}
 
+    @require_login
+    def get_jobs(self):
+        import_jobs = config.db.jobs.find({'gear_info.name': 'ghc-import'}, sort=[('created', -1)])
+        result = {
+            'success': 0,
+            'pending': 0,
+            'failed': 0,
+            'running': 0,
+            'jobs': []
+        }
+
+        for job in import_jobs:
+            if job['state'] == 'complete':
+                result['success'] += 1
+            if job['state'] == 'pending':
+                result['pending'] += 1
+            if job['state'] == 'failed':
+                result['failed'] += 1
+            if job['state'] == 'running':
+                result['running'] += 1
+
+            result['jobs'].append(job)
+
+        return result
+
 
 def generate_service_account_token():
     if not GHC_KEY_JSON:
@@ -185,7 +210,7 @@ def format_query_result(result):
                        'StudyInstanceUID': row.get('StudyInstanceUID'),
                        'StudyDescription': row.get('StudyDescription'),
                        'series_count': len(series),
-                       'series': sorted(series, key=lambda s: (s['SeriesDate'], s['SeriesTime']), reversed=True),
+                       'series': sorted(series, key=lambda s: (s['SeriesDate'], s['SeriesTime']), reverse=True),
                        'subject': row['PatientID'].rpartition('@')[0] or 'ex' + row['StudyID'],
                       })
 
@@ -195,7 +220,7 @@ def format_query_result(result):
         'total_series': total_series,
         'total_instances': total_instances,
         'study_count': len(studies),
-        'studies': sorted(studies, key=lambda s: (s['StudyDate'], s['StudyTime']), reversed=True),
+        'studies': sorted(studies, key=lambda s: (s['StudyDate'], s['StudyTime']), reverse=True),
     }
 
 
@@ -221,7 +246,7 @@ class BigQuery(Session):
         resp = self.post('/projects/{}/queries'.format(self.project), json={'query': query, 'useLegacySql': False})
         return self.get_resultset(resp)
 
-    def get_query(query_id):
+    def get_query(self, query_id):
         resp = self.get('/projects/{}/queries/{}'.format(self.project, query_id))
         return self.get_resultset(resp)
 
@@ -231,7 +256,7 @@ class BigQuery(Session):
         resultset = response.json()
         fields = [field['name'] for field in resultset['schema']['fields']]
         return {'query_id': resultset['jobReference']['jobId'],
-                'rows': (dict(zip(fields, (col['v'] for col in row['f']))) for row in resultset['rows'])}
+                'rows': (dict(zip(fields, (col['v'] for col in row['f']))) for row in resultset.get('rows', []))}
 
 
 class BigQueryError(APIException):
