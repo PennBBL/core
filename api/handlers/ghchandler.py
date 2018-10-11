@@ -93,23 +93,26 @@ class GoogleHealthcareHandler(base.RequestHandler):
         """Run ghc-importer gear"""
         payload = self.request.json_body
         query_id = payload.get('query_id')
-        dcm_field = 'StudyInstanceUID' if payload.get('study') else 'SeriesInstanceUID'
-        dcm_uids = payload.get('uids', [])
+        uid_field = 'StudyInstanceUID' if payload.get('study') else 'SeriesInstanceUID'
+        uids = payload.get('uids', [])
         exclude_uids = payload.get('exclude', [])
 
         if query_id:
             result = self.bigquery.get_query(query_id)
-            uids = set(row[dcm_field] for row in result['rows'])
-        elif dcm_uids:
-            uids = set(dcm_uids)
-        uids.difference_update(exclude_uids)
-        gear = get_latest_gear('ghc-import')
-        project_label = payload.get('project_label', GHC_DATASET)
-        project = config.db.projects.find_one({'label': project_label})
+            uids = set(row[uid_field] for row in result['rows'])
+            uids.difference_update(exclude_uids)
+        elif uids:
+            uids = set(uids)
         if not uids:
             self.abort(400, 'nothing to import')
+
+        gear = get_latest_gear('ghc-import')
         if not gear:
             self.abort(404, 'ghc-import gear is not installed')
+
+        group_id = payload['group_id']
+        project_label = payload['project_label']
+        project = config.db.projects.find_one({'group': group_id, 'label': project_label})
         if not project:
             self.abort(404, 'project "{}" does not exist'.format(project_label))
 
@@ -117,15 +120,23 @@ class GoogleHealthcareHandler(base.RequestHandler):
             'gear_id': gear['_id'],
             'destination': {'type': 'project', 'id': project['_id']},
             'config': {
-                'dicomweb': DICOMWEB_URI_TEMPLATE.format(
+                'dicomweb_uri': DICOMWEB_URI_TEMPLATE.format(
                     project=payload.get('project', GHC_PROJECT),
                     location=payload.get('location', GHC_LOCATION),
                     dataset=payload.get('dataset', GHC_DATASET),
                     dicomstore=payload.get('dicomstore', GHC_DICOMSTORE)),
-                'dcm_field': dcm_field,
-                'uids': uids,
+                'uids': list(uids),
+                'uid_field': uid_field,
+                'de_identify': payload.get('de_identify', False),
+                'group_id': payload['group_id'],
+                'project_label': payload['project_label'],
             }
         }
+
+        # TODO security - hide / get from user profile / TBD
+        if payload.get('token'):
+            job_payload['config']['token'] = payload['token']
+
         job = Queue.enqueue_job(job_payload, self.origin)
         job.insert()
         return {'_id': job.id_}
@@ -198,21 +209,25 @@ def format_query_result(result):
         for row in rows:
             total_series += 1
             total_instances += int(row['instance_count'])
-            series.append({'SeriesDate': row['SeriesDate'],
-                           'SeriesTime': row['SeriesTime'],
-                           'SeriesInstanceUID': row['SeriesInstanceUID'],
-                           'SeriesDescription': row['SeriesDescription'],
-                           'instance_count': int(row['instance_count']),
-                          })
+            series.append({
+                'SeriesDate': row['SeriesDate'],
+                'SeriesTime': row['SeriesTime'],
+                'SeriesInstanceUID': row['SeriesInstanceUID'],
+                'SeriesDescription': row['SeriesDescription'],
+                'instance_count': int(row['instance_count']),
+            })
 
-        studies.append({'StudyDate': row.get('StudyDate'),
-                       'StudyTime': row.get('StudyTime'),
-                       'StudyInstanceUID': row.get('StudyInstanceUID'),
-                       'StudyDescription': row.get('StudyDescription'),
-                       'series_count': len(series),
-                       'series': sorted(series, key=lambda s: (s['SeriesDate'], s['SeriesTime']), reverse=True),
-                       'subject': row['PatientID'].rpartition('@')[0] or 'ex' + row['StudyID'],
-                      })
+        # use last iterated `row` to get study properties
+        # pylint: disable=undefined-loop-variable
+        studies.append({
+            'StudyDate': row.get('StudyDate'),
+            'StudyTime': row.get('StudyTime'),
+            'StudyInstanceUID': row.get('StudyInstanceUID'),
+            'StudyDescription': row.get('StudyDescription'),
+            'series_count': len(series),
+            'series': sorted(series, key=lambda s: (s['SeriesDate'], s['SeriesTime']), reverse=True),
+            'subject': row['PatientID'].rpartition('@')[0] or 'ex' + row['StudyID'],
+        })
 
     return {
         'query_id': result['query_id'],
@@ -231,6 +246,7 @@ class Session(requests.Session):
         self.headers.update(headers or {})
         self.params.update(params or {})
 
+    # pylint: disable=arguments-differ
     def request(self, method, url, **kwargs):
         return super(Session, self).request(method, self.baseurl + url, **kwargs)
 
