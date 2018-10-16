@@ -1,10 +1,11 @@
 import itertools
 import json
 import os
+from collections import OrderedDict
 
+import requests
 from google.auth.transport.requests import Request
 from google.oauth2.service_account import Credentials
-import requests
 
 from .. import config
 from ..auth import require_login
@@ -12,7 +13,6 @@ from ..jobs.gears import get_latest_gear
 from ..jobs.queue import Queue
 from ..web import base
 from ..web.errors import APIException
-
 
 # get default config from env
 GHC_KEY_JSON = os.environ.get('GHC_KEY_JSON')
@@ -86,7 +86,7 @@ class GoogleHealthcareHandler(base.RequestHandler):
         record = next(result['rows'], None)
         if not record:
             self.abort(404, 'cannot find study/series {}'.format(payload['uid']))
-        return {key: value for key, value in record.iteritems() if value}
+        return OrderedDict([(key, value) for key, value in sorted(record.iteritems(), key=lambda i: i[0]) if value])
 
     @require_login
     def run_import(self):
@@ -187,6 +187,37 @@ class GoogleHealthcareHandler(base.RequestHandler):
 
         return result
 
+    @require_login
+    def run_statistics(self):
+        payload = self.request.json_body
+        statistic_query = """
+        SELECT
+          COUNT(DISTINCT StudyInstanceUID) AS studies_count,
+          COUNT(DISTINCT SeriesInstanceUID) AS series_count,
+          COUNT(DISTINCT SOPInstanceUID) AS instance_count
+        FROM {dataset}.{table}
+        WHERE {where}
+        """
+        params = {
+            'dataset': payload.get('dataset', GHC_DATASET),
+            'table': payload.get('table', GHC_DICOMSTORE),
+            'where': payload.get('where', '1=1')
+        }
+        result = self.bigquery.run_query(statistic_query.format(**params))
+        record = next(result['rows'], None)
+        if not record:
+            self.abort(404, 'cannot find any recors in {}/{}'.format(params['dataset'], params['table']))
+        return {key: value for key, value in record.iteritems() if value}
+
+    @require_login
+    def get_schema(self):
+        payload = self.request.json_body
+        params = {
+            'dataset': payload.get('dataset', GHC_DATASET),
+            'table': payload.get('table', GHC_DICOMSTORE)
+        }
+        return self.bigquery.get_table(**params)
+
 
 def generate_service_account_token():
     if not GHC_KEY_JSON:
@@ -273,6 +304,10 @@ class BigQuery(Session):
         fields = [field['name'] for field in resultset['schema']['fields']]
         return {'query_id': resultset['jobReference']['jobId'],
                 'rows': (dict(zip(fields, (col['v'] for col in row['f']))) for row in resultset.get('rows', []))}
+
+    def get_table(self, dataset, table):
+        resp = self.get('/projects/{}/datasets/{}/tables/{}'.format(self.project, dataset, table))
+        return resp.json()
 
 
 class BigQueryError(APIException):
