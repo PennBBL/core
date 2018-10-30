@@ -8,7 +8,7 @@ from .handlers.confighandler            import Config, Version
 from .handlers.containerhandler         import ContainerHandler
 from .handlers.dataexplorerhandler      import DataExplorerHandler, QueryHandler
 from .handlers.devicehandler            import DeviceHandler
-from .handlers.ghchandler               import GoogleHealthcareHandler
+from .handlers.gcphandler               import GoogleHealthcareHandler, BigQueryHandler
 from .handlers.grouphandler             import GroupHandler
 from .handlers.listhandler              import FileListHandler, NotesListHandler, PermissionsListHandler, TagsListHandler
 from .handlers.modalityhandler          import ModalityHandler
@@ -361,24 +361,25 @@ endpoints = [
         # Metrics
         route('/metrics', MetricsHandler, m=['GET']),
 
-        # Data views
-        route('/views/data', DataViewHandler, h='execute_adhoc', m=['POST']),
-        route('/views/columns', DataViewHandler, h='get_columns', m=['GET']),
-
         # Misc (to be cleaned up later)
 
         route('/<par_cont_name:groups>/<par_id:{gid}>/<cont_name:projects>', ContainerHandler, h='get_all', m=['GET']),
         route('/<par_cont_name:{cname}>/<par_id:{oid}>/<cont_name:{cname}>', ContainerHandler, h='get_all', m=['GET']),
 
-        # Google Healthcare
-        prefix('/ghc', [
-            route('/query',     GoogleHealthcareHandler, h='run_query',         m=['POST']),
-            route('/details',   GoogleHealthcareHandler, h='run_details_query', m=['POST']),
-            route('/import',    GoogleHealthcareHandler, h='run_import',        m=['POST']),
-            route('/token',     GoogleHealthcareHandler, h='generate_token',    m=['GET']),
-            route('/jobs',      GoogleHealthcareHandler, h='get_jobs',          m=['GET']),
-            route('/statistic', GoogleHealthcareHandler, h='run_statistics',    m=['POST']),
-            route('/schema',    GoogleHealthcareHandler, h='get_schema',        m=['POST']),
+        prefix('/gcp', [
+            # Google Healthcare
+            prefix('/hc', [
+                route('/query',     GoogleHealthcareHandler, h='run_query',         m=['POST']),
+                route('/details',   GoogleHealthcareHandler, h='run_details_query', m=['POST']),
+                route('/import',    GoogleHealthcareHandler, h='run_import',        m=['POST']),
+                route('/token',     GoogleHealthcareHandler, h='generate_token',    m=['GET']),
+                route('/jobs',      GoogleHealthcareHandler, h='get_jobs',          m=['GET']),
+                route('/statistic', GoogleHealthcareHandler, h='run_statistics',    m=['POST']),
+                route('/schema',    GoogleHealthcareHandler, h='get_schema',        m=['POST']),
+            ]),
+            prefix('/bq', [
+                route('/export',    BigQueryHandler,    h='export_view',         m=['POST']),
+            ]),
         ]),
     ]),
 ]

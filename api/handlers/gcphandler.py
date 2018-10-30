@@ -1,18 +1,26 @@
 import itertools
 import json
 import os
+import re
 from collections import OrderedDict
 
+import bson
+import datetime
 import requests
 from google.auth.transport.requests import Request
 from google.oauth2.service_account import Credentials
 
 from .. import config
+from ..auth import containerauth
 from ..auth import require_login
+from ..dao import containerutil
+from ..dao import noop
+from ..dao.hierarchy import get_parent_tree
+from ..data_views.storage import DataViewStorage
 from ..jobs.gears import get_latest_gear
 from ..jobs.queue import Queue
 from ..web import base
-from ..web.errors import APIException
+from ..web.errors import APIException, APINotFoundException, APIValidationException
 
 # get default config from env
 GHC_KEY_JSON = os.environ.get('GHC_KEY_JSON')
@@ -54,6 +62,8 @@ WHERE StudyInstanceUID="{uid}" OR SeriesInstanceUID="{uid}"
 ORDER BY StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID
 LIMIT 1
 """
+
+SEARCH_CONTAINERS = ['projects', 'subjects', 'sessions', 'acquisitions']
 
 
 class GoogleHealthcareHandler(base.RequestHandler):
@@ -217,6 +227,78 @@ class GoogleHealthcareHandler(base.RequestHandler):
             'table': payload.get('table', GHC_DICOMSTORE)
         }
         return self.bigquery.get_table(**params)
+
+
+class BigQueryHandler(base.RequestHandler):
+
+    @require_login
+    def export_view(self):
+        """Run data view pipeline and export it to BigQuery"""
+        gear = get_latest_gear('view-bq-export')
+        if not gear:
+            self.abort(404, 'view-bq-export gear is not installed')
+
+        payload = self.request.json_body
+
+        container_id = payload['container_id']
+
+        if bson.ObjectId.is_valid(container_id):
+            container_id = bson.ObjectId(container_id)
+
+        result = containerutil.container_search({'_id': container_id}, collections=SEARCH_CONTAINERS)
+        if not result:
+            raise APINotFoundException('Could not resolve container: {}'.format(payload['container_id']))
+        cont_type, search_results = result[0]
+
+        table_id_parts = []
+
+        view_spec = None
+
+        if payload.get('view_id'):
+            storage = DataViewStorage()
+            cont = storage.get_el(payload['view_id'])
+            parent_container = storage.get_parent(payload['view_id'], cont=cont)
+            if parent_container.get('label'):
+                table_id_parts.append(re.sub('[^A-Za-z0-9]+', '', parent_container['label']))
+            else:
+                table_id_parts.append(parent_container['_id'])
+            table_id_parts.append(re.sub('[^A-Za-z0-9]+', '', cont['label']))
+        elif payload.get('json'):
+            view_spec = payload['json']
+
+            hierarchy = get_parent_tree(cont_type, payload['container_id'])
+            for _cont_name in ['group', 'project', 'subject', 'session', 'acquisition']:
+                if hierarchy.get(_cont_name):
+                    table_id_parts.append(re.sub('[^A-Za-z0-9]+', '', hierarchy.get(_cont_name).get('label', '')))
+
+            table_id_parts.append(datetime.datetime.now().strftime('%Y%m%d_%H%M%S'))
+        else:
+            raise APIValidationException('Invalid request, one of json and view_id fields is required')
+
+        job_payload = {
+            'gear_id': gear['_id'],
+            'destination': {'type': cont_type, 'id': search_results[0]['_id']},
+            'config': {
+                'container_id': payload['container_id'],
+                'project_id': payload.get('project', GHC_PROJECT),
+                'dataset': 'flywheel_views',
+                'table': '_'.join(table_id_parts)
+            }
+        }
+
+        if view_spec:
+            job_payload['config']['json'] = view_spec
+        elif payload.get('view_id'):
+            job_payload['config']['view_id'] = payload['view_id']
+
+        # TODO security - hide / get from user profile / TBD
+        if payload.get('token'):
+            job_payload['config']['token'] = payload['token']
+
+        job = Queue.enqueue_job(job_payload, self.origin)
+        job.insert()
+
+        return {'_id': job.id_}
 
 
 def generate_service_account_token():
