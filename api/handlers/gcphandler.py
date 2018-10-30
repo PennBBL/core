@@ -11,10 +11,8 @@ from google.auth.transport.requests import Request
 from google.oauth2.service_account import Credentials
 
 from .. import config
-from ..auth import containerauth
 from ..auth import require_login
 from ..dao import containerutil
-from ..dao import noop
 from ..dao.hierarchy import get_parent_tree
 from ..data_views.storage import DataViewStorage
 from ..jobs.gears import get_latest_gear
