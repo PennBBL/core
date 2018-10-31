@@ -64,7 +64,17 @@ LIMIT 1
 SEARCH_CONTAINERS = ['projects', 'subjects', 'sessions', 'acquisitions']
 
 
-class GoogleHealthcareHandler(base.RequestHandler):
+class GCPHandler(base.RequestHandler):
+    @require_login
+    def generate_token(self):
+        """Generate temp GHC access token using FW Core's service account if available"""
+        token = generate_service_account_token()
+        if not token:
+            self.abort(500, 'service account not configured')
+        return {'token': token}
+
+
+class GHCHandler(base.RequestHandler):
     @require_login
     def run_query(self):
         """Run BigQuery and return formatted results (studies and sessions in hierarchy)"""
@@ -161,14 +171,6 @@ class GoogleHealthcareHandler(base.RequestHandler):
         if not token:
             self.abort(400, 'token not in payload (service account not configured)')
         return BigQuery(project, token)
-
-    @require_login
-    def generate_token(self):
-        """Generate temp GHC access token using FW Core's service account if available"""
-        token = generate_service_account_token()
-        if not token:
-            self.abort(500, 'service account not configured')
-        return {'token': token}
 
     @require_login
     def get_jobs(self):
