@@ -298,7 +298,7 @@ class BigQueryHandler(base.RequestHandler):
         job = Queue.enqueue_job(job_payload, self.origin)
         job.insert()
 
-        return {'_id': job.id_}
+        return {'_id': job.id_, 'destination': 'flywheel_views/{}'.format('_'.join(table_id_parts))}
 
 
 def generate_service_account_token():
