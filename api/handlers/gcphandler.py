@@ -29,9 +29,6 @@ GHC_LOCATION = os.environ.get('GHC_LOCATION', 'us-central1')
 GHC_DATASET = os.environ.get('GHC_DATASET', 'ghc')
 GHC_DICOMSTORE = os.environ.get('GHC_DICOMSTORE', 'ghc')
 
-DICOMWEB_URI_TEMPLATE = (
-    'https://healthcare.googleapis.com/v1alpha/projects/{project}'
-    '/locations/{location}/datasets/{dataset}/dicomStores/{dicomstore}/dicomWeb')
 SQL_LIMIT = 100
 SQL_TEMPLATE = """
 SELECT
@@ -138,11 +135,10 @@ class GHCHandler(base.RequestHandler):
             'gear_id': gear['_id'],
             'destination': {'type': 'project', 'id': project['_id']},
             'config': {
-                'dicomweb_uri': DICOMWEB_URI_TEMPLATE.format(
-                    project=payload.get('project', GHC_PROJECT),
-                    location=payload.get('location', GHC_LOCATION),
-                    dataset=payload.get('dataset', GHC_DATASET),
-                    dicomstore=payload.get('dicomstore', GHC_DICOMSTORE)),
+                'hc_project': payload.get('project', GHC_PROJECT),
+                'hc_location': payload.get('location', GHC_LOCATION),
+                'hc_dataset': payload.get('dataset', GHC_DATASET),
+                'hc_datastore': payload.get('dicomstore', GHC_DICOMSTORE),
                 'uids': list(uids),
                 'uid_field': uid_field,
                 'de_identify': payload.get('de_identify', False),
