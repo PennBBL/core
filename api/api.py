@@ -377,6 +377,7 @@ endpoints = [
                 route('/jobs',      GHCHandler, h='get_jobs',           m=['GET']),
                 route('/statistic', GHCHandler, h='run_statistics',     m=['POST']),
                 route('/schema',    GHCHandler, h='get_schema',         m=['POST']),
+                route('/config',    GHCHandler, h='get_default_config', m=['GET']),
             ]),
             # Google BigQuery
             prefix('/bq', [

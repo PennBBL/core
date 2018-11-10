@@ -224,6 +224,15 @@ class GHCHandler(base.RequestHandler):
         }
         return self.bigquery.get_table(**params)
 
+    @require_login
+    def get_default_config(self):
+        return {
+            'project': GHC_PROJECT,
+            'region': GHC_LOCATION,
+            'dataset': GHC_DATASET,
+            'datastore': GHC_DICOMSTORE
+        }
+
 
 class BigQueryHandler(base.RequestHandler):
 
