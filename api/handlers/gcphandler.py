@@ -11,6 +11,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.service_account import Credentials
 
 from .. import config
+from .. import validators
 from ..auth import require_login
 from ..dao import containerutil
 from ..dao.hierarchy import get_parent_tree
@@ -26,8 +27,8 @@ GHC_PROJECT = os.environ.get('GHC_PROJECT')
 if GHC_KEY_JSON and not GHC_PROJECT:
     GHC_PROJECT = json.load(open(GHC_KEY_JSON))['project_id']
 GHC_LOCATION = os.environ.get('GHC_LOCATION', 'us-central1')
-GHC_DATASET = os.environ.get('GHC_DATASET', 'ghc')
-GHC_DICOMSTORE = os.environ.get('GHC_DICOMSTORE', 'ghc')
+GHC_DATASET = os.environ.get('GHC_DATASET', 'demo')
+GHC_DICOMSTORE = os.environ.get('GHC_DICOMSTORE', 'demo')
 
 SQL_LIMIT = 100
 SQL_TEMPLATE = """
@@ -70,15 +71,35 @@ class GCPHandler(base.RequestHandler):
             self.abort(500, 'service account not configured')
         return {'token': token}
 
+    @require_login
+    def get_default_config(self):
+        return {
+            'core': {
+                'project': GHC_PROJECT,
+            },
+            'healthcare': {
+                'location': GHC_LOCATION,
+                'dataset': GHC_DATASET,
+                'dicomstore': GHC_DICOMSTORE
+            },
+            'bigquery': {
+                'dataset': GHC_DATASET,
+                'table': GHC_DICOMSTORE
+            }
+        }
+
 
 class GHCHandler(base.RequestHandler):
+
     @require_login
     def run_query(self):
         """Run BigQuery and return formatted results (studies and sessions in hierarchy)"""
         payload = self.request.json_body
+        validators.validate_data(payload, 'bq-query-input.json', 'input', 'POST')
+
         params = {
-            'dataset': payload.get('dataset', GHC_DATASET),
-            'table': payload.get('table', GHC_DICOMSTORE),
+            'dataset': payload['dataset'],
+            'table': payload['table'],
             'where': payload.get('where', '1=1'),
             'limit': min(payload.get('limit', SQL_LIMIT), SQL_LIMIT),
             'offset': payload.get('offset', 0),
@@ -90,11 +111,13 @@ class GHCHandler(base.RequestHandler):
     def run_details_query(self):
         """Run BigQuery and return all cols of the 1st instance matching study/session uid"""
         payload = self.request.json_body
+        validators.validate_data(payload, 'bq-details-query-input.json', 'input', 'POST')
+
         if 'uid' not in payload:
             self.abort(400, 'uid not in payload')
         params = {
-            'dataset': payload.get('dataset', GHC_DATASET),
-            'table': payload.get('table', GHC_DICOMSTORE),
+            'dataset': payload['dataset'],
+            'table': payload['table'],
             'uid': payload['uid'],
         }
         result = self.bigquery.run_query(SQL_DETAIL_TEMPLATE.format(**params))
@@ -107,6 +130,8 @@ class GHCHandler(base.RequestHandler):
     def run_import(self):
         """Run ghc-importer gear"""
         payload = self.request.json_body
+        validators.validate_data(payload, 'hc-import-input.json', 'input', 'POST')
+
         query_id = payload.get('query_id')
         uid_field = 'StudyInstanceUID' if payload.get('study') else 'SeriesInstanceUID'
         uids = payload.get('uids', [])
@@ -135,10 +160,10 @@ class GHCHandler(base.RequestHandler):
             'gear_id': gear['_id'],
             'destination': {'type': 'project', 'id': project['_id']},
             'config': {
-                'hc_project': payload.get('project', GHC_PROJECT),
-                'hc_location': payload.get('location', GHC_LOCATION),
-                'hc_dataset': payload.get('dataset', GHC_DATASET),
-                'hc_datastore': payload.get('dicomstore', GHC_DICOMSTORE),
+                'hc_project': payload['project'],
+                'hc_location': payload['location'],
+                'hc_dataset': payload['dataset'],
+                'hc_datastore': payload['dicomstore'],
                 'uids': list(uids),
                 'uid_field': uid_field,
                 'de_identify': payload.get('de_identify', False),
@@ -196,6 +221,8 @@ class GHCHandler(base.RequestHandler):
     @require_login
     def run_statistics(self):
         payload = self.request.json_body
+        validators.validate_data(payload, 'bq-query-input.json', 'input', 'POST')
+
         statistic_query = """
         SELECT
           COUNT(DISTINCT StudyInstanceUID) AS studies_count,
@@ -205,9 +232,9 @@ class GHCHandler(base.RequestHandler):
         WHERE {where}
         """
         params = {
-            'dataset': payload.get('dataset', GHC_DATASET),
-            'table': payload.get('table', GHC_DICOMSTORE),
-            'where': payload.get('where', '1=1')
+            'dataset': payload['dataset'],
+            'table': payload['table'],
+            'where': payload['where']
         }
         result = self.bigquery.run_query(statistic_query.format(**params))
         record = next(result['rows'], None)
@@ -218,20 +245,12 @@ class GHCHandler(base.RequestHandler):
     @require_login
     def get_schema(self):
         payload = self.request.json_body
+        validators.validate_data(payload, 'bq-get-schema-input.json', 'input', 'POST')
         params = {
-            'dataset': payload.get('dataset', GHC_DATASET),
-            'table': payload.get('table', GHC_DICOMSTORE)
+            'dataset': payload['dataset'],
+            'table': payload['table']
         }
         return self.bigquery.get_table(**params)
-
-    @require_login
-    def get_default_config(self):
-        return {
-            'project': GHC_PROJECT,
-            'region': GHC_LOCATION,
-            'dataset': GHC_DATASET,
-            'datastore': GHC_DICOMSTORE
-        }
 
 
 class BigQueryHandler(base.RequestHandler):

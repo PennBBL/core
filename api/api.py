@@ -368,7 +368,8 @@ endpoints = [
 
         # Google Cloud Platform
         prefix('/gcp', [
-            route('/token', GCPHandler, h='generate_token', m=['GET']),
+            route('/token',     GCPHandler, h='generate_token', m=['GET']),
+            route('/config',    GCPHandler, h='get_default_config', m=['GET']),
             # Google Healthcare
             prefix('/hc', [
                 route('/query',     GHCHandler, h='run_query',          m=['POST']),
@@ -377,7 +378,6 @@ endpoints = [
                 route('/jobs',      GHCHandler, h='get_jobs',           m=['GET']),
                 route('/statistic', GHCHandler, h='run_statistics',     m=['POST']),
                 route('/schema',    GHCHandler, h='get_schema',         m=['POST']),
-                route('/config',    GHCHandler, h='get_default_config', m=['GET']),
             ]),
             # Google BigQuery
             prefix('/bq', [

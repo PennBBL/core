@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "allOf":[{"$ref":"../definitions/gcp.json#/definitions/get-schema-input"}],
+  "required": ["project", "dataset", "table"],
+  "example": {
+	    "project": "demo-project-24222",
+	    "dataset":"demo",
+        "table": "demo"
+	}
+}
