@@ -368,8 +368,11 @@ endpoints = [
 
         # Google Cloud Platform
         prefix('/gcp', [
-            route('/token',     GCPHandler, h='generate_token', m=['GET']),
-            route('/config',    GCPHandler, h='get_default_config', m=['GET']),
+            route('/token',        GCPHandler, h='generate_token',     m=['GET']),
+            route('/auth',         GCPHandler, h='get_auth_url',       m=['GET']),
+            route('/auth/token',   GCPHandler, h='get_oauth2_token',   m=['GET', 'POST']),
+            route('/auth/revoke',  GCPHandler, h='revoke_token',       m=['POST']),
+            route('/config',       GCPHandler, h='get_default_config', m=['GET']),
             # Google Healthcare
             prefix('/hc', [
                 route('/query',     GHCHandler, h='run_query',          m=['POST']),

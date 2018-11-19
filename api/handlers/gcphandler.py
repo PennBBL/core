@@ -3,7 +3,6 @@ import json
 import os
 import re
 from collections import OrderedDict
-
 import bson
 import datetime
 import requests
@@ -29,6 +28,37 @@ if GHC_KEY_JSON and not GHC_PROJECT:
 GHC_LOCATION = os.environ.get('GHC_LOCATION', 'us-central1')
 GHC_DATASET = os.environ.get('GHC_DATASET', 'demo')
 GHC_DICOMSTORE = os.environ.get('GHC_DICOMSTORE', 'demo')
+CLIENT_ID = os.environ.get('GCP_CLIENT_ID')
+CLIENT_SECRET = os.environ.get('GCP_CLIENT_SECRET')
+
+AUTH_SERVER_URL_TEMPLATE = """
+https://accounts.google.com/o/oauth2/v2/auth?
+scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform&
+access_type=offline&
+response_type=code&
+redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&
+prompt=select_account&
+client_id={}
+"""
+
+AUTH_TOKEN_URL_TEMPLATE = """
+https://www.googleapis.com/oauth2/v4/token?
+code={}&
+client_id={}&
+client_secret={}&
+grant_type=authorization_code&
+redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob
+"""
+
+AUTH_REFRESH_URL_TEMPLATE = """
+https://www.googleapis.com/oauth2/v4/token?
+client_id={}&
+client_secret={}&
+grant_type=refresh_token&
+refresh_token={}
+"""
+
+AUTH_REVOKE_URL_TEMPLATE = "https://accounts.google.com/o/oauth2/revoke?token={}"
 
 SQL_LIMIT = 100
 SQL_TEMPLATE = """
@@ -70,6 +100,52 @@ class GCPHandler(base.RequestHandler):
         if not token:
             self.abort(500, 'service account not configured')
         return {'token': token}
+
+    @require_login
+    def get_auth_url(self):
+        return {
+            'url': AUTH_SERVER_URL_TEMPLATE.format(CLIENT_ID).replace('\n', '')
+        }
+
+    @require_login
+    def get_oauth2_token(self):
+        if self.request.method == 'POST':
+            payload = self.request.json_body
+            resp = requests.post(AUTH_TOKEN_URL_TEMPLATE.format(payload['code'], CLIENT_ID, CLIENT_SECRET).replace('\n', ''))
+            config.db.gcp_tokens.update({
+                'user': self.uid
+            }, {
+                'user': self.uid,
+                'token_response': resp.json()
+            }, upsert=True)
+            return resp.json()
+        else:
+            # TODO: refresh token if expire soon
+            token_doc = config.db.gcp_tokens.find_one({'user': self.uid})
+            if not token_doc:
+                self.abort(404, 'user not logged in google')
+            # try to get from db, and refresh it if necessary
+            return token_doc['token_response']
+
+    @require_login
+    def revoke_token(self):
+        token_doc = config.db.gcp_tokens.find_one({'user': self.uid})
+        if not token_doc:
+            self.abort(500, 'user not logged in google')
+        resp = requests.post(AUTH_REVOKE_URL_TEMPLATE.format(token_doc['token_response']['access_token']).replace('\n', ''))
+        if resp.status_code == 200 or \
+                (resp.status_code == 400 and resp.json()['error_description'] == 'Token expired or revoked'):
+            config.db.gcp_tokens.delete_one({'user': self.uid})
+            return {}
+        else:
+            self.abort(resp.status_code, resp.json())
+
+    @require_login
+    def refresh_oauth2_token(self):
+        access_token = ''
+        resp = requests.post(
+            AUTH_REFRESH_URL_TEMPLATE.format(CLIENT_ID, CLIENT_SECRET, access_token).replace('\n', ''))
+        return resp.json()
 
     @require_login
     def get_default_config(self):
