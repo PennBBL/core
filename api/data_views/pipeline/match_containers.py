@@ -1,5 +1,5 @@
 from .pipeline import PipelineStage
-from ..util import filtered_container_list, file_filter_to_regex, nil_value
+from ..util import filtered_container_list, file_filter_to_regex, nil_value, is_nil
 
 def pop_collection(cont, key):
     """Nested pop of key from container.
@@ -21,7 +21,7 @@ def pop_collection(cont, key):
         if not cont:
             break
 
-    if cont:
+    if cont and not is_nil(cont):
         result = cont.pop(parts[-1], [])
 
     return result
