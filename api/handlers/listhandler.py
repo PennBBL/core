@@ -431,7 +431,20 @@ class FileListHandler(ListHandler):
         if hash_ and hash_ != fileinfo['hash']:
             self.abort(409, 'file exists, hash mismatch')
 
-        file_path, file_system = files.get_valid_file(fileinfo)
+        if self.get_param('phi'):
+            if not (self.user_is_admin or self.superuser_request):
+                self.abort(403, 'Only admin users have access to PHI files')
+
+            if not fileinfo.get('has_phi'):
+                self.abort(404, "This file doesn't have PHI file pair")
+
+            file_path = util.path_from_uuid(fileinfo['_id'])
+            if not config.phi_fs.isfile(file_path):
+                self.abort(404, "This file doesn't have PHI file pair")
+
+            file_system = config.phi_fs
+        else:
+            file_path, file_system = files.get_valid_file(fileinfo)
 
         # Request for download ticket
         if self.get_param('ticket') == '':
@@ -499,6 +512,7 @@ class FileListHandler(ListHandler):
                         self.response.headers['Content-Type'] = 'application/octet-stream'
                         self.response.headers['Content-Disposition'] = 'attachment; filename="' + str(filename) + '"'
                     self.response.body_file = file_system.open(file_path, 'rb')
+                    # TODO: content length in case of PHI file
                     self.response.content_length = fileinfo['size']
                 else:
                     self.response.status = 206

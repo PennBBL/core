@@ -15,6 +15,7 @@ export RUNAS_USER=$(stat -c '%u' $SCITRAN_PERSISTENT_DATA_PATH)
 export prometheus_multiproc_dir=/var/prometheus
 mkdir -p ${prometheus_multiproc_dir}
 chown -R ${RUNAS_USER} ${prometheus_multiproc_dir}
+chown -R ${RUNAS_USER} ${SCITRAN_PERSISTENT_DATA_PATH}
 
 # Run $PRE_RUNAS_CMD as root if provided. Useful for things like JIT pip installs.
 [ -n "${PRE_RUNAS_CMD:-}" ] && eval $PRE_RUNAS_CMD
