@@ -73,6 +73,7 @@ DEFAULT_CONFIG = {
         'data_path': os.path.join(os.path.dirname(__file__), '../persistent/data'),
         'elasticsearch_host': 'localhost:9200',
         'fs_url': None,
+        'phi_fs_url': None,
         'support_legacy_fs': True
     },
 }
@@ -125,6 +126,13 @@ if not __config['persistent']['fs_url']:
         os.makedirs(_path)
     __config['persistent']['fs_url'] = 'osfs://' + _path
 log.debug('Persistent fs url: %s', __config['persistent']['fs_url'])
+
+if not __config['persistent']['phi_fs_url']:
+    _path = os.path.join(__config['persistent']['data_path'], 'v1', 'phi')
+    if not os.path.exists(_path):
+        os.makedirs(_path)
+    __config['persistent']['phi_fs_url'] = 'osfs://' + _path
+log.debug('Persistent fs url for PHI files: %s', __config['persistent']['phi_fs_url'])
 
 db = pymongo.MongoClient(
     __config['persistent']['db_uri'],
@@ -294,6 +302,7 @@ def get_release_version():
 
 # Storage configuration
 fs = open_fs(__config['persistent']['fs_url'])
+phi_fs = open_fs(__config['persistent']['phi_fs_url'])
 local_fs = open_fs('osfs://' + __config['persistent']['data_path'])
 support_legacy_fs = __config['persistent']['support_legacy_fs']
 

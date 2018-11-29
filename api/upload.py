@@ -7,6 +7,7 @@ import uuid
 import fs.errors
 import fs.path
 
+from .auth import require_superuser
 from .web import base
 from .web.errors import FileFormException
 from . import config
@@ -247,6 +248,22 @@ class Upload(base.RequestHandler):
                                   context=context, file_fields=file_fields, tempdir=ticket['tempdir'])
         else:
             return process_upload(self.request, strategy, self.log_user_access, origin=self.origin, context=context)
+
+    @require_superuser
+    def phi_upload(self):
+        file_processor = files.FileProcessor(config.phi_fs)
+        form = file_processor.process_form(self.request)
+        file_fields = extract_file_fields(form)
+
+        for field in file_fields:
+            updated_doc = config.db.acquisitions.update_one({'files._id': field.filename},
+                                                            {'$set': {'files.$.has_phi': True}})
+            if updated_doc:
+                file_processor.store_temp_file(field.filename, util.path_from_uuid(field.filename))
+            else:
+                self.abort(404, 'File not found')
+        # TODO: what return in case of partial success
+        return {}
 
     def engine(self):
         """Handles file uploads from the engine"""
