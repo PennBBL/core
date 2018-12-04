@@ -412,7 +412,7 @@ def test_index_fields(as_public, as_drone, es):
     r = as_drone.post('/dataexplorer/index/fields?hard-reset=true')
     es.indices.create.assert_called_with(index='data_explorer_fields', body={
         'settings': {'number_of_shards': 1, 'number_of_replicas': 0, 'analysis': deh.ANALYSIS},
-        'mappings': {'flywheel': {'properties': {'all_fields' : {"type": "text"}}, 'dynamic_templates': deh.DYNAMIC_TEMPLATES}}})
+        'mappings': {'flywheel_field': {'properties': {'all_fields' : {"type": "text"}}, 'dynamic_templates': deh.DYNAMIC_TEMPLATES}}})
     assert r.ok
 
     # index data_explorer_fields - test ignored fields

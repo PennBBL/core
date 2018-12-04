@@ -936,7 +936,7 @@ class DataExplorerHandler(base.RequestHandler):
                     'analysis' : ANALYSIS
                 },
                 'mappings': {
-                    'flywheel' : {
+                    'flywheel_field' : {
                         'properties': {'all_fields' : {'type' : 'text'}},
                         'dynamic_templates': DYNAMIC_TEMPLATES
                     }
