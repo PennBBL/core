@@ -132,14 +132,23 @@ class GoogleOAuthProvider(AuthProvider):
         response = json.loads(r.content)
         token = response['access_token']
 
-        uid = self.validate_user(token)
-        self.set_refresh_token_if_exists(uid, response.get('refresh_token'))
+        identity = self.get_identity(token)
+
+        if not kwargs.get('uid'):
+            uid = self.validate_user(identity)
+            self.set_refresh_token_if_exists(uid, response.get('refresh_token'))
+        else:
+            uid = kwargs.get('uid')
+
+        scopes = self.get_scopes(token)
 
         return {
             'access_token': token,
             'uid': uid,
             'auth_type': self.auth_type,
-            'expires': datetime.datetime.utcnow() + datetime.timedelta(seconds=response['expires_in'])
+            'expires': datetime.datetime.utcnow() + datetime.timedelta(seconds=response['expires_in']),
+            'scopes': scopes,
+            'identity': identity
         }
 
     def refresh_token(self, token):
@@ -159,20 +168,32 @@ class GoogleOAuthProvider(AuthProvider):
             'expires': datetime.datetime.utcnow() + datetime.timedelta(seconds=response['expires_in'])
         }
 
-    def validate_user(self, token):
-        r = requests.get(self.config['id_endpoint'], headers={'Authorization': 'Bearer ' + token})
-        if not r.ok:
-            raise APIAuthProviderException('User token not valid')
-        identity = json.loads(r.content)
+    def validate_user(self, identity):
         uid = identity.get('email')
-        if not uid:
-            raise APIAuthProviderException('Auth provider did not provide user email')
 
         self.ensure_user_exists(uid)
         self.set_user_gravatar(uid, uid)
         self.set_user_avatar(uid, identity)
 
         return uid
+
+    def get_identity(self, token):
+        r = requests.get(self.config['id_endpoint'], headers={'Authorization': 'Bearer ' + token})
+        if not r.ok:
+            raise APIAuthProviderException('User token not valid')
+        identity = json.loads(r.content)
+        if not identity.get('email'):
+            raise APIAuthProviderException('Auth provider did not provide user email')
+
+        return identity
+
+    def get_scopes(self, token):
+        r = requests.get(self.config['verify_endpoint'], headers={'Authorization': 'Bearer ' + token})
+        if not r.ok:
+            raise APIAuthProviderException('User token not valid')
+        tokeninfo = json.loads(r.content)
+
+        return tokeninfo['scope'].split(' ')
 
     def set_user_avatar(self, uid, identity):
         # A google-specific avatar URL is provided in the identity return.

@@ -11,7 +11,9 @@ from ..auth import userauth, require_admin
 from ..auth.apikeys import UserApiKey
 from ..dao import containerstorage
 from ..dao import noop
+from bson import ObjectId
 
+from ..auth.authproviders import AuthProvider
 from ..web.errors import APIStorageException
 
 log = config.log
@@ -204,3 +206,53 @@ class UserHandler(base.RequestHandler):
             return user
         else:
             self.abort(404, 'user {} not found'.format(_id))
+
+    @validators.verify_payload_exists
+    def modify_info(self):
+        if self.uid is None:
+            self.abort(404, 'not a logged-in user')
+
+        payload = self.request.json_body
+        validators.validate_data(payload, 'info_update.json', 'input', 'POST')
+
+        result = self.storage.modify_info(self.uid, payload)
+
+        return {
+            'modified': result.modified_count
+        }
+
+    def get_info(self):
+        result = self.storage.get_el(self.uid, projection={'info': 1}).get('info', {})
+        if self.get_param('fields', None):
+            filtered = {}
+            for field in self.get_param('fields').split(','):
+                if result.get(field):
+                    filtered[field] = result[field]
+            result = filtered
+        return result
+
+    def list_auth_tokens(self):
+        print(self.get_param('scope'))
+        return config.db.authtokens_2.find({'uid': self.uid, 'scopes': {'$all': self.get_param('scope', '').split(' ')}}, {'_id': 1, 'identity': 1})
+
+    def add_auth_token(self):
+        payload = self.request.json_body
+        if 'code' not in payload or 'auth_type' not in payload:
+            self.abort(400, 'Auth code and type required for ???')
+
+        auth_type = payload['auth_type']
+        try:
+            auth_provider = AuthProvider.factory(auth_type)
+        except NotImplementedError as e:
+            self.abort(400, str(e))
+
+        token_entry = auth_provider.validate_code(payload['code'], uid=self.uid)
+        timestamp = datetime.datetime.utcnow()
+        token_entry['timestamp'] = timestamp
+
+        config.db.authtokens_2.insert_one(token_entry)
+
+        return {}
+
+    def get_auth_token(self, _id):
+        return config.db.authtokens_2.find({'_id': ObjectId(_id), 'uid': self.uid})
