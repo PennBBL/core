@@ -207,20 +207,6 @@ class UserHandler(base.RequestHandler):
         else:
             self.abort(404, 'user {} not found'.format(_id))
 
-    @validators.verify_payload_exists
-    def modify_info(self):
-        if self.uid is None:
-            self.abort(404, 'not a logged-in user')
-
-        payload = self.request.json_body
-        validators.validate_data(payload, 'info_update.json', 'input', 'POST')
-
-        result = self.storage.modify_info(self.uid, payload)
-
-        return {
-            'modified': result.modified_count
-        }
-
     def get_info(self):
         result = self.storage.get_el(self.uid, projection={'info': 1}).get('info', {})
         if self.get_param('fields', None):
@@ -231,28 +217,39 @@ class UserHandler(base.RequestHandler):
             result = filtered
         return result
 
-    def list_auth_tokens(self):
-        print(self.get_param('scope'))
-        return config.db.authtokens_2.find({'uid': self.uid, 'scopes': {'$all': self.get_param('scope', '').split(' ')}}, {'_id': 1, 'identity': 1})
+    @validators.verify_payload_exists
+    def modify_info(self):
+        if self.uid is None:
+            self.abort(404, 'not a logged-in user')
+        payload = self.request.json_body
+        validators.validate_data(payload, 'info_update.json', 'input', 'POST')
+        result = self.storage.modify_info(self.uid, payload)
+        return {'modified': result.modified_count}
 
     def add_auth_token(self):
+        # TODO add refresh-token too
+        # TODO use authtokens collection as soon as reasonable (requires db upgrade)
+        # TODO authproviders: identify refreshtoken via token _id to not clobber any login
         payload = self.request.json_body
         if 'code' not in payload or 'auth_type' not in payload:
-            self.abort(400, 'Auth code and type required for ???')
-
-        auth_type = payload['auth_type']
+            self.abort(400, 'auth_type and code required')
         try:
-            auth_provider = AuthProvider.factory(auth_type)
+            auth_provider = AuthProvider.factory(payload['auth_type'])
         except NotImplementedError as e:
             self.abort(400, str(e))
+        token = auth_provider.validate_code(payload['code'], uid=self.uid)
+        token['timestamp'] = datetime.datetime.utcnow()
+        result = config.db.authtokens_2.insert_one(token)
+        return {'_id': result.inserted_id, 'identity': token['identity']}
 
-        token_entry = auth_provider.validate_code(payload['code'], uid=self.uid)
-        timestamp = datetime.datetime.utcnow()
-        token_entry['timestamp'] = timestamp
-
-        config.db.authtokens_2.insert_one(token_entry)
-
-        return {}
+    def list_auth_tokens(self):
+        query = {'uid': self.uid, 'scopes': {'$all': self.get_param('scope', '').split(' ')}}
+        return config.db.authtokens_2.find(query, {'_id': 1, 'identity': 1})
 
     def get_auth_token(self, _id):
+        # TODO use refresh-token if needed
         return config.db.authtokens_2.find({'_id': ObjectId(_id), 'uid': self.uid})
+
+    def delete_auth_token(self, _id):
+        # TODO delete refresh-token too
+        config.db.authtokens_2.delete_one({'_id': ObjectId(_id), 'uid': self.uid})

@@ -141,6 +141,7 @@ endpoints = [
             route('/self/tokens',          UserHandler, h='add_auth_token',     m=['POST']),
             prefix('/self/tokens', [
                 route('/<_id:{oid}>',      UserHandler, h='get_auth_token', m=['GET']),
+                route('/<_id:{oid}>',      UserHandler, h='delete_auth_token', m=['DELETE']),
             ]),
 
             route('/<_id:{uid}>',                       UserHandler),
