@@ -239,16 +239,21 @@ class UserHandler(base.RequestHandler):
             self.abort(400, str(e))
         token = auth_provider.validate_code(payload['code'], uid=self.uid)
         token['timestamp'] = datetime.datetime.utcnow()
-        result = config.db.authtokens_2.insert_one(token)
+        result = config.db.authtokens_2.update_one({'uid': self.uid, 'identity.sub': token['identity']['sub']},
+                                                   {'$set': token}, upsert=True)
         return {'_id': result.inserted_id, 'identity': token['identity']}
 
     def list_auth_tokens(self):
         query = {'uid': self.uid, 'scopes': {'$all': self.get_param('scope', '').split(' ')}}
-        return config.db.authtokens_2.find(query, {'_id': 1, 'identity': 1})
+        return config.db.authtokens_2.find(query, {'_id': 1, 'identity': 1}).sort('timestamp', pymongo.DESCENDING)
 
     def get_auth_token(self, _id):
         # TODO use refresh-token if needed
-        return config.db.authtokens_2.find({'_id': ObjectId(_id), 'uid': self.uid})
+        token = config.db.authtokens_2.find_one({'_id': ObjectId(_id), 'uid': self.uid})
+        timestamp = datetime.datetime.utcnow()
+        token['timestamp'] = timestamp
+        config.db.authtokens_2.update_one({'_id': ObjectId(_id)}, {'$set': {'timestamp': timestamp}})
+        return token
 
     def delete_auth_token(self, _id):
         # TODO delete refresh-token too
