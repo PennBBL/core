@@ -241,7 +241,11 @@ class UserHandler(base.RequestHandler):
         token['timestamp'] = datetime.datetime.utcnow()
         result = config.db.authtokens_2.update_one({'uid': self.uid, 'identity.sub': token['identity']['sub']},
                                                    {'$set': token}, upsert=True)
-        return {'_id': result.inserted_id, 'identity': token['identity']}
+        if result.upserted_id:
+            return {'_id': result.inserted_id, 'identity': token['identity']}
+        else:
+            token = config.db.authtokens_2.find_one({'uid': self.uid, 'identity.sub': token['identity']['sub']})
+            return {'_id': token['_id'], 'identity': token['identity']}
 
     def list_auth_tokens(self):
         query = {'uid': self.uid, 'scopes': {'$all': self.get_param('scope', '').split(' ')}}
