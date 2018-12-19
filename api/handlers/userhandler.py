@@ -242,7 +242,7 @@ class UserHandler(base.RequestHandler):
         result = config.db.authtokens_2.update_one({'uid': self.uid, 'identity.sub': token['identity']['sub']},
                                                    {'$set': token}, upsert=True)
         if result.upserted_id:
-            return {'_id': result.inserted_id, 'identity': token['identity']}
+            return {'_id': result.upserted_id, 'identity': token['identity']}
         else:
             token = config.db.authtokens_2.find_one({'uid': self.uid, 'identity.sub': token['identity']['sub']})
             return {'_id': token['_id'], 'identity': token['identity']}
@@ -262,3 +262,32 @@ class UserHandler(base.RequestHandler):
     def delete_auth_token(self, _id):
         # TODO delete refresh-token too
         config.db.authtokens_2.delete_one({'_id': ObjectId(_id), 'uid': self.uid})
+
+    def get_jobs(self):
+        query = {}
+        if self.get_param('gear', None):
+            query = {'gear_info.name': self.get_param('gear')}
+
+        jobs = config.db.jobs.find(query, sort=[('created', -1)])
+
+        result = {
+            'success': 0,
+            'pending': 0,
+            'failed': 0,
+            'running': 0,
+            'jobs': []
+        }
+
+        for job in jobs:
+            if job['state'] == 'complete':
+                result['success'] += 1
+            if job['state'] == 'pending':
+                result['pending'] += 1
+            if job['state'] == 'failed':
+                result['failed'] += 1
+            if job['state'] == 'running':
+                result['running'] += 1
+
+            result['jobs'].append(job)
+
+        return result

@@ -143,6 +143,7 @@ endpoints = [
                 route('/<_id:{oid}>',      UserHandler, h='get_auth_token', m=['GET']),
                 route('/<_id:{oid}>',      UserHandler, h='delete_auth_token', m=['DELETE']),
             ]),
+            route('/self/jobs',            UserHandler, h='get_jobs',     m=['GET']),
 
             route('/<_id:{uid}>',                       UserHandler),
             route('/<uid:{uid}>/groups',                GroupHandler,                h='get_all',               m=['GET']),
