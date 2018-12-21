@@ -264,7 +264,7 @@ class UserHandler(base.RequestHandler):
             if not token.get('refresh_token'):
                 # token expired and no refresh token
                 config.db.authtokens_2.delete_one({'_id': ObjectId(_id)})
-                return self.abotr(401, 'invalid refresh token')
+                return self.abort(401, 'invalid refresh token')
 
             auth_provider = AuthProvider.factory(token['auth_type'])
             update = auth_provider.refresh_token(token['refresh_token'])

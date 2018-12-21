@@ -168,6 +168,8 @@ def test_google_auth(config, as_drone, as_public, api_db):
 
     uid = 'google@google.test'
     with requests_mock.Mocker() as m:
+        m.register_uri('GET', config.auth.google.verify_endpoint, json={'scope': 'email profile'})
+
         # try to log in w/ google and invalid code
         m.post(config.auth.google.token_endpoint, status_code=400)
         r = as_public.post('/login', json={'auth_type': 'google', 'code': 'test'})
