@@ -282,7 +282,7 @@ class UserHandler(base.RequestHandler):
     def get_jobs(self):
         query = {}
         if self.get_param('gear', None):
-            query = {'gear_info.name': self.get_param('gear')}
+            query = {'gear_info.name': self.get_param('gear'), 'origin.id': self.uid}
 
         jobs = config.db.jobs.find(query, sort=[('created', -1)])
 
