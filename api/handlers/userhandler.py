@@ -280,9 +280,9 @@ class UserHandler(base.RequestHandler):
 
     @require_login
     def get_jobs(self):
-        query = {}
+        query = {'origin.id': self.uid}
         if self.get_param('gear', None):
-            query = {'gear_info.name': self.get_param('gear'), 'origin.id': self.uid}
+            query['gear_info.name'] = self.get_param('gear')
 
         jobs = config.db.jobs.find(query, sort=[('created', -1)])
 
