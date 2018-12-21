@@ -7,7 +7,7 @@ from ..web import base
 from .. import util
 from .. import config
 from .. import validators
-from ..auth import userauth, require_admin
+from ..auth import userauth, require_admin, require_login
 from ..auth.apikeys import UserApiKey
 from ..dao import containerstorage
 from ..dao import noop
@@ -207,6 +207,7 @@ class UserHandler(base.RequestHandler):
         else:
             self.abort(404, 'user {} not found'.format(_id))
 
+    @require_login
     def get_info(self):
         result = self.storage.get_el(self.uid, projection={'info': 1}).get('info', {})
         if self.get_param('fields', None):
@@ -217,6 +218,7 @@ class UserHandler(base.RequestHandler):
             result = filtered
         return result
 
+    @require_login
     @validators.verify_payload_exists
     def modify_info(self):
         if self.uid is None:
@@ -226,6 +228,7 @@ class UserHandler(base.RequestHandler):
         result = self.storage.modify_info(self.uid, payload)
         return {'modified': result.modified_count}
 
+    @require_login
     def add_auth_token(self):
         # TODO add refresh-token too
         # TODO use authtokens collection as soon as reasonable (requires db upgrade)
@@ -247,22 +250,35 @@ class UserHandler(base.RequestHandler):
             token = config.db.authtokens_2.find_one({'uid': self.uid, 'identity.sub': token['identity']['sub']})
             return {'_id': token['_id'], 'identity': token['identity']}
 
+    @require_login
     def list_auth_tokens(self):
         query = {'uid': self.uid, 'scopes': {'$all': self.get_param('scope', '').split(' ')}}
         return config.db.authtokens_2.find(query, {'_id': 1, 'identity': 1}).sort('timestamp', pymongo.DESCENDING)
 
+    @require_login
     def get_auth_token(self, _id):
         # TODO use refresh-token if needed
         token = config.db.authtokens_2.find_one({'_id': ObjectId(_id), 'uid': self.uid})
-        timestamp = datetime.datetime.utcnow()
-        token['timestamp'] = timestamp
-        config.db.authtokens_2.update_one({'_id': ObjectId(_id)}, {'$set': {'timestamp': timestamp}})
+        update = {}
+        if datetime.datetime.utcnow() > token['expires'] - datetime.timedelta(minutes=1):
+            if not token.get('refresh_token'):
+                # token expired and no refresh token
+                config.db.authtokens_2.delete_one({'_id': ObjectId(_id)})
+                return self.abotr(401, 'invalid refresh token')
+
+            auth_provider = AuthProvider.factory(token['auth_type'])
+            update = auth_provider.refresh_token(token['refresh_token'])
+
+        update['timestamp'] = datetime.datetime.utcnow()
+        config.db.authtokens_2.update_one({'_id': ObjectId(_id)}, {'$set': update})
         return token
 
+    @require_login
     def delete_auth_token(self, _id):
         # TODO delete refresh-token too
         config.db.authtokens_2.delete_one({'_id': ObjectId(_id), 'uid': self.uid})
 
+    @require_login
     def get_jobs(self):
         query = {}
         if self.get_param('gear', None):
@@ -271,23 +287,17 @@ class UserHandler(base.RequestHandler):
         jobs = config.db.jobs.find(query, sort=[('created', -1)])
 
         result = {
-            'success': 0,
-            'pending': 0,
-            'failed': 0,
-            'running': 0,
+            'stats': {
+                'complete': 0,
+                'pending': 0,
+                'failed': 0,
+                'running': 0,
+            },
             'jobs': []
         }
 
         for job in jobs:
-            if job['state'] == 'complete':
-                result['success'] += 1
-            if job['state'] == 'pending':
-                result['pending'] += 1
-            if job['state'] == 'failed':
-                result['failed'] += 1
-            if job['state'] == 'running':
-                result['running'] += 1
-
+            result['stats'][job['state']] += 1
             result['jobs'].append(job)
 
         return result

@@ -142,7 +142,7 @@ class GoogleOAuthProvider(AuthProvider):
 
         scopes = self.get_scopes(token)
 
-        return {
+        token = {
             'access_token': token,
             'uid': uid,
             'auth_type': self.auth_type,
@@ -150,6 +150,10 @@ class GoogleOAuthProvider(AuthProvider):
             'scopes': scopes,
             'identity': identity
         }
+
+        if response.get('refresh_token'):
+            token['refresh_token'] = response['refresh_token']
+        return token
 
     def refresh_token(self, token):
         payload = {
