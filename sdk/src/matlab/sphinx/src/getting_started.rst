@@ -228,6 +228,24 @@ Supported ``OutputType`` values are:
 	% Download file directly to memory as a char cell array
 	data = project.readFile('hello.txt', 'OutputType', 'char');
 
+Working with Zip Members
+++++++++++++++++++++++++
+Occasionally you may want to see the contents of a zip file, and possibly download a single member without downloading
+the entire zipfile. There are a few operations provided to enable this. For example:
+
+.. code-block:: matlab
+
+	% Get information about a zip file
+	zipInfo = acquisition.getZipInfo('my-archive.zip');
+
+	% Download the first zip entry to /tmp/{entry_name}
+	entryName = zipInfo.members{1}.path;
+	outPath = fullfile('/tmp', entryName);
+	acquisition.downloadFileZipMember('my-archive.zip', entryName, outPath);
+
+	% Read the "readme.txt" zip entry directly to memory
+	zipData = acquisition.readFileZipMember('my-archive.zip', 'readme.txt', 'OutputType', 'char');
+
 Handling Exceptions
 -------------------
 When an error is encountered while accessing an endpoint, an exception is thrown. The exception message 

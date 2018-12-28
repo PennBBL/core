@@ -64,6 +64,29 @@
           "type": "integer",
           "description": "Number of entries in the zip archive"
         },
+        "file-zip-entry": {
+          "type": "object",
+          "properties": {
+            "comment":   {"type": "string"},
+            "path":      {"type": "string"},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "size":      {"$ref":"#/definitions/size"}
+          },
+          "description": "A zip member description",
+          "additionalProperties": false
+        },
+        "file-zip-info": {
+          "type": "object",
+          "properties": {
+            "comment": {"type": "string"},
+            "members": {
+              "type": "array",
+              "items": {"$ref":"#/definitions/file-zip-entry"}
+            }
+          },
+          "description": "Zip file information",
+          "additionalProperties": false
+        },
         "file-entry": {
           "type": "object",
           "properties": {

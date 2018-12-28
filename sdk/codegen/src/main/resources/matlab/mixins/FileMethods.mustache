@@ -81,5 +81,14 @@ classdef FileMethods < handle
         function [returnData, resp] = deleteFileClassification(obj, fileName, classification)
             [returnData, resp] = obj.invokeContainerApi('delete%sFileClassificationFields', obj.get('id'), fileName, classification);
         end
+        function [returnData, resp] = getFileZipInfo(obj, fileName)
+            [returnData, resp] = obj.invokeContainerApi('get%sFileZipInfo', obj.get('id'), fileName);
+        end
+        function [returnData, resp] = downloadFileZipMember(obj, fileName, memberPath, destFile, varargin)
+            [returnData, resp] = obj.invokeContainerApi('downloadFileFrom%s', obj.get('id'), fileName, destFile, 'member', memberPath, varargin{:});
+        end
+        function [returnData, resp] = readFileZipMember(obj, fileName, memberPath, varargin)
+            [returnData, resp] = obj.invokeContainerApi('downloadFileFrom%sAsData', obj.get('id'), fileName, 'member', memberPath, varargin{:});
+        end
     end
 end

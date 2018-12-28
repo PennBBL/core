@@ -261,6 +261,18 @@ class FileMethods(object):
         entry = self.get_file()
         return entry.ref() if entry else None
 
+    def get_file_zip_info(self, file_name):
+        """Get zip member information for this file"""
+        return self._invoke_container_api('get_{}_file_zip_info', self.id, file_name)
+
+    def download_file_zip_member(self, file_name, member_path, dest_file):
+        """Download file's zip member to the given path"""
+        return self._invoke_container_api('download_file_from_{}', self.id, file_name, dest_file, member=member_path)
+
+    def read_file_zip_member(self, file_name, member_path):
+        """Read contents of file's zip member"""
+        return self._invoke_container_api('download_file_from_{}_as_data', self.id, file_name, member=member_path)
+
 
 class TimestampMethods(object):
     @property
@@ -466,6 +478,18 @@ class FileMixin(ContainerBase):
         ref = self._parent.ref()
         ref['name'] = self.name
         return ref
+
+    def get_zip_info(self):
+        """Get zip member information for this file"""
+        return self._parent.get_file_zip_info(self.name)
+
+    def download_zip_member(self, member_path, dest_file):
+        """Download file's zip member to the given path"""
+        return self._parent.download_file_zip_member(self.name, member_path, dest_file)
+
+    def read_zip_member(self, member_path):
+        """Read contents of file's zip member"""
+        return self._parent.read_file_zip_member(self.name, member_path)
 
 
 class JobMixin(ContainerBase):

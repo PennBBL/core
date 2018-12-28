@@ -199,6 +199,25 @@ When downloading, you specify the destination file, or you can download directly
 	# Download file contents directly to memory
 	data = project.read_file('hello.txt')
 
+Working with Zip Members
+++++++++++++++++++++++++
+Occasionally you may want to see the contents of a zip file, and possibly download a single member without downloading
+the entire zipfile. There are a few operations provided to enable this. For example:
+
+.. code-block:: python
+
+	# Get information about a zip file
+	zip_info = acquisition.get_file_zip_info('my-archive.zip')
+
+	# Download the first zip entry to /tmp/{entry_name}
+	entry_name = zip_info.members[0].path
+	out_path = os.path.join('/tmp', entry_name)
+	acquisition.download_file_zip_member('my-archive.zip', entry_name, out_path)
+
+	# Read the "readme.txt" zip entry directly to memory
+	zip_data = acquisition.read_file_zip_member('my-archive.zip', 'readme.txt')
+
+
 Handling Exceptions
 -------------------
 When an error is encountered while accessing an endpoint, an :class:`flywheel.rest.ApiException` is thrown. 

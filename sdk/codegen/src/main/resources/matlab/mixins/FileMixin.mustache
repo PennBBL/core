@@ -18,7 +18,7 @@ classdef FileMixin < {{packageName}}.mixins.ContainerBase
             resp = obj.parent_.downloadFile(obj.get('name'), destFile, varargin{:});
         end
         function resp = read(obj, varargin)
-            resp = obj.parent_.readFile(obj.get('name'));
+            resp = obj.parent_.readFile(obj.get('name'), varargin{:});
         end
         function resp = update(obj, varargin)
             resp = obj.parent_.updateFile(obj.get('name'), varargin{:});
@@ -46,6 +46,15 @@ classdef FileMixin < {{packageName}}.mixins.ContainerBase
                 'type', obj.parent_.containerType, ...
                 'id', obj.parent_.id, ...
                 'name', obj.name);
+        end
+        function resp = getZipInfo(obj)
+            resp = obj.parent_.getFileZipInfo(obj.get('name'));
+        end
+        function resp = downloadZipMember(obj, destFile, memberPath, varargin)
+            resp = obj.parent_.downloadFileZipMember(obj.get('name'), memberPath, destFile, varargin{:});
+        end
+        function resp = readZipMember(obj, memberPath, varargin)
+            resp = obj.parent_.readFileZipMember(obj.get('name'), memberPath, varargin{:});
         end
     end
 end

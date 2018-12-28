@@ -38,6 +38,8 @@ After running make.sh (above), tests can be run by invoking `sdk/scripts/docker-
 * **x-sdk-positional** - Normally arguments to matlab models are named parameters - this will make the defined parameter positional instead.
 * **x-sdk-download-ticket** - Special casing for downloads, will produce both a normal download operation, and a get download url operation. 
 		The value of this field is the name of the get download url operation.
+* **x-sdk-get-zip-info** - Special case for files, retrieves zip member information.
+        The value of this field is the name of the get zip info operation.
 * **x-sdk-download-url** - Will be set to the operationId for retrieving a download url via ticket.
 * **x-sdk-download-file-param** - Parameter name for destination file parameter for download operations.
 * **x-sdk-include-empty** - On a JSON definition - indicates that the following list of properties should be included on JSON even when empty.

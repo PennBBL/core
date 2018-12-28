@@ -56,6 +56,7 @@ template: |
         type: string
         description: The filename of a zipfile member to download rather than the entire file
     x-sdk-download-ticket: get_{{resource}}_download_ticket
+    x-sdk-get-zip-info: get_{{resource}}_file_zip_info
     responses:
       '200':
         description: ''

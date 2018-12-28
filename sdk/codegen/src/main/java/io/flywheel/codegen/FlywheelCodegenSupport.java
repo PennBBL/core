@@ -116,6 +116,15 @@ public class FlywheelCodegenSupport {
         while( idx < size ) {
             CodegenOperation op = ops.get(idx);
             if( op.vendorExtensions != null ) {
+                if( op.vendorExtensions.containsKey("x-sdk-get-zip-info") ) {
+                    CodegenOperation newOp = createGetZipInfoOp(op, gen);
+                    if (newOp != null) {
+                        ops.add(idx + 1, newOp);
+                        idx += 1;
+                        size += 1;
+                    }
+                }
+
                 if( op.vendorExtensions.containsKey("x-sdk-download-ticket") ) {
                     CodegenOperation newOp = createDownloadTicketOp(op, gen);
                     if (newOp != null) {
@@ -204,6 +213,66 @@ public class FlywheelCodegenSupport {
             fileResp.containerType = null;
 
             fileResp.vendorExtensions.put("x-sdk-download-file-param", destFileParam);
+        }
+
+        return newOp;
+    }
+
+    private static CodegenOperation createGetZipInfoOp(CodegenOperation orig, DefaultCodegen gen) {
+        // Does not modify the original request
+        String operationId = (String)orig.vendorExtensions.get("x-sdk-get-zip-info");
+        String returnType = gen.toModelName("file-zip-info");
+
+        operationId = gen.toOperationId(operationId);
+
+        orig.vendorExtensions.remove("x-sdk-get-zip-info");
+
+        CodegenOperation newOp = shallowCloneOperation(orig);
+
+        // At this point the new op is the ticket operation
+        newOp.operationId = operationId;
+        newOp.operationIdLowerCase = DefaultCodegen.camelize(operationId, true);
+        newOp.operationIdCamelCase = DefaultCodegen.camelize(operationId);
+        newOp.operationIdSnakeCase = gen.snakeCase(operationId);
+
+        newOp.produces = new ArrayList<>();
+        newOp.produces.add(makeMediaType("application/json", false));
+
+        newOp.returnType = returnType;
+        newOp.returnBaseType = returnType;
+
+        // set default query parameter
+        updateQueryParam(newOp, "info", new UpdateParameterOp() {
+            @Override
+            public void update(CodegenParameter param) {
+                if( param.vendorExtensions == null ) {
+                    param.vendorExtensions = new HashMap<>();
+                }
+                param.vendorExtensions.put("x-sdk-default", "true");
+            }
+        }, true);
+
+        // Find and update the 200 response
+        int responseIdx = 0;
+        CodegenResponse response = null;
+        for( ; responseIdx < orig.responses.size(); responseIdx++ ) {
+            CodegenResponse resp = orig.responses.get(responseIdx);
+            if( "200".equals(resp.code) ) {
+                response = resp;
+                break;
+            }
+        }
+
+        if( response != null ) {
+            CodegenResponse fileResp = shallowCloneResponse(response);
+            newOp.responses.set(responseIdx, fileResp);
+
+            fileResp.simpleType = false;
+            fileResp.primitiveType = true;
+
+            fileResp.dataType = returnType;
+            fileResp.baseType = returnType;
+            fileResp.containerType = null;
         }
 
         return newOp;
@@ -421,6 +490,30 @@ public class FlywheelCodegenSupport {
             CodegenParameter param = itr.next();
             if( param.isQueryParam && name.equals(param.baseName) ) {
                 itr.remove();
+                break;
+            }
+        }
+    }
+
+
+    private static void updateQueryParam(CodegenOperation op, String name, UpdateParameterOp update, boolean copy) {
+        updateQueryParamInList(op.allParams, name, update, copy);
+        updateQueryParamInList(op.queryParams, name, update, copy);
+        updateQueryParamInList(op.requiredParams, name, update, copy);
+    }
+
+    private static void updateQueryParamInList(List<CodegenParameter> params, String name, UpdateParameterOp update, boolean copy) {
+        for( int i = 0; i < params.size(); i++ ) {
+            CodegenParameter param = params.get(i);
+            if( param.isQueryParam && name.equals(param.baseName) ) {
+                // Replace with copy
+                if( copy ) {
+                    param = param.copy();
+                    params.remove(i);
+                    params.add(i, param);
+                }
+
+                update.update(param);
                 break;
             }
         }
