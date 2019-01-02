@@ -170,6 +170,8 @@ def initialize_db():
     log.info('Initializing database, creating indexes')
     # TODO review all indexes
     db.users.create_index('api_key.key')
+    db.users.create_index('deleted')
+    db.apikeys.create_index([('type', 1), ('origin.id', 1)])
     db.queries.create_index('creator')
     db.projects.create_index([('group', 1), ('label', 1)])
     db.subjects.create_index([('project', 1), ('code', 1)])
@@ -186,10 +188,18 @@ def initialize_db():
     db.jobs.create_index('related_container_ids')
     db.jobs.create_index('parents')
     db.jobs.create_index('tags')
+    db.jobs.create_index([('destination.type', 1), ('destination.id', 1)])
+    db.jobs.create_index([('inputs.type', 1), ('inputs.id', 1)])
     db.gears.create_index('name')
+    db.gears.create_index('gear.custom.flywheel.invalid')
     db.batch.create_index('jobs')
     db.project_rules.create_index('project_id')
     db.data_views.create_index('parent')
+
+    # Create indexes on container collections
+    for coll in ['groups', 'projects', 'subjects', 'sessions', 'acquisitions', 'analyses', 'collections']:
+        db[coll].create_index('deleted')
+        db[coll].create_index('permissions')
 
     if __config['core']['access_log_enabled']:
         log_db.access_log.create_index('context.ticket_id')

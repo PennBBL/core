@@ -796,9 +796,12 @@ def test_label_upload(data_builder, file_form, as_admin):
     subject = get_full_container(as_admin, '/projects/' + project + '/subjects', 0)
 
     session = get_full_container(as_admin, '/projects/' + project + '/sessions', 1)
-    session_id = session['_id']
-
     session2 = get_full_container(as_admin, '/projects/' + project + '/sessions', 0)
+
+    # Swap so that session represents test_session1
+    if session['label'] == 'test_session2_label':
+        session, session2 = session2, session
+    session_id = session['_id']
     session2_id = session2['_id']
 
     assert subject['firstname'] == 'Name1'  # Because a file wasn't uploaded to a subject,
@@ -843,9 +846,12 @@ def test_label_upload(data_builder, file_form, as_admin):
     subject = get_full_container(as_admin, '/projects/' + project + '/subjects', 0)
 
     session = get_full_container(as_admin, '/projects/' + project + '/sessions', 1)
-    session_id = session['_id']
-
     session2 = get_full_container(as_admin, '/projects/' + project + '/sessions', 0)
+
+    # Swap so that session represents test_session1
+    if session['label'] == 'test_session2_label':
+        session, session2 = session2, session
+    session_id = session['_id']
     session2_id = session2['_id']
 
     assert subject['firstname'] == 'Name1'  # Because a file wasn't uploaded to a subject,
