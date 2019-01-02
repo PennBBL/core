@@ -240,7 +240,7 @@ class UserHandler(base.RequestHandler):
             auth_provider = AuthProvider.factory(payload['auth_type'])
         except NotImplementedError as e:
             self.abort(400, str(e))
-        token = auth_provider.validate_code(payload['code'], uid=self.uid)
+        token = auth_provider.validate_code(payload['code'], uid=self.uid, redirect_uri=payload['redirect_uri'])
         token['timestamp'] = datetime.datetime.utcnow()
         result = config.db.authtokens_2.update_one({'uid': self.uid, 'identity.sub': token['identity']['sub']},
                                                    {'$set': token}, upsert=True)
@@ -257,7 +257,6 @@ class UserHandler(base.RequestHandler):
 
     @require_login
     def get_auth_token(self, _id):
-        # TODO use refresh-token if needed
         token = config.db.authtokens_2.find_one({'_id': ObjectId(_id), 'uid': self.uid})
         update = {}
         if datetime.datetime.utcnow() > token['expires'] - datetime.timedelta(minutes=1):
@@ -269,13 +268,12 @@ class UserHandler(base.RequestHandler):
             auth_provider = AuthProvider.factory(token['auth_type'])
             update = auth_provider.refresh_token(token['refresh_token'])
 
-        update['timestamp'] = datetime.datetime.utcnow()
+        update['timestamp'] = datetime.datetime.utcnow()  # TODO clarify it's ~ last used
         config.db.authtokens_2.update_one({'_id': ObjectId(_id)}, {'$set': update})
         return token
 
     @require_login
     def delete_auth_token(self, _id):
-        # TODO delete refresh-token too
         config.db.authtokens_2.delete_one({'_id': ObjectId(_id), 'uid': self.uid})
 
     @require_login

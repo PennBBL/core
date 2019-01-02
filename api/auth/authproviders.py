@@ -117,12 +117,13 @@ class GoogleOAuthProvider(AuthProvider):
         super(GoogleOAuthProvider, self).__init__('google')
 
     def validate_code(self, code, **kwargs):
+        redirect_uri = kwargs.get('redirect_uri') or config.get_item('site', 'redirect_url')
         payload = {
             'client_id':        self.config['client_id'],
             'client_secret':    self.config['client_secret'],
             'code':             code,
             'grant_type':       'authorization_code',
-            'redirect_uri':     config.get_item('site', 'redirect_url')
+            'redirect_uri':     redirect_uri,
         }
 
         r = requests.post(self.config['token_endpoint'], data=payload)
