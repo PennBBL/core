@@ -167,43 +167,47 @@ def create_or_recreate_ttl_index(coll_name, index_name, ttl):
 
 
 def initialize_db():
-    log.info('Initializing database, creating indexes')
-    # TODO review all indexes
-    db.users.create_index('api_key.key')
-    db.users.create_index('deleted')
-    db.apikeys.create_index([('type', 1), ('origin.id', 1)])
-    db.queries.create_index('creator')
-    db.projects.create_index([('group', 1), ('label', 1)])
-    db.subjects.create_index([('project', 1), ('code', 1)])
-    db.sessions.create_index([('project', 1), ('label', 1)])
-    db.sessions.create_index([('subject', 1), ('label', 1)])
-    db.sessions.create_index('uid')
-    db.sessions.create_index('created')
-    db.acquisitions.create_index([('session', 1), ('label', 1)])
-    db.acquisitions.create_index('uid')
-    db.acquisitions.create_index('collections')
-    db.analyses.create_index([('parent.type', 1), ('parent.id', 1)])
-    db.jobs.create_index([('inputs.id', 1), ('inputs.type', 1)])
-    db.jobs.create_index([('state', 1), ('now', 1), ('modified', 1)])
-    db.jobs.create_index('related_container_ids')
-    db.jobs.create_index('parents')
-    db.jobs.create_index('tags')
-    db.jobs.create_index([('destination.type', 1), ('destination.id', 1)])
-    db.jobs.create_index([('inputs.type', 1), ('inputs.id', 1)])
-    db.gears.create_index('name')
-    db.gears.create_index('gear.custom.flywheel.invalid')
-    db.batch.create_index('jobs')
-    db.project_rules.create_index('project_id')
-    db.data_views.create_index('parent')
+    log.info('Initializing database, creating indexes in background')
 
-    # Create indexes on container collections
+    # Create indexes in background
+    kwargs = { 'background': True }
+
+    # TODO review all indexes
+    db.users.create_index('api_key.key', **kwargs)
+    db.users.create_index('deleted', **kwargs)
+    db.apikeys.create_index([('type', 1), ('origin.id', 1)], **kwargs)
+    db.queries.create_index('creator', **kwargs)
+    db.projects.create_index([('group', 1), ('label', 1)], **kwargs)
+    db.subjects.create_index([('project', 1), ('code', 1)], **kwargs)
+    db.sessions.create_index([('project', 1), ('label', 1)], **kwargs)
+    db.sessions.create_index([('subject', 1), ('label', 1)], **kwargs)
+    db.sessions.create_index('uid', **kwargs)
+    db.sessions.create_index('created', **kwargs)
+    db.acquisitions.create_index([('session', 1), ('label', 1)], **kwargs)
+    db.acquisitions.create_index('uid', **kwargs)
+    db.acquisitions.create_index('collections', **kwargs)
+    db.analyses.create_index([('parent.type', 1), ('parent.id', 1)], **kwargs)
+    db.jobs.create_index([('inputs.id', 1), ('inputs.type', 1)], **kwargs)
+    db.jobs.create_index([('state', 1), ('now', 1), ('modified', 1)], **kwargs)
+    db.jobs.create_index('related_container_ids', **kwargs)
+    db.jobs.create_index('parents', **kwargs)
+    db.jobs.create_index('tags', **kwargs)
+    db.jobs.create_index([('destination.type', 1), ('destination.id', 1)], **kwargs)
+    db.jobs.create_index([('inputs.type', 1), ('inputs.id', 1)], **kwargs)
+    db.gears.create_index('name', **kwargs)
+    db.gears.create_index('gear.custom.flywheel.invalid', **kwargs)
+    db.batch.create_index('jobs', **kwargs)
+    db.project_rules.create_index('project_id', **kwargs)
+    db.data_views.create_index('parent', **kwargs)
+
+    # Create indexes on container collection, **kwargss
     for coll in ['groups', 'projects', 'subjects', 'sessions', 'acquisitions', 'analyses', 'collections']:
-        db[coll].create_index('deleted')
-        db[coll].create_index('permissions')
+        db[coll].create_index('deleted', **kwargs)
+        db[coll].create_index('permissions', **kwargs)
 
     if __config['core']['access_log_enabled']:
-        log_db.access_log.create_index('context.ticket_id')
-        log_db.access_log.create_index([('timestamp', pymongo.DESCENDING)])
+        log_db.access_log.create_index('context.ticket_id', **kwargs)
+        log_db.access_log.create_index([('timestamp', pymongo.DESCENDING)], **kwargs)
 
     # Mongo TTL indexes are measured in seconds.
     # Ref: http://api.mongodb.com/python/current/api/pymongo/collection.html#pymongo.collection.Collection.create_index
