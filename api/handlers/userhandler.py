@@ -107,7 +107,7 @@ class UserHandler(base.RequestHandler):
         payload_validator = validators.from_schema_path(payload_schema_uri)
         payload_validator(payload, 'POST')
         payload['created'] = payload['modified'] = datetime.datetime.utcnow()
-        payload['root'] = payload.get('root', False)
+        payload['role'] = payload.get('role', 'user')
         payload.setdefault('email', payload['_id'])
         payload.setdefault('avatars', {})
 
@@ -117,7 +117,7 @@ class UserHandler(base.RequestHandler):
             except pymongo.errors.DuplicateKeyError:
                 pass
             else:
-                payload['root'] = True
+                payload['role'] = 'site-admin'
                 result = mongo_validator(self.storage.exec_op)('POST', payload=payload)
                 if result.acknowledged:
                     api_key = UserApiKey.generate(payload['_id'])

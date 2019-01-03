@@ -76,7 +76,7 @@ def data_builder(as_root, api_db, randstr):
 def default_payload():
     """Return default test resource creation payloads"""
     return attrdict.AttrDict({
-        'user': {'firstname': 'test', 'lastname': 'user'},
+        'user': {'firstname': 'test', 'lastname': 'user', 'role': 'user'},
         'group': {},
         'project': {'public': True},
         'subject': {'public': True},

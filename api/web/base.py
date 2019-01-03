@@ -116,6 +116,7 @@ class RequestHandler(webapp2.RequestHandler):
                 self.origin = {'type': Origin.job, 'id': job_id}
 
         self.public_request = not drone_request and not self.uid and not self.scope
+        self.user_is_developer = False
 
         if self.public_request:
             self.superuser_request = False
@@ -127,22 +128,25 @@ class RequestHandler(webapp2.RequestHandler):
             self.superuser_request = False
             self.user_is_admin = False
         else:
-            user = config.db.users.find_one({'_id': self.uid}, ['root', 'disabled'])
+            user = config.db.users.find_one({'_id': self.uid}, ['role', 'disabled'])
             if not user:
                 self.abort(402, 'User {} will need to be added to the system before managing data.'.format(self.uid))
             if user.get('disabled', False) is True:
                 self.abort(402, 'User {} is disabled.'.format(self.uid))
-            if user.get('root'):
+            if user.get('role') == 'site-admin':
                 self.user_is_admin = True
             else:
                 self.user_is_admin = False
+                if user.get('role') == 'developer':
+                    self.user_is_developer = True
             if self.is_true('root'):
-                if user.get('root'):
+                if user.get('role') == 'site-admin':
                     self.superuser_request = True
                 else:
                     self.abort(403, 'user ' + self.uid + ' is not authorized to make superuser requests')
             else:
                 self.superuser_request = False
+        self.user_is_developer = self.user_is_admin or self.user_is_developer
 
         # Format origin object to str
         if self.origin.get('type'):

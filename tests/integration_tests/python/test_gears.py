@@ -1,17 +1,25 @@
 import bson
 
-def test_gear_add_versioning(default_payload, randstr, data_builder, as_root):
+def test_gear_add_versioning(default_payload, randstr, data_builder, as_root, as_public):
     gear_name = randstr()
     gear_version_1 = '0.0.1'
     gear_version_2 = '0.0.2'
     gear_version_3 = '0.0.1-dev.1'
+
+    api_key = 'TestApiKey'
+    user = data_builder.create_user(role='developer', api_key=api_key)
+
+    as_developer = as_public
+    as_developer.headers.update({'Authorization': 'scitran-user ' + api_key})
+    r = as_developer.get('/users/self')
+    assert r.ok
 
     gear_payload = default_payload['gear']
     gear_payload['gear']['name'] = gear_name
 
     # create new gear w/ gear_version_1
     gear_payload['gear']['version'] = gear_version_1
-    r = as_root.post('/gears/' + gear_name, json=gear_payload)
+    r = as_developer.post('/gears/' + gear_name, json=gear_payload)
     assert r.ok
     gear_id_1 = r.json()['_id']
 

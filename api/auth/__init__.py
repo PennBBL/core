@@ -60,6 +60,18 @@ def require_login(handler_method):
         return handler_method(self, *args, **kwargs)
     return check_login
 
+def require_developer(handler_method):
+    """
+    a decorator to ensure the request is made as a developer.
+
+    Accepts drone, site-admin, and developer requests.
+    """
+    def check_developer(self, *args, **kwargs):
+        if not self.user_is_developer and not self.user_is_admin:
+            raise APIPermissionException('Developer role required.')
+        return handler_method(self, *args, **kwargs)
+    return check_developer
+
 def require_admin(handler_method):
     """
     A decorator to ensure the request is made as superuser.

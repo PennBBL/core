@@ -26,7 +26,7 @@
                           "title": "Avatar",
                           "type": "string"
                         },
-    "root":             { "type": "boolean"},
+    "role":             { "type": "string"},
     "disabled":         { "type": "boolean"},
     "preferences":      {
                           "title": "Preferences",
@@ -44,5 +44,5 @@
     "wechat": {}
   },
   "additionalProperties": false,
-  "required":["_id", "firstname", "lastname", "created", "modified", "root"]
+  "required":["_id", "firstname", "lastname", "created", "modified", "role"]
 }

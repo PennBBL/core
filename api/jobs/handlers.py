@@ -13,7 +13,7 @@ from .job_util import resolve_context_inputs, get_context_for_destination
 from .. import config
 from .. import upload
 from .. import files
-from ..auth import require_drone, require_login, require_admin, has_access
+from ..auth import require_drone, require_login, require_developer, require_admin, has_access
 from ..auth.apikeys import JobApiKey
 from ..dao import dbutil, hierarchy
 from ..dao.containerstorage import ProjectStorage, SessionStorage, SubjectStorage, AcquisitionStorage, AnalysisStorage, cs_factory
@@ -74,7 +74,7 @@ class GearsHandler(base.RequestHandler):
         check_for_gear_insertion(self.request.json)
         return None
 
-    @require_admin
+    @require_developer
     def prepare_add(self):
         """
         Declare a gear that will be uploaded to the Flywheel registry
@@ -97,7 +97,7 @@ class GearsHandler(base.RequestHandler):
             'ticket': ticket.inserted_id
         }
 
-    @require_admin
+    @require_developer
     def get_ticket(self, _id):
         """
         Retrieve a gear-upload ticket.
@@ -112,7 +112,7 @@ class GearsHandler(base.RequestHandler):
         else:
             return result
 
-    @require_admin
+    @require_developer
     def get_own_tickets(self):
         """
         Retrieve all gear-upload tickets owned by the current origin.
@@ -131,7 +131,7 @@ class GearsHandler(base.RequestHandler):
         else:
             return result
 
-    @require_admin
+    @require_developer
     def save(self): # pragma: no cover
         """
         Save a gear described by an upload ticket.
@@ -305,7 +305,7 @@ class GearHandler(base.RequestHandler):
 
         return result
 
-    @require_admin
+    @require_developer
     def upload(self): # pragma: no cover
         r = upload.process_upload(self.request, upload.Strategy.gear, self.log_user_access, container_type='gear', origin=self.origin, metadata=self.request.headers.get('metadata'))
         gear_id = upsert_gear(r[1])
@@ -331,7 +331,7 @@ class GearHandler(base.RequestHandler):
             stream = file_system.open(file_path, 'rb')
             set_for_download(self.response, stream=stream, filename='gear.tar')
 
-    @require_admin
+    @require_developer
     def post(self, _id):
         payload = self.request.json
 
