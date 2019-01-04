@@ -26,7 +26,7 @@ from api.types import Origin
 from api.jobs import batch
 
 
-CURRENT_DATABASE_VERSION = 62 # An int that is bumped when a new schema change is made
+CURRENT_DATABASE_VERSION = 63 # An int that is bumped when a new schema change is made
 
 
 def get_db_version():
@@ -2309,6 +2309,12 @@ def upgrade_to_62():
     # Update all jobs, set parents
     cursor = config.db.jobs.find({})
     process_cursor(cursor, set_job_containers_62, 'jobs')
+
+def upgrade_to_63():
+    """Update all users to having roles, non root -> user and root -> developer + site-admin"""
+    config.db.users.update_many({'root': {'$in': [False, None]}, 'roles': None}, {'$set': {'roles': ['user']}, '$unset': {'root': ''}})
+    config.db.users.update_many({'root': True}, {'$set': {'roles': ['developer', 'site-admin']}, '$unset': {'root': ''}})
+
 
 ###
 ### BEGIN RESERVED UPGRADE SECTION

@@ -996,5 +996,15 @@ def test_62(api_db, data_builder, database, default_payload, as_admin, file_form
         api_db.jobs.delete_many({'_id': {'$in': [
             job_empty_dest, job_invalid_dest, job_empty_input, job_invalid_input, job_valid]}})
 
+def test_63(api_db, database):
+    api_db.users.insert({'_id': 'user1', 'firstname': 'upgrade_test', 'root': False})
+    api_db.users.insert({'_id': 'user2', 'firstname': 'upgrade_test', 'root': True})
+    api_db.users.insert({'_id': 'user3', 'firstname': 'upgrade_test'})
 
+    database.upgrade_to_63()
 
+    assert api_db.users.find_one({'_id': 'user1'}).get('roles') == ['user']
+    assert set(api_db.users.find_one({'_id': 'user2'}).get('roles')) == set(['developer', 'site-admin'])
+    assert api_db.users.find_one({'_id': 'user3'}).get('roles') == ['user']
+
+    api_db.users.delete_many({'firstname': 'upgrade_test'})

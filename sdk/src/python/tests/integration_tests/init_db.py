@@ -39,5 +39,5 @@ def init_db():
         raise Exception('Cannot initialize database without SCITRAN_PERSISTENT_DB_URI!')
 
     db = pymongo.MongoClient(SCITRAN_PERSISTENT_DB_URI).get_default_database()
-    create_user(db, 'admin@user.com', SCITRAN_ADMIN_API_KEY, roles=['site-admin'])
+    create_user(db, 'admin@user.com', SCITRAN_ADMIN_API_KEY, roles=['site-admin', 'developer'])
 
