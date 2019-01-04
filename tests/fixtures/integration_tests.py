@@ -40,7 +40,7 @@ def log_db():
 def with_user(data_builder, randstr, as_public):
     """Return AttrDict with new user, api-key and api-accessor"""
     api_key = randstr()
-    user = data_builder.create_user(api_key=api_key, role='user')
+    user = data_builder.create_user(api_key=api_key, roles=['user'])
     session = copy.deepcopy(as_public)
     session.headers.update({'Authorization': 'scitran-user ' + api_key})
     return attrdict.AttrDict(user=user, api_key=api_key, session=session)

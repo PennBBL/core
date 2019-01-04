@@ -8,6 +8,6 @@
 		"firstname": "Jane",
 		"lastname": "Doe",
 		"email": "jane.doe@gmail.com",
-		"role": "user"
+		"roles": ["user"]
 	}
 }

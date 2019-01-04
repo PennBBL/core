@@ -7,7 +7,7 @@
     ],
     "required":[
        "_id", "firstname", "lastname",
-       "role", "email", "created", "modified"
+       "roles", "email", "created", "modified"
     ]
   },
   "example": {

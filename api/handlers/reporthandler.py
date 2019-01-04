@@ -163,7 +163,7 @@ class SiteReport(Report):
         """
         User generating report must be superuser
         """
-        if config.db.users.count({'_id': uid, 'role': 'site-admin'}) > 0:
+        if config.db.users.count({'_id': uid, 'roles': 'site-admin'}) > 0:
             return True
         return False
 
@@ -500,7 +500,7 @@ class AccessLogReport(Report):
         """
         User generating report must be superuser
         """
-        if config.db.users.count({'_id': uid, 'role': 'site-admin'}) > 0:
+        if config.db.users.count({'_id': uid, 'roles': 'site-admin'}) > 0:
             return True
         return False
 
@@ -593,7 +593,7 @@ class UsageReport(Report):
         """
         User generating report must be superuser
         """
-        if config.db.users.count({'_id': uid, 'role': 'site-admin'}) > 0:
+        if config.db.users.count({'_id': uid, 'roles': 'site-admin'}) > 0:
             return True
         return False
 

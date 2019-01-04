@@ -7,7 +7,7 @@ def test_gear_add_versioning(default_payload, randstr, data_builder, as_root, as
     gear_version_3 = '0.0.1-dev.1'
 
     api_key = 'TestApiKey'
-    user = data_builder.create_user(role='developer', api_key=api_key)
+    user = data_builder.create_user(roles=['developer'], api_key=api_key)
 
     as_developer = as_public
     as_developer.headers.update({'Authorization': 'scitran-user ' + api_key})

@@ -67,7 +67,7 @@ def require_developer(handler_method):
     Accepts drone, site-admin, and developer requests.
     """
     def check_developer(self, *args, **kwargs):
-        if not self.user_is_developer and not self.user_is_admin:
+        if not self.user_is_developer:
             raise APIPermissionException('Developer role required.')
         return handler_method(self, *args, **kwargs)
     return check_developer

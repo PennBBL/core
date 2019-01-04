@@ -7,11 +7,11 @@ SCITRAN_ADMIN_API_KEY = binascii.hexlify(os.urandom(10)).decode('utf-8')
 
 def create_user(db, _id, api_key, **kwargs):
     payload = {
-        '_id': _id, 
+        '_id': _id,
         'email': _id,
         'created': datetime.datetime.utcnow(),
         'modified': datetime.datetime.utcnow(),
-        'firstname': 'test', 
+        'firstname': 'test',
         'lastname': 'user'
     }
     payload.update(kwargs)
@@ -39,5 +39,5 @@ def init_db():
         raise Exception('Cannot initialize database without SCITRAN_PERSISTENT_DB_URI!')
 
     db = pymongo.MongoClient(SCITRAN_PERSISTENT_DB_URI).get_default_database()
-    create_user(db, 'admin@user.com', SCITRAN_ADMIN_API_KEY, role='site-admin')
+    create_user(db, 'admin@user.com', SCITRAN_ADMIN_API_KEY, roles=['site-admin'])
 
