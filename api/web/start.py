@@ -6,6 +6,7 @@ import warnings
 
 import webapp2
 
+from flylogging import init_flywheel_logging
 
 # Disable warnings for implicit tempfile.TemporaryDirectory cleanup
 warnings.filterwarnings('ignore', message=r'Implicitly cleaning up <TemporaryDirectory')
@@ -97,6 +98,8 @@ def dispatcher(router, request, response):
 
 def app_factory(*_, **__):
     # pylint: disable=protected-access,unused-argument
+    logging_config_file = os.getenv('FLYWHEEL_LOGGING', '/src/core/logging_conf.yml')
+    init_flywheel_logging(logging_config_file)
 
     # don't use config.get_item() as we don't want to require the database at startup
     application = webapp2.WSGIApplication(endpoints, debug=config.__config['core']['debug'])

@@ -1,6 +1,7 @@
 import os
 import copy
 import json
+import flylogging
 import logging
 import pymongo
 import datetime
@@ -9,7 +10,6 @@ import elasticsearch
 from fs import open_fs
 
 from . import util
-from . import logutil
 from .dao.dbutil import try_replace_one, try_update_one
 
 logging.basicConfig(
@@ -17,7 +17,7 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S',
     level=logging.DEBUG,
 )
-log = logutil.getContextLogger('scitran.api')
+log = flylogging.getContextLogger('scitran.api')
 
 logging.getLogger('MARKDOWN').setLevel(logging.WARNING) # silence Markdown library
 logging.getLogger('requests').setLevel(logging.WARNING) # silence Requests library

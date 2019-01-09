@@ -83,9 +83,13 @@ main() {
         --network ${TEST_PREFIX} \
         --volume ${ROOT_DIR}/api:/var/scitran/code/api/api \
         --volume ${ROOT_DIR}/tests:/var/scitran/code/api/tests \
+        --volume ${ROOT_DIR}/logging_conf.yml:/logging/logging_conf.yml \
         --env PRE_RUNAS_CMD='[ "$1" = gunicorn ] && mongod --bind_ip_all > /dev/null 2>&1 &' \
         --env SCITRAN_CORE_DRONE_SECRET=secret \
         --env SCITRAN_CORE_ACCESS_LOG_ENABLED=true \
+        --env FLYWHEEL_LOGGING=/logging/logging_conf.yml \
+        --env SYSLOG_HOST=localhost \
+        --env SYSLOG_PORT=514 \
         core:testing gunicorn --reload --workers=1 --log-file=/tmp/core.log \
                 -c /src/core/gunicorn_config.py api.app
 

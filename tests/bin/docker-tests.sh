@@ -63,6 +63,22 @@ main() {
 
     docker network create core-test
 
+    # Setup the mock logging container
+    mkdir -p central_logs
+    echo Log Start >> central_logs/messages
+    docker run -d \
+        --name core-test-logger \
+        --network core-test \
+        --network-alias logger \
+        -v $(pwd)/central_logs/messages:/var/log/messages \
+        alpine:3.8 \
+        sh -c "mkdir -p /etc/rsyslog.d; echo '
+# UPD Syslog Server:
+\$ModLoad imudp.so  # provides UDP syslog reception
+\$UDPServerRun 514 # start a UDP syslog server at standard port 514
+' >> /etc/rsyslog.d/1.conf;
+apk add rsyslog; rsyslogd; echo 'hi' >> /var/log/messages; tail -f /var/log/messages"
+
     docker run -d \
         --name core-test-mongo \
         --network core-test \
@@ -105,6 +121,7 @@ clean_up() {
     log "INFO: Spinning down dependencies ..."
     docker rm --force --volumes core-test-core
     docker rm --force --volumes core-test-mongo
+    docker rm --force --volumes core-test-logger
     docker network rm core-test
 
     [ "$TEST_RESULT_CODE" = "0" ] && log "INFO: Test return code = $TEST_RESULT_CODE" \
