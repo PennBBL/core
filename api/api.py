@@ -16,6 +16,7 @@ from .handlers.resolvehandler           import ResolveHandler
 from .handlers.roothandler              import RootHandler
 from .handlers.schemahandler            import SchemaHandler
 from .handlers.userhandler              import UserHandler
+from .handlers.mastersubjectcodehandler import MasterSubjectCodeHandler
 from .jobs.handlers                     import BatchHandler, JobsHandler, JobHandler, GearsHandler, GearHandler, RulesHandler, RuleHandler
 from .metrics.handler                   import MetricsHandler
 from .upload                            import Upload
@@ -374,5 +375,8 @@ endpoints = [
 
         route('/<par_cont_name:groups>/<par_id:{gid}>/<cont_name:projects>', ContainerHandler, h='get_all', m=['GET']),
         route('/<par_cont_name:{cname}>/<par_id:{oid}>/<cont_name:{cname}>', ContainerHandler, h='get_all', m=['GET']),
+
+        # Master Subject Code
+        route('/master-subj-code', MasterSubjectCodeHandler, m=['POST']),
     ]),
 ]

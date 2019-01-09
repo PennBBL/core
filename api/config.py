@@ -199,6 +199,7 @@ def initialize_db():
     db.batch.create_index('jobs')
     db.project_rules.create_index('project_id')
     db.data_views.create_index('parent')
+    db.master_subject_codes.create_index('patient_id', unique=True)
 
     if __config['core']['access_log_enabled']:
         log_db.access_log.create_index('context.ticket_id')

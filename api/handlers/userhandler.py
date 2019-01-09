@@ -270,7 +270,7 @@ class UserHandler(base.RequestHandler):
 
         update['timestamp'] = datetime.datetime.utcnow()  # TODO clarify it's ~ last used
         config.db.authtokens_2.update_one({'_id': ObjectId(_id)}, {'$set': update})
-        return token
+        return config.db.authtokens_2.find_one({'_id': ObjectId(_id), 'uid': self.uid})
 
     @require_login
     def delete_auth_token(self, _id):

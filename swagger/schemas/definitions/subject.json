@@ -73,6 +73,7 @@
 
               "label":            {"$ref":"#/definitions/code"},
               "code":             {"$ref":"#/definitions/code"},
+              "master_code":      {"$ref":"#/definitions/code"},
               "tags":             {"$ref":"tag.json#/definitions/tag-list"},
               "info":             {"$ref":"common.json#/definitions/info"},
               "files":{
@@ -87,10 +88,11 @@
         "subject-metadata-input": {
             "type": "object",
             "properties": {
-                "label": {"$ref":"#/definitions/code"},
-                "code":  {"type": ["string", "null"]},
-                "info":  {"type": ["object", "null"]},
-                "tags":  {"$ref": "tag.json#/definitions/tag-list"},
+                "label":        {"$ref":"#/definitions/code"},
+                "code":         {"type": ["string", "null"]},
+                "master_code":  {"type": ["string", "null"]},
+                "info":         {"type": ["object", "null"]},
+                "tags":         {"$ref": "tag.json#/definitions/tag-list"},
                 "files": {
                     "type":  ["array", "null"],
                     "items": {"$ref": "file.json#/definitions/file-input"}
@@ -106,6 +108,7 @@
               "parents":          {"$ref":"container.json#/definitions/parents"},
               "label":            {"$ref":"#/definitions/code"},
               "code":             {"$ref":"#/definitions/code"},
+              "master_code":      {"$ref":"#/definitions/code"},
 
               "created":          {"$ref":"created-modified.json#/definitions/created"},
               "modified":         {"$ref":"created-modified.json#/definitions/modified"},
