@@ -4,6 +4,7 @@ import sys
 
 from .util import params_to_dict
 from .flywheel import Flywheel
+from .view_builder import ViewBuilder
 
 def get_api_key_from_cli(path):
     try:
@@ -38,7 +39,7 @@ class Client(object):
     def add_gear(self, gear_name, body, **kwargs):
         """Create or update a gear.
 
-        If no existing gear is found, one will be created Otherwise, the specified gear will be updated 
+        If no existing gear is found, one will be created Otherwise, the specified gear will be updated
 
         :param str gear_name: Name of the gear to interact with (required)
         :param GearDoc body: (required)
@@ -63,7 +64,7 @@ class Client(object):
 
     def get_gear(self, gear_id, **kwargs):
         """Return a gear referenced by gear_id
-        
+
         :param str gear_id: (required) The id of the gear to lookup
         :return: Gear
         """
