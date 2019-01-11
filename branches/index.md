@@ -17,6 +17,7 @@
 * [email_collector/](email_collector/)
 * [no-root/](no-root/)
 * [em4-patch/](em4-patch/)
+* [4.4/](4.4/)
 * [usage-report/](usage-report/)
 * [improve-bulk-download/](improve-bulk-download/)
 * [user-id-switch/](user-id-switch/)
