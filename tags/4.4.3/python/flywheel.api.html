@@ -4818,6 +4818,28 @@ This method makes a synchronous HTTP request by default.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="flywheel.api.jobs_api.JobsApi.get_job_detail">
+<code class="descname">get_job_detail</code><span class="sig-paren">(</span><em>job_id</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#flywheel.api.jobs_api.JobsApi.get_job_detail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get job container details</p>
+<p>This method makes a synchronous HTTP request by default.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>job_id</strong> (<em>str</em>) – (required)</li>
+<li><strong>async</strong> (<em>bool</em>) – Perform the request asynchronously</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">JobDetail</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="flywheel.api.jobs_api.JobsApi.get_job_logs">
 <code class="descname">get_job_logs</code><span class="sig-paren">(</span><em>job_id</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#flywheel.api.jobs_api.JobsApi.get_job_logs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get job logs</p>
@@ -6378,7 +6400,7 @@ This method makes a synchronous HTTP request by default.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>project_id</strong> (<em>str</em>) – (required)</li>
-<li><strong>body</strong> (<a class="reference internal" href="flywheel.models.html#flywheel.models.project_template.ProjectTemplate" title="flywheel.models.project_template.ProjectTemplate"><em>ProjectTemplate</em></a>) – (required)</li>
+<li><strong>body</strong> (<em>list</em><em>[</em><a class="reference internal" href="flywheel.models.html#flywheel.models.project_template_session_template.ProjectTemplateSessionTemplate" title="flywheel.models.project_template_session_template.ProjectTemplateSessionTemplate"><em>ProjectTemplateSessionTemplate</em></a><em>]</em>) – (required)</li>
 <li><strong>async</strong> (<em>bool</em>) – Perform the request asynchronously</li>
 </ul>
 </td>

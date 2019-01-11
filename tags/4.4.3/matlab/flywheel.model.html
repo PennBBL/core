@@ -181,7 +181,12 @@
 <li class="toctree-l4"><a class="reference internal" href="#jobconfig">JobConfig</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#jobconfiginputs">JobConfigInputs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#jobconfigoutput">JobConfigOutput</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#jobcontainerdetail">JobContainerDetail</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#jobdestination">JobDestination</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#jobdetail">JobDetail</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#jobdetailfileentry">JobDetailFileEntry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#jobdetailinputsobject">JobDetailInputsObject</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#jobdetailparentinfo">JobDetailParentInfo</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#jobexecutorinfo">JobExecutorInfo</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#jobinputsarrayitem">JobInputsArrayItem</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#jobinputsitem">JobInputsItem</a></li>
@@ -206,8 +211,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#permission">Permission</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#project">Project</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#projectmetadatainput">ProjectMetadataInput</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#projecttemplate">ProjectTemplate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#projecttemplaterequirement">ProjectTemplateRequirement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#projecttemplatesessiontemplate">ProjectTemplateSessionTemplate</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#reportaccesslogcontext">ReportAccessLogContext</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#reportaccesslogcontextentry">ReportAccessLogContextEntry</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#reportaccesslogcontextfileentry">ReportAccessLogContextFileEntry</a></li>
@@ -231,6 +236,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#searchcollectionresponse">SearchCollectionResponse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#searchfileresponse">SearchFileResponse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#searchgroupresponse">SearchGroupResponse</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#searchmlinput">SearchMlInput</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#searchmlinputfile">SearchMlInputFile</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#searchparentresponse">SearchParentResponse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#searchprojectresponse">SearchProjectResponse</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#searchquery">SearchQuery</a></li>
@@ -7160,6 +7167,46 @@
 </dd></dl>
 
 </div>
+<div class="section" id="jobcontainerdetail">
+<h2>JobContainerDetail<a class="headerlink" href="#jobcontainerdetail" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="JobContainerDetail">
+<em class="property">class </em><code class="descname">JobContainerDetail</code><a class="headerlink" href="#JobContainerDetail" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="JobContainerDetail.id">
+<code class="descname">id</code><a class="headerlink" href="#JobContainerDetail.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the id of this JobContainerDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The id of this JobContainerDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">char</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobContainerDetail.label">
+<code class="descname">label</code><a class="headerlink" href="#JobContainerDetail.label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Application-specific label</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The label of this JobContainerDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">char</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
 <div class="section" id="jobdestination">
 <h2>JobDestination<a class="headerlink" href="#jobdestination" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -7192,6 +7239,438 @@
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The id of this JobDestination.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">char</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="jobdetail">
+<h2>JobDetail<a class="headerlink" href="#jobdetail" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="JobDetail">
+<em class="property">class </em><code class="descname">JobDetail</code><a class="headerlink" href="#JobDetail" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="JobDetail.id">
+<code class="descname">id</code><a class="headerlink" href="#JobDetail.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unique database ID</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The id of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">char</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.origin">
+<code class="descname">origin</code><a class="headerlink" href="#JobDetail.origin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the origin of this JobDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The origin of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">JobOrigin</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.gearId">
+<code class="descname">gearId</code><a class="headerlink" href="#JobDetail.gearId" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the gearId of this JobDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The gearId of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">char</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.gearInfo">
+<code class="descname">gearInfo</code><a class="headerlink" href="#JobDetail.gearInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the gearInfo of this JobDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The gearInfo of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">GearInfo</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.parentInfo">
+<code class="descname">parentInfo</code><a class="headerlink" href="#JobDetail.parentInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the parentInfo of this JobDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The parentInfo of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">JobDetailParentInfo</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.previousJobId">
+<code class="descname">previousJobId</code><a class="headerlink" href="#JobDetail.previousJobId" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the previousJobId of this JobDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The previousJobId of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">char</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.inputs">
+<code class="descname">inputs</code><a class="headerlink" href="#JobDetail.inputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the inputs of this JobDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The inputs of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">JobDetailInputsObject</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.outputs">
+<code class="descname">outputs</code><a class="headerlink" href="#JobDetail.outputs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the outputs of this JobDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The outputs of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">JobDetailFileEntry</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.destination">
+<code class="descname">destination</code><a class="headerlink" href="#JobDetail.destination" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the destination of this JobDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The destination of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">JobDestination</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.tags">
+<code class="descname">tags</code><a class="headerlink" href="#JobDetail.tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the tags of this JobDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The tags of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">vector[char]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.state">
+<code class="descname">state</code><a class="headerlink" href="#JobDetail.state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the state of this JobDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The state of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">char</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.attempt">
+<code class="descname">attempt</code><a class="headerlink" href="#JobDetail.attempt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the attempt of this JobDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The attempt of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">integer</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.created">
+<code class="descname">created</code><a class="headerlink" href="#JobDetail.created" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creation time (automatically set)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The created of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">datetime</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.modified">
+<code class="descname">modified</code><a class="headerlink" href="#JobDetail.modified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Last modification time (automatically updated)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The modified of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">datetime</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.retried">
+<code class="descname">retried</code><a class="headerlink" href="#JobDetail.retried" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retried time (automatically set)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The retried of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">datetime</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.config">
+<code class="descname">config</code><a class="headerlink" href="#JobDetail.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the config of this JobDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The config of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">JobConfig</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetail.request">
+<code class="descname">request</code><a class="headerlink" href="#JobDetail.request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the request of this JobDetail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The request of this JobDetail.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">JobRequest</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="jobdetailfileentry">
+<h2>JobDetailFileEntry<a class="headerlink" href="#jobdetailfileentry" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="JobDetailFileEntry">
+<em class="property">class </em><code class="descname">JobDetailFileEntry</code><a class="headerlink" href="#JobDetailFileEntry" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="JobDetailFileEntry.ref">
+<code class="descname">ref</code><a class="headerlink" href="#JobDetailFileEntry.ref" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the ref of this JobDetailFileEntry.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The ref of this JobDetailFileEntry.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">FileReference</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetailFileEntry.object">
+<code class="descname">object</code><a class="headerlink" href="#JobDetailFileEntry.object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the object of this JobDetailFileEntry.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The object of this JobDetailFileEntry.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">FileEntry</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="jobdetailinputsobject">
+<h2>JobDetailInputsObject<a class="headerlink" href="#jobdetailinputsobject" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="JobDetailInputsObject">
+<em class="property">class </em><code class="descname">JobDetailInputsObject</code><a class="headerlink" href="#JobDetailInputsObject" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="jobdetailparentinfo">
+<h2>JobDetailParentInfo<a class="headerlink" href="#jobdetailparentinfo" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="JobDetailParentInfo">
+<em class="property">class </em><code class="descname">JobDetailParentInfo</code><a class="headerlink" href="#JobDetailParentInfo" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="JobDetailParentInfo.group">
+<code class="descname">group</code><a class="headerlink" href="#JobDetailParentInfo.group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the group of this JobDetailParentInfo.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The group of this JobDetailParentInfo.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">JobContainerDetail</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetailParentInfo.project">
+<code class="descname">project</code><a class="headerlink" href="#JobDetailParentInfo.project" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the project of this JobDetailParentInfo.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The project of this JobDetailParentInfo.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">JobContainerDetail</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetailParentInfo.subject">
+<code class="descname">subject</code><a class="headerlink" href="#JobDetailParentInfo.subject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the subject of this JobDetailParentInfo.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The subject of this JobDetailParentInfo.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">JobContainerDetail</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetailParentInfo.session">
+<code class="descname">session</code><a class="headerlink" href="#JobDetailParentInfo.session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the session of this JobDetailParentInfo.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The session of this JobDetailParentInfo.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">JobContainerDetail</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetailParentInfo.acquisition">
+<code class="descname">acquisition</code><a class="headerlink" href="#JobDetailParentInfo.acquisition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the acquisition of this JobDetailParentInfo.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The acquisition of this JobDetailParentInfo.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">JobContainerDetail</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="JobDetailParentInfo.analysis">
+<code class="descname">analysis</code><a class="headerlink" href="#JobDetailParentInfo.analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the analysis of this JobDetailParentInfo.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The analysis of this JobDetailParentInfo.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">JobContainerDetail</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -8872,14 +9351,14 @@
 </dd></dl>
 
 <dl class="attribute">
-<dt id="Project.template">
-<code class="descname">template</code><a class="headerlink" href="#Project.template" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the template of this Project.</p>
+<dt id="Project.templates">
+<code class="descname">templates</code><a class="headerlink" href="#Project.templates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the templates of this Project.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The template of this Project.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The templates of this Project.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">containers.Map</td>
 </tr>
@@ -9058,49 +9537,6 @@
 </dd></dl>
 
 </div>
-<div class="section" id="projecttemplate">
-<h2>ProjectTemplate<a class="headerlink" href="#projecttemplate" title="Permalink to this headline">¶</a></h2>
-<p>A project’s session template</p>
-<dl class="class">
-<dt id="ProjectTemplate">
-<em class="property">class </em><code class="descname">ProjectTemplate</code><a class="headerlink" href="#ProjectTemplate" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div>A project’s session template</div></blockquote>
-<dl class="attribute">
-<dt id="ProjectTemplate.session">
-<code class="descname">session</code><a class="headerlink" href="#ProjectTemplate.session" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the session of this ProjectTemplate.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The session of this ProjectTemplate.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">containers.Map</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="ProjectTemplate.acquisitions">
-<code class="descname">acquisitions</code><a class="headerlink" href="#ProjectTemplate.acquisitions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the acquisitions of this ProjectTemplate.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The acquisitions of this ProjectTemplate.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">ProjectTemplateRequirement</span></code></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-</div>
 <div class="section" id="projecttemplaterequirement">
 <h2>ProjectTemplateRequirement<a class="headerlink" href="#projecttemplaterequirement" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -9133,6 +9569,46 @@
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The maximum of this ProjectTemplateRequirement.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">integer</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="projecttemplatesessiontemplate">
+<h2>ProjectTemplateSessionTemplate<a class="headerlink" href="#projecttemplatesessiontemplate" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ProjectTemplateSessionTemplate">
+<em class="property">class </em><code class="descname">ProjectTemplateSessionTemplate</code><a class="headerlink" href="#ProjectTemplateSessionTemplate" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="ProjectTemplateSessionTemplate.session">
+<code class="descname">session</code><a class="headerlink" href="#ProjectTemplateSessionTemplate.session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the session of this ProjectTemplateSessionTemplate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The session of this ProjectTemplateSessionTemplate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">containers.Map</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="ProjectTemplateSessionTemplate.acquisitions">
+<code class="descname">acquisitions</code><a class="headerlink" href="#ProjectTemplateSessionTemplate.acquisitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the acquisitions of this ProjectTemplateSessionTemplate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The acquisitions of this ProjectTemplateSessionTemplate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">ProjectTemplateRequirement</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -10849,6 +11325,118 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The label of this SearchGroupResponse.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">char</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="searchmlinput">
+<h2>SearchMlInput<a class="headerlink" href="#searchmlinput" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="SearchMlInput">
+<em class="property">class </em><code class="descname">SearchMlInput</code><a class="headerlink" href="#SearchMlInput" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="SearchMlInput.labels">
+<code class="descname">labels</code><a class="headerlink" href="#SearchMlInput.labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the labels of this SearchMlInput.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The labels of this SearchMlInput.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">vector[char]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SearchMlInput.searchQuery">
+<code class="descname">searchQuery</code><a class="headerlink" href="#SearchMlInput.searchQuery" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the searchQuery of this SearchMlInput.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The searchQuery of this SearchMlInput.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">SearchQuery</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SearchMlInput.files">
+<code class="descname">files</code><a class="headerlink" href="#SearchMlInput.files" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the files of this SearchMlInput.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The files of this SearchMlInput.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">SearchMlInputFile</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SearchMlInput.output">
+<code class="descname">output</code><a class="headerlink" href="#SearchMlInput.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the output of this SearchMlInput.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The output of this SearchMlInput.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">ContainerReference</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="searchmlinputfile">
+<h2>SearchMlInputFile<a class="headerlink" href="#searchmlinputfile" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="SearchMlInputFile">
+<em class="property">class </em><code class="descname">SearchMlInputFile</code><a class="headerlink" href="#SearchMlInputFile" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="SearchMlInputFile.parentId">
+<code class="descname">parentId</code><a class="headerlink" href="#SearchMlInputFile.parentId" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unique database ID</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The parentId of this SearchMlInputFile.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">char</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="SearchMlInputFile.name">
+<code class="descname">name</code><a class="headerlink" href="#SearchMlInputFile.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the file on disk</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The name of this SearchMlInputFile.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">char</td>
 </tr>
@@ -14368,14 +14956,14 @@
 </dd></dl>
 
 <dl class="attribute">
-<dt id="ContainerProjectOutput.template">
-<code class="descname">template</code><a class="headerlink" href="#ContainerProjectOutput.template" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the template of this ContainerProjectOutput.</p>
+<dt id="ContainerProjectOutput.templates">
+<code class="descname">templates</code><a class="headerlink" href="#ContainerProjectOutput.templates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the templates of this ContainerProjectOutput.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The template of this ContainerProjectOutput.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The templates of this ContainerProjectOutput.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">containers.Map</td>
 </tr>
@@ -16432,14 +17020,14 @@
 </dd></dl>
 
 <dl class="attribute">
-<dt id="ResolverProjectNode.template">
-<code class="descname">template</code><a class="headerlink" href="#ResolverProjectNode.template" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the template of this ResolverProjectNode.</p>
+<dt id="ResolverProjectNode.templates">
+<code class="descname">templates</code><a class="headerlink" href="#ResolverProjectNode.templates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the templates of this ResolverProjectNode.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The template of this ResolverProjectNode.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The templates of this ResolverProjectNode.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">containers.Map</td>
 </tr>
@@ -18376,14 +18964,14 @@
 </dd></dl>
 
 <dl class="attribute">
-<dt id="SearchParentProject.template">
-<code class="descname">template</code><a class="headerlink" href="#SearchParentProject.template" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the template of this SearchParentProject.</p>
+<dt id="SearchParentProject.templates">
+<code class="descname">templates</code><a class="headerlink" href="#SearchParentProject.templates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the templates of this SearchParentProject.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The template of this SearchParentProject.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The templates of this SearchParentProject.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">containers.Map</td>
 </tr>

@@ -1949,6 +1949,132 @@
         ]
       }
     },
+    "/jobs/{JobId}/detail": {
+      "parameters": [
+        {
+          "required": true,
+          "type": "string",
+          "in": "path",
+          "name": "JobId"
+        }
+      ],
+      "get": {
+        "summary": "Get job container details",
+        "operationId": "get_job_detail",
+        "tags": [
+          "jobs"
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "object",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/job-detail"
+                }
+              ],
+              "example": {
+                "inputs": {
+                  "dicom": {
+                    "ref": {
+                      "type": "acquisition",
+                      "id": "57ac7394c700190017123fb7",
+                      "name": "8403_4_1_t1_dicom.zip"
+                    },
+                    "object": {
+                      "origin": {
+                        "method": "importer",
+                        "type": "device",
+                        "id": "importer_Admin_Import",
+                        "name": "Admin Import"
+                      },
+                      "_id": "50708f69-7549-4331-bac0-b4779e5c9ca1",
+                      "mimetype": "application/zip",
+                      "classification": {},
+                      "hash": "v0-sha384-dd3c97bfe0ad1fcba75ae6718c6e81038c59af4f447f5db194d52732efa4f955b28455db02eb64cad3e4e55f11e3679f",
+                      "name": "4784_1_1_localizer_dicom.zip",
+                      "tags": [],
+                      "created": "2016-09-21T14:56:09.943000+00:00",
+                      "modified": "2016-09-24T14:56:09.943000+00:00",
+                      "replaced": "2016-09-23T14:56:09.943000+00:00",
+                      "modality": null,
+                      "info": {},
+                      "type": "dicom",
+                      "size": 989933
+                    }
+                  }
+                },
+                "parent_info": {
+                  "group": {
+                    "_id": "scitran",
+                    "label": "SciTran"
+                  },
+                  "project": {
+                    "_id": "5c33be8304da10041e880c4c",
+                    "label": "Brain Study"
+                  },
+                  "session": {
+                    "_id": "5c33be8304da10041e880c4e",
+                    "label": "Session 2018-09-30"
+                  },
+                  "subject": {
+                    "_id": "5c33be8304da10041e880c4d",
+                    "label": "unknown"
+                  }
+                },
+                "attempt": 1,
+                "gear_id": "dcm_convert",
+                "tags": [
+                  "ad-hoc",
+                  "dcm_convert"
+                ],
+                "destination": {
+                  "type": "acquisition",
+                  "id": "573c9e6a844eac7fc01747cd"
+                },
+                "modified": "2016-08-11T13:02:09.055000+00:00",
+                "created": "2016-08-11T13:02:09.055000+00:00",
+                "state": "pending",
+                "id": "57ac77515e325c0018cd17cf",
+                "config": {
+                  "speed": 3
+                },
+                "outputs": [
+                  {
+                    "object": {
+                      "origin": {
+                        "type": "job",
+                        "id": "5c33be8404da10041e880c50"
+                      },
+                      "mimetype": "text/csv",
+                      "hash": "v0-sha384-03a9df0a5e6e21f5d25aacbce76d8a5d9f8de14f6654c31ab2daed961cfbfb236b1708063350856f752a5a094fb64321",
+                      "name": "result.csv",
+                      "classification": {},
+                      "created": "2019-01-07T21:03:00.276000+00:00",
+                      "tags": [],
+                      "modified": "2019-01-07T21:03:00.248000+00:00",
+                      "_id": "84e30303-2568-4af4-a675-98774dac0408",
+                      "type": "tabular data",
+                      "modality": null,
+                      "size": 10
+                    },
+                    "ref": {
+                      "type": "session",
+                      "id": "5c33be8304da10041e880c4e",
+                      "name": "result.csv"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "description": "JobId not found"
+          }
+        }
+      }
+    },
     "/jobs/{JobId}/profile": {
       "parameters": [
         {
@@ -19235,6 +19361,144 @@
       "x-sdk-model": "job",
       "x-sdk-container-mixin": "job-mixin"
     },
+    "job-container-detail": {
+      "type": "object",
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "description": "Application-specific label"
+        }
+      },
+      "required": [
+        "_id",
+        "label"
+      ]
+    },
+    "job-detail-file-entry": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "$ref": "#/definitions/file-reference"
+        },
+        "object": {
+          "$ref": "#/definitions/file-entry"
+        }
+      },
+      "required": [
+        "ref"
+      ],
+      "additionalProperties": false
+    },
+    "job-detail-inputs-object": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/job-detail-file-entry"
+      }
+    },
+    "job-detail-parent-info": {
+      "type": "object",
+      "properties": {
+        "group": {
+          "$ref": "#/definitions/job-container-detail"
+        },
+        "project": {
+          "$ref": "#/definitions/job-container-detail"
+        },
+        "subject": {
+          "$ref": "#/definitions/job-container-detail"
+        },
+        "session": {
+          "$ref": "#/definitions/job-container-detail"
+        },
+        "acquisition": {
+          "$ref": "#/definitions/job-container-detail"
+        },
+        "analysis": {
+          "$ref": "#/definitions/job-container-detail"
+        }
+      },
+      "additionalProperties": false
+    },
+    "job-detail": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{24}$",
+          "description": "Unique database ID"
+        },
+        "origin": {
+          "$ref": "#/definitions/job-origin"
+        },
+        "gear_id": {
+          "type": "string"
+        },
+        "gear_info": {
+          "$ref": "#/definitions/gear-info"
+        },
+        "parent_info": {
+          "$ref": "#/definitions/job-detail-parent-info"
+        },
+        "previous_job_id": {
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/definitions/job-detail-inputs-object"
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/job-detail-file-entry"
+          }
+        },
+        "destination": {
+          "$ref": "#/definitions/job-destination"
+        },
+        "tags": {
+          "$ref": "#/definitions/job-tags"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "running",
+            "failed",
+            "complete",
+            "cancelled"
+          ]
+        },
+        "attempt": {
+          "type": "integer"
+        },
+        "created": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation time (automatically set)"
+        },
+        "modified": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modification time (automatically updated)"
+        },
+        "retried": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Retried time (automatically set)"
+        },
+        "config": {
+          "$ref": "#/definitions/job-config"
+        },
+        "request": {
+          "$ref": "#/definitions/job-request"
+        }
+      },
+      "additionalProperties": false
+    },
     "job-config-inputs": {
       "type": "object"
     },
@@ -19552,8 +19816,7 @@
         }
       }
     },
-    "project-template": {
-      "description": "A project's session template",
+    "project-template-session-template": {
       "type": "object",
       "properties": {
         "session": {
@@ -19566,8 +19829,13 @@
             "$ref": "#/definitions/project-template-requirement"
           }
         }
-      },
-      "additionalProperties": false
+      }
+    },
+    "project-template": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/project-template-session-template"
+      }
     },
     "project-input": {
       "type": "object",
@@ -19670,7 +19938,7 @@
           "format": "date-time",
           "description": "Last modification time (automatically updated)"
         },
-        "template": {
+        "templates": {
           "type": "object"
         },
         "permissions": {
@@ -20672,6 +20940,43 @@
       ],
       "x-discriminator-value": "analysis",
       "x-sdk-container-mixin": "analysis-mixin"
+    },
+    "search-ml-input-file": {
+      "type": "object",
+      "properties": {
+        "parent_id": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{24}$",
+          "description": "Unique database ID"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the file on disk"
+        }
+      }
+    },
+    "search-ml-input": {
+      "type": "object",
+      "properties": {
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "search-query": {
+          "$ref": "#/definitions/search-query"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/search-ml-input-file"
+          }
+        },
+        "output": {
+          "$ref": "#/definitions/container-reference"
+        }
+      }
     },
     "search-response": {
       "type": "object",

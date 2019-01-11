@@ -302,7 +302,12 @@
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.job_config">flywheel.models.job_config module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.job_config_inputs">flywheel.models.job_config_inputs module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.job_config_output">flywheel.models.job_config_output module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.job_container_detail">flywheel.models.job_container_detail module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.job_destination">flywheel.models.job_destination module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.job_detail">flywheel.models.job_detail module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.job_detail_file_entry">flywheel.models.job_detail_file_entry module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.job_detail_inputs_object">flywheel.models.job_detail_inputs_object module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.job_detail_parent_info">flywheel.models.job_detail_parent_info module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.job_executor_info">flywheel.models.job_executor_info module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.job_inputs_array_item">flywheel.models.job_inputs_array_item module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.job_inputs_item">flywheel.models.job_inputs_item module</a></li>
@@ -328,8 +333,8 @@
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.permission">flywheel.models.permission module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.project">flywheel.models.project module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.project_metadata_input">flywheel.models.project_metadata_input module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.project_template">flywheel.models.project_template module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.project_template_requirement">flywheel.models.project_template_requirement module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.project_template_session_template">flywheel.models.project_template_session_template module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.report_access_log_context">flywheel.models.report_access_log_context module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.report_access_log_context_entry">flywheel.models.report_access_log_context_entry module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.report_access_log_context_file_entry">flywheel.models.report_access_log_context_file_entry module</a></li>
@@ -361,6 +366,8 @@
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.search_collection_response">flywheel.models.search_collection_response module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.search_file_response">flywheel.models.search_file_response module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.search_group_response">flywheel.models.search_group_response module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.search_ml_input">flywheel.models.search_ml_input module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.search_ml_input_file">flywheel.models.search_ml_input_file module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.search_parent_acquisition">flywheel.models.search_parent_acquisition module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.search_parent_analysis">flywheel.models.search_parent_analysis module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flywheel.models.html#module-flywheel.models.search_parent_collection">flywheel.models.search_parent_collection module</a></li>
@@ -7071,6 +7078,27 @@ handler. Otherwise, add file handler and remove stream handler.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="flywheel.flywheel.Flywheel.get_job_detail">
+<code class="descname">get_job_detail</code><span class="sig-paren">(</span><em>job_id</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#flywheel.flywheel.Flywheel.get_job_detail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get job container details</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>job_id</strong> (<em>str</em>) – (required)</li>
+<li><strong>async</strong> (<em>bool</em>) – Perform the request asynchronously</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">JobDetail</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="flywheel.flywheel.Flywheel.get_job_logs">
 <code class="descname">get_job_logs</code><span class="sig-paren">(</span><em>job_id</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#flywheel.flywheel.Flywheel.get_job_logs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get job logs</p>
@@ -10957,7 +10985,7 @@ handler. Otherwise, add file handler and remove stream handler.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>project_id</strong> (<em>str</em>) – (required)</li>
-<li><strong>body</strong> (<a class="reference internal" href="flywheel.models.html#flywheel.models.project_template.ProjectTemplate" title="flywheel.models.project_template.ProjectTemplate"><em>ProjectTemplate</em></a>) – (required)</li>
+<li><strong>body</strong> (<em>list</em><em>[</em><a class="reference internal" href="flywheel.models.html#flywheel.models.project_template_session_template.ProjectTemplateSessionTemplate" title="flywheel.models.project_template_session_template.ProjectTemplateSessionTemplate"><em>ProjectTemplateSessionTemplate</em></a><em>]</em>) – (required)</li>
 <li><strong>async</strong> (<em>bool</em>) – Perform the request asynchronously</li>
 </ul>
 </td>
