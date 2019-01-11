@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Data Views &mdash; Flywheel SDK  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+
+  
+  <script src="../../../static/theme/sphinx_rtd/0.3.1/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Flywheel SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started with Flywheel SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flywheel.html">flywheel package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Flywheel SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Data Views</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="data-views">
+<h1>Data Views<a class="headerlink" href="#data-views" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Often times it is useful to get attributes across a large number of objects in the flywheel hierarchy.
+One possible way of retrieving fields in such a manner would be looping over each level in the hierarchy,
+collecting the desired fields at each level. This is problematic because it is tedious to write and inefficient
+to execute.</p>
+<p>Data views provide an alternative way to efficiently aggregate data across the hierarchy in a tabular way, producing
+results like:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="14%" />
+<col width="14%" />
+<col width="14%" />
+<col width="21%" />
+<col width="13%" />
+<col width="16%" />
+<col width="10%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">project</th>
+<th class="head">subject_age</th>
+<th class="head">subject_sex</th>
+<th class="head">acquisition</th>
+<th class="head">trial_type</th>
+<th class="head">response_time</th>
+<th class="head">accuracy</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>color study</td>
+<td>1040688000</td>
+<td>male</td>
+<td>task-redBlue</td>
+<td>go</td>
+<td>1.435</td>
+<td>1</td>
+</tr>
+<tr class="row-odd"><td>color study</td>
+<td>1040688000</td>
+<td>male</td>
+<td>task-redBlue</td>
+<td>stop</td>
+<td>1.739</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>color study</td>
+<td>851472000</td>
+<td>female</td>
+<td>task-redBlue</td>
+<td>go</td>
+<td>1.379</td>
+<td>1</td>
+</tr>
+<tr class="row-odd"><td>color study</td>
+<td>851472000</td>
+<td>female</td>
+<td>task-redBlue</td>
+<td>stop</td>
+<td>1.534</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="declaration">
+<h2>Declaration<a class="headerlink" href="#declaration" title="Permalink to this headline">¶</a></h2>
+<p>Data views are defined as a set of columns to collect and are executed against a container (such as a project, subject or session).
+In addition, tabular or JSON file data may be aggregated from files, even files that are members of archives.</p>
+<p>Declaring columns from object metadata is done as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span> <span class="s1">&#39;src&#39;</span><span class="p">:</span> <span class="s1">&#39;project.label&#39;</span><span class="p">,</span> <span class="s1">&#39;dst&#39;</span><span class="p">:</span> <span class="s1">&#39;project&#39;</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="s1">&#39;src&#39;</span><span class="p">:</span> <span class="s1">&#39;subject.age&#39;</span><span class="p">,</span> <span class="s1">&#39;dst&#39;</span><span class="p">:</span> <span class="s1">&#39;subject_age&#39;</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="s1">&#39;src&#39;</span><span class="p">:</span> <span class="s1">&#39;subject.sex&#39;</span><span class="p">,</span> <span class="s1">&#39;dst&#39;</span><span class="p">:</span> <span class="s1">&#39;subject_sex&#39;</span> <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Extracting data from files relies on specifying a container and a filename, and optionally another set of columns.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">file_columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span> <span class="s1">&#39;src&#39;</span><span class="p">:</span> <span class="s1">&#39;trial_type&#39;</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="s1">&#39;src&#39;</span><span class="p">:</span> <span class="s1">&#39;response_time&#39;</span> <span class="p">},</span>
+        <span class="p">{</span> <span class="s1">&#39;src&#39;</span><span class="p">:</span> <span class="s1">&#39;acc&#39;</span><span class="p">,</span> <span class="s1">&#39;dst&#39;</span><span class="p">:</span> <span class="s1">&#39;accuracy&#39;</span> <span class="p">}</span>
+<span class="p">]</span>
+<span class="n">file_spec</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;container&#39;</span><span class="p">:</span> <span class="s1">&#39;acquisition&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;filter&#39;</span><span class="p">:</span> <span class="p">{</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="s1">&#39;events.tsv&#39;</span> <span class="p">},</span>
+        <span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="n">file_columns</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>To create the full view object, and execute it against a project with and id of:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">execute_adhoc_data_view</span><span class="p">(</span><span class="s1">&#39;5ae8b625f3b83d287a2026d6&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="n">columns</span><span class="p">,</span>
+        <span class="s1">&#39;fileSpec&#39;</span><span class="p">:</span> <span class="n">file_spec</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="saving-views">
+<h2>Saving Views<a class="headerlink" href="#saving-views" title="Permalink to this headline">¶</a></h2>
+<p>Views can be saved to your user account, or any project you have access to. For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">viewId</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">add_data_view</span><span class="p">({</span>
+        <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;Color Study Response By Subject&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;columns&#39;</span><span class="p">:</span> <span class="n">columns</span><span class="p">,</span>
+        <span class="s1">&#39;fileSpec&#39;</span><span class="p">:</span> <span class="n">file_spec</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>Then you can execute the view any time against any container</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">download_data_view</span><span class="p">(</span><span class="n">viewId</span><span class="p">,</span> <span class="s1">&#39;5ae8b625f3b83d287a2026d6&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018 Flywheel All rights reserved.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/jquery.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/underscore.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Data Model &mdash; Flywheel SDK  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Getting Started with Flywheel SDK" href="getting_started.html" /> 
+
+  
+  <script src="../../../static/theme/sphinx_rtd/0.3.1/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Flywheel SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started with Flywheel SDK</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#hierarchy">Hierarchy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#permissions">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#containers">Containers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tags">Tags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#notes">Notes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#info">Info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#files">Files</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flywheel.html">flywheel package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Flywheel SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Data Model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="data-model">
+<h1>Data Model<a class="headerlink" href="#data-model" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="hierarchy">
+<h2>Hierarchy<a class="headerlink" href="#hierarchy" title="Permalink to this headline">¶</a></h2>
+<p>Data in a Flywheel system is organized in a tree-like hierarchy, as indicated in the following diagram.</p>
+<img alt="../../../static/images/data-model.png" src="../../../static/images/data-model.png" />
+<ul class="simple">
+<li><a class="reference internal" href="flywheel.models.html#flywheel.models.user.User" title="flywheel.models.user.User"><code class="xref py py-class docutils literal notranslate"><span class="pre">flywheel.models.user.User</span></code></a> - An authorized entity, usually referenced by email address.</li>
+<li><a class="reference internal" href="flywheel.models.html#flywheel.models.group.Group" title="flywheel.models.group.Group"><code class="xref py py-class docutils literal notranslate"><span class="pre">flywheel.models.group.Group</span></code></a> - A grouping of users and projects.</li>
+<li><a class="reference internal" href="flywheel.models.html#flywheel.models.project.Project" title="flywheel.models.project.Project"><code class="xref py py-class docutils literal notranslate"><span class="pre">flywheel.models.project.Project</span></code></a> - A project represents a grouping of subjects and sessions, e.g. within a study.</li>
+<li><a class="reference internal" href="flywheel.models.html#flywheel.models.subject.Subject" title="flywheel.models.subject.Subject"><code class="xref py py-class docutils literal notranslate"><span class="pre">flywheel.models.subject.Subject</span></code></a> - An individual under study.</li>
+<li><a class="reference internal" href="flywheel.models.html#flywheel.models.session.Session" title="flywheel.models.session.Session"><code class="xref py py-class docutils literal notranslate"><span class="pre">flywheel.models.session.Session</span></code></a> - A grouping of acquired data, typically data acquired within a limited timeframe.</li>
+<li><a class="reference internal" href="flywheel.models.html#flywheel.models.acquisition.Acquisition" title="flywheel.models.acquisition.Acquisition"><code class="xref py py-class docutils literal notranslate"><span class="pre">flywheel.models.acquisition.Acquisition</span></code></a> - A set of one or more files, typically acquired as part of the same process, at the same time.</li>
+<li><a class="reference internal" href="flywheel.models.html#flywheel.models.analysis_output.AnalysisOutput" title="flywheel.models.analysis_output.AnalysisOutput"><code class="xref py py-class docutils literal notranslate"><span class="pre">flywheel.models.analysis_output.AnalysisOutput</span></code></a> - A set of one or more derivative files from analyzing files after they have been acquired.</li>
+</ul>
+</div>
+<div class="section" id="permissions">
+<span id="data-model-permissions"></span><h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this headline">¶</a></h2>
+<p>Permissions in Flywheel are managed at the Group and Project level. Users that belong to a Group or a Project have a
+Role, which is one of:</p>
+<ul class="simple">
+<li><strong>Admin</strong> (<code class="docutils literal notranslate"><span class="pre">admin</span></code>) - Administrators can perform administrative-level actions such as setting permissions or creating and deleting projects.</li>
+<li><strong>Read-Write</strong> (<code class="docutils literal notranslate"><span class="pre">rw</span></code>) - Users can read, create and delete data, but cannot assign permissions or delete entire projects.</li>
+<li><strong>Read-Only</strong> (<code class="docutils literal notranslate"><span class="pre">ro</span></code>) - Users can only read data</li>
+</ul>
+<p>By default when a new Project is created belonging to a Group, permissions will be copied from the Group to the Project, keeping
+user roles intact. From that point on, permissions for that Project must be managed at that project, changes made to the Group
+will not propagate to the project.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="c1"># See project permissions</span>
+<span class="n">project</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">get_project</span><span class="p">(</span><span class="n">project_id</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">permissions</span><span class="p">)</span>
+
+<span class="c1"># Add permission to a project</span>
+<span class="n">fw</span><span class="o">.</span><span class="n">add_project_permission</span><span class="p">(</span><span class="n">project_id</span><span class="p">,</span> <span class="n">flywheel</span><span class="o">.</span><span class="n">Permission</span><span class="p">(</span><span class="s1">&#39;justinehlert@flywheel.io&#39;</span><span class="p">,</span> <span class="s1">&#39;ro&#39;</span><span class="p">))</span>
+
+<span class="c1"># Remove permission from a project</span>
+<span class="n">fw</span><span class="o">.</span><span class="n">delete_project_user_permission</span><span class="p">(</span><span class="n">project_id</span><span class="p">,</span> <span class="s1">&#39;justinehlert@flywheel.io&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="containers">
+<span id="data-model-containers"></span><h2>Containers<a class="headerlink" href="#containers" title="Permalink to this headline">¶</a></h2>
+<p>Projects, Subjects, Sessions, Acquisitions and Analyses are all different types of <em>Containers</em>. Containers in Flywheel all support
+the following features:</p>
+<div class="section" id="tags">
+<h3>Tags<a class="headerlink" href="#tags" title="Permalink to this headline">¶</a></h3>
+<p>Tags are concise labels that provide descriptive metadata that can be searched on. Available tags are managed on the Group.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># See tags on a session</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">get_session</span><span class="p">(</span><span class="n">session_id</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
+
+<span class="c1"># Add a tag to a session</span>
+<span class="n">fw</span><span class="o">.</span><span class="n">add_session_tag</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="s1">&#39;Control&#39;</span><span class="p">)</span>
+
+<span class="c1"># Remove a tag from a session</span>
+<span class="n">fw</span><span class="o">.</span><span class="n">delete_session_tag</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="s1">&#39;Analysis Required&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+<p>Notes are user-entered, human readable metadata attached to a container. They are timestamped and attributed to the user that entered them.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="c1"># See notes on a session</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">get_session</span><span class="p">(</span><span class="n">session_id</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">notes</span><span class="p">)</span>
+
+<span class="c1"># Add a note to a session</span>
+<span class="n">fw</span><span class="o">.</span><span class="n">add_session_note</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="s1">&#39;This is a note&#39;</span><span class="p">)</span>
+
+<span class="c1"># Delete a note from a session</span>
+<span class="n">fw</span><span class="o">.</span><span class="n">delete_session_note</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">notes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="info">
+<h3>Info<a class="headerlink" href="#info" title="Permalink to this headline">¶</a></h3>
+<p>Info is free-form JSON metadata associated with a container or file.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="c1"># Print the info for an acquisition</span>
+<span class="n">acquisition</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">get_acquisition</span><span class="p">(</span><span class="n">acquisition_id</span><span class="p">)</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">acquisition</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+
+<span class="c1"># Replace the entire contents of acquisition info</span>
+<span class="n">fw</span><span class="o">.</span><span class="n">replace_acquisition_info</span><span class="p">(</span><span class="n">acquisition_id</span><span class="p">,</span> <span class="p">{</span> <span class="s1">&#39;splines&#39;</span><span class="p">:</span> <span class="mi">34</span> <span class="p">})</span>
+
+<span class="c1"># Add additional fields to acquisition info</span>
+<span class="n">fw</span><span class="o">.</span><span class="n">set_acquisition_info</span><span class="p">(</span><span class="n">acquisition_id</span><span class="p">,</span> <span class="p">{</span> <span class="s1">&#39;curve&#39;</span><span class="p">:</span> <span class="s1">&#39;bezier&#39;</span> <span class="p">})</span>
+
+<span class="c1"># Delete fields from acquisition info</span>
+<span class="n">fw</span><span class="o">.</span><span class="n">delete_acquisition_info_fields</span><span class="p">(</span><span class="n">acquisition_id</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;splines&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="files">
+<h3>Files<a class="headerlink" href="#files" title="Permalink to this headline">¶</a></h3>
+<p>Files are a set of file attachments associated with a container. See also <a class="reference internal" href="getting_started.html#dealing-with-files"><span class="std std-ref">Dealing with Files</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+
+<span class="c1"># List files on an acquisition</span>
+<span class="n">acquisition</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">get_acquisition</span><span class="p">(</span><span class="n">acquisition_id</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">acquisition</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+  <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Name: </span><span class="si">%s</span><span class="s1">, type: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
+
+<span class="c1"># Upload a file to an acquisition</span>
+<span class="n">fw</span><span class="o">.</span><span class="n">upload_file_to_acquisition</span><span class="p">(</span><span class="n">acquisition_id</span><span class="p">,</span> <span class="s1">&#39;/path/to/file.txt&#39;</span><span class="p">)</span>
+
+<span class="c1"># Download a file to disk</span>
+<span class="n">fw</span><span class="o">.</span><span class="n">download_file_from_acquisition</span><span class="p">(</span><span class="n">acquisition_id</span><span class="p">,</span> <span class="s1">&#39;file.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;/path/to/file.txt&#39;</span><span class="p">)</span>
+
+<span class="c1"># Files can also have metadata</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">acquisition</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="p">)</span>
+
+<span class="n">fw</span><span class="o">.</span><span class="n">replace_acquisition_file_info</span><span class="p">(</span><span class="n">acquisition_id</span><span class="p">,</span> <span class="s1">&#39;file.txt&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;wordCount&#39;</span><span class="p">:</span> <span class="mi">327</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="getting_started.html" class="btn btn-neutral" title="Getting Started with Flywheel SDK" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018 Flywheel All rights reserved.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/jquery.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/underscore.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/doctools.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

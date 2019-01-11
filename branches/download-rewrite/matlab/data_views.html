@@ -1,0 +1,413 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Flywheel Views &mdash; Flywheel SDK  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="flywheel package" href="flywheel.html" />
+    <link rel="prev" title="Examples" href="examples.html" /> 
+
+  
+  <script src="../../../static/theme/sphinx_rtd/0.3.1/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Flywheel SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started with Flywheel SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Flywheel Views</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-view">Creating A View</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#executing-a-view">Executing A View</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#load-struct-view">Load Struct View</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#load-table-view">Load Table View</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#save-dataframe-to-local-csv">Save DataFrame to Local CSV</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#data-formats">Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#columns">Columns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#info-columns">Info Columns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#files">Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#saving-views">Saving Views</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="flywheel.html">flywheel package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Flywheel SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Flywheel Views</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="flywheel-views">
+<h1>Flywheel Views<a class="headerlink" href="#flywheel-views" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Often times it is useful to get attributes across a large number of objects in the Flywheel hierarchy.
+One possible way of retrieving fields in such a manner would be looping over each level in the hierarchy,
+collecting the desired fields at each level. This is problematic because it is tedious to write and inefficient
+to execute.</p>
+<p>A view is an abstraction that describes how to collect and aggregate data on a Flywheel instance.
+Views are defined as a set of columns to collect and are executed against a container (such as a project, subject or session).
+In addition, tabular or JSON file data may be aggregated from files, even files that are members of archives, or part of analysis output.</p>
+<p>Data views provide an alternative way to efficiently aggregate data across the hierarchy in a tabular way, producing
+results like this:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="13%" />
+<col width="13%" />
+<col width="20%" />
+<col width="12%" />
+<col width="15%" />
+<col width="10%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">project.label</th>
+<th class="head">subject.age</th>
+<th class="head">subject.sex</th>
+<th class="head">acquisition.label</th>
+<th class="head">trial_type</th>
+<th class="head">response_time</th>
+<th class="head">accuracy</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>color study</td>
+<td>1040688000</td>
+<td>male</td>
+<td>task-redBlue</td>
+<td>go</td>
+<td>1.435</td>
+<td>1</td>
+</tr>
+<tr class="row-odd"><td>color study</td>
+<td>1040688000</td>
+<td>male</td>
+<td>task-redBlue</td>
+<td>stop</td>
+<td>1.739</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>color study</td>
+<td>851472000</td>
+<td>female</td>
+<td>task-redBlue</td>
+<td>go</td>
+<td>1.379</td>
+<td>1</td>
+</tr>
+<tr class="row-odd"><td>color study</td>
+<td>851472000</td>
+<td>female</td>
+<td>task-redBlue</td>
+<td>stop</td>
+<td>1.534</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="creating-a-view">
+<h2>Creating A View<a class="headerlink" href="#creating-a-view" title="Permalink to this headline">¶</a></h2>
+<p>Views can be created using the <code class="xref mat mat-class docutils literal notranslate"><span class="pre">ViewBuilder</span></code> class, or the short-hand <code class="xref mat mat-meth docutils literal notranslate"><span class="pre">View()</span></code> method.
+At a minimum, one column or file must be specified when creating a data view. A simple example would be to create a view that collects all of the built-in subject columns:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Build a data view</span>
+<span class="n">view</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">View</span><span class="p">(</span><span class="s">&#39;columns&#39;</span><span class="p">,</span> <span class="p">{{</span><span class="s">&#39;subject&#39;</span><span class="p">}})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="executing-a-view">
+<h2>Executing A View<a class="headerlink" href="#executing-a-view" title="Permalink to this headline">¶</a></h2>
+<p>A View object doesn’t become useful until you execute it against a container. View results can be loaded directly into memory, or saved to a file.
+View results can also be loaded directly into a struct array, or a table.
+Finally, you can also save the results of a view execution directly to a container as a file.</p>
+<div class="section" id="load-struct-view">
+<h3>Load Struct View<a class="headerlink" href="#load-struct-view" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">response</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">readViewStruct</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">projectId</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="load-table-view">
+<h3>Load Table View<a class="headerlink" href="#load-table-view" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">readViewTable</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">projectId</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="save-dataframe-to-local-csv">
+<h3>Save DataFrame to Local CSV<a class="headerlink" href="#save-dataframe-to-local-csv" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">fw</span><span class="p">.</span><span class="n">saveViewData</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">projectId</span><span class="p">,</span> <span class="s">&#39;/tmp/results.csv&#39;</span><span class="p">,</span> <span class="s">&#39;format&#39;</span><span class="p">,</span> <span class="s">&#39;csv&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="data-formats">
+<h2>Data Formats<a class="headerlink" href="#data-formats" title="Permalink to this headline">¶</a></h2>
+<p>The following output formats are supported:</p>
+<ul class="simple">
+<li>json - The default format. Results will be returned as an array of objects, one per row.</li>
+<li>json-row-column - A second json format where columns are separate from rows, and rows is an array of arrays.</li>
+<li>json-flat - Similar to json, except that instead of an object, the rows are the top level array.</li>
+<li>csv - Comma-separated values format</li>
+<li>tsv - Tab-separated values format</li>
+</ul>
+<p>Data format can be specified on any of the data view execution functions.</p>
+</div>
+<div class="section" id="columns">
+<h2>Columns<a class="headerlink" href="#columns" title="Permalink to this headline">¶</a></h2>
+<p>Data view columns are references to container fields in the form of <code class="docutils literal notranslate"><span class="pre">&lt;container&gt;.&lt;field&gt;</span></code>.</p>
+<p>A current list of pre-defined columns and groups of columns is available via the <code class="xref mat mat-meth docutils literal notranslate"><span class="pre">printViewColumns()</span></code> method.
+For example:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>project (group): All column aliases belonging to project
+project.id (string): The project id
+project.label (string): The project label
+project.info (string): The freeform project metadata
+subject (group): All column aliases belonging to subject
+subject.id (string): The subject id
+subject.label (string): The subject label or code
+subject.firstname (string): The subject first name
+subject.lastname (string): The subject last name
+subject.age (int): The subject age, in seconds
+subject.info (string): The freeform subject metadata
+...
+</pre></div>
+</div>
+<p>Adding the <code class="docutils literal notranslate"><span class="pre">project</span></code> group column will result in <code class="docutils literal notranslate"><span class="pre">project.id</span></code> and <code class="docutils literal notranslate"><span class="pre">project.label</span></code> being added. Likewise adding the <code class="docutils literal notranslate"><span class="pre">subject</span></code> group column
+will result in the subject <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">label</span></code>, <code class="docutils literal notranslate"><span class="pre">firstname</span></code>, <code class="docutils literal notranslate"><span class="pre">lastname</span></code>, <code class="docutils literal notranslate"><span class="pre">age</span></code> (and more) columns being added to the view.</p>
+<div class="section" id="info-columns">
+<h3>Info Columns<a class="headerlink" href="#info-columns" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">info</span></code> columns are unique in that they represent the unstructured metadata associated with a container. As such, they are not included in
+the column groups, and behave a little bit differently. If the output data format is CSV or TSV, then a set of columns are extracted from the first
+row encountered, which is generally the first object created. This may result in unexpected behavior if info fields are not uniform across each
+object. It’s better in most cases to explicitly state which info fields you wish as columns: e.g. <code class="docutils literal notranslate"><span class="pre">subject.info.IQ</span></code>.</p>
+</div>
+</div>
+<div class="section" id="files">
+<h2>Files<a class="headerlink" href="#files" title="Permalink to this headline">¶</a></h2>
+<p>Rows can also be extracted from CSV, TSV and JSON files that are present on the Flywheel instance. This can be done with the view builder by
+specifying which <code class="docutils literal notranslate"><span class="pre">container</span></code> type to find files on and a <code class="docutils literal notranslate"><span class="pre">filename</span></code> wildcard match. In addition, analysis files can be matched by specifying
+<code class="docutils literal notranslate"><span class="pre">analysisLabel</span></code>, <code class="docutils literal notranslate"><span class="pre">analysisGearName</span></code> and/or <code class="docutils literal notranslate"><span class="pre">analysisGearVersion</span></code>.</p>
+<p>For example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Read all columns from files named behavioral_results_*.csv on each session</span>
+<span class="n">view</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">View</span><span class="p">(</span><span class="s">&#39;container&#39;</span><span class="p">,</span> <span class="s">&#39;session&#39;</span><span class="p">,</span> <span class="s">&#39;filename&#39;</span><span class="p">,</span> <span class="s">&#39;behavioral_results*.csv&#39;</span><span class="p">);</span>
+
+<span class="c">% Read Mean_Diffusivity.csv results from the newest AFQ analyses on each session, and include session and subject labels</span>
+<span class="n">builder</span> <span class="p">=</span> <span class="n">flywheel</span><span class="p">.</span><span class="n">ViewBuilder</span><span class="p">(</span><span class="s">&#39;columns&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="p">{</span><span class="s">&#39;subject.label&#39;</span><span class="p">},</span> <span class="p">{</span><span class="s">&#39;session.label&#39;</span><span class="p">}</span> <span class="p">},</span><span class="c">...</span>
+    <span class="s">&#39;container&#39;</span><span class="p">,</span> <span class="s">&#39;session&#39;</span><span class="p">,</span> <span class="s">&#39;analysisGearName&#39;</span><span class="p">,</span> <span class="s">&#39;afq&#39;</span><span class="p">,</span> <span class="s">&#39;filename&#39;</span><span class="p">,</span> <span class="s">&#39;Mean_Diffusivity.csv&#39;</span><span class="p">);</span>
+<span class="n">builder</span><span class="p">.</span><span class="n">fileMatch</span><span class="p">(</span><span class="s">&#39;newest&#39;</span><span class="p">);</span>
+<span class="n">builder</span><span class="p">.</span><span class="n">fileColumn</span><span class="p">(</span><span class="s">&#39;Left_Thalamic_Radiation&#39;</span><span class="p">,</span> <span class="s">&#39;LTR&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">,</span> <span class="s">&#39;float&#39;</span><span class="p">);</span>
+<span class="n">builder</span><span class="p">.</span><span class="n">fileColumn</span><span class="p">(</span><span class="s">&#39;Right_Thalamic_Radiation&#39;</span><span class="p">,</span> <span class="s">&#39;RTR&#39;</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">,</span> <span class="s">&#39;float&#39;</span><span class="p">);</span>
+<span class="n">view</span> <span class="p">=</span> <span class="n">builder</span><span class="p">.</span><span class="n">build</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="saving-views">
+<h2>Saving Views<a class="headerlink" href="#saving-views" title="Permalink to this headline">¶</a></h2>
+<p>View definitions can be saved to your user account, or any project you have access to. For example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">me</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">getCurrentUser</span><span class="p">().</span><span class="n">id</span><span class="p">;</span>
+<span class="n">subjectsView</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">View</span><span class="p">(</span><span class="s">&#39;label&#39;</span><span class="p">,</span> <span class="s">&#39;Subject Info&#39;</span><span class="p">,</span> <span class="s">&#39;columns&#39;</span><span class="p">,</span> <span class="p">{{</span><span class="s">&#39;subject&#39;</span><span class="p">}});</span>
+<span class="n">viewId</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">addView</span><span class="p">(</span><span class="n">me</span><span class="p">,</span> <span class="n">subjectsView</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Then you can execute the view any time against any container</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">readViewTable</span><span class="p">(</span><span class="n">viewId</span><span class="p">,</span> <span class="n">projectId</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="flywheel.html" class="btn btn-neutral float-right" title="flywheel package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="examples.html" class="btn btn-neutral" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018 Flywheel All rights reserved.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/jquery.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/underscore.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

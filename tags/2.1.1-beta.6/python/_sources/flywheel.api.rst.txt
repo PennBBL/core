@@ -1,0 +1,134 @@
+flywheel.api package
+====================
+
+Submodules
+----------
+
+flywheel.api.acquisitions\_api module
+-------------------------------------
+
+.. automodule:: flywheel.api.acquisitions_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.analyses\_api module
+---------------------------------
+
+.. automodule:: flywheel.api.analyses_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.batch\_api module
+------------------------------
+
+.. automodule:: flywheel.api.batch_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.collections\_api module
+------------------------------------
+
+.. automodule:: flywheel.api.collections_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.default\_api module
+--------------------------------
+
+.. automodule:: flywheel.api.default_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.devices\_api module
+--------------------------------
+
+.. automodule:: flywheel.api.devices_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.files\_api module
+------------------------------
+
+.. automodule:: flywheel.api.files_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.gears\_api module
+------------------------------
+
+.. automodule:: flywheel.api.gears_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.groups\_api module
+-------------------------------
+
+.. automodule:: flywheel.api.groups_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.jobs\_api module
+-----------------------------
+
+.. automodule:: flywheel.api.jobs_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.projects\_api module
+---------------------------------
+
+.. automodule:: flywheel.api.projects_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.reports\_api module
+--------------------------------
+
+.. automodule:: flywheel.api.reports_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.rules\_api module
+------------------------------
+
+.. automodule:: flywheel.api.rules_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.sessions\_api module
+---------------------------------
+
+.. automodule:: flywheel.api.sessions_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.api.users\_api module
+------------------------------
+
+.. automodule:: flywheel.api.users_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: flywheel.api
+    :members:
+    :undoc-members:
+    :show-inheritance:

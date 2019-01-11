@@ -1,0 +1,5049 @@
+flywheel.model package
+===============================================================================
+
+
+Acquisition
+-------------------------------------------------------------------------------
+
+
+.. class:: Acquisition
+
+    .. attribute:: public
+
+        Gets the public of this Acquisition.
+
+        :return: The public of this Acquisition.
+        :rtype: logical
+
+    .. attribute:: label
+
+        Gets the label of this Acquisition.
+
+        :return: The label of this Acquisition.
+        :rtype: char
+
+    .. attribute:: info
+
+        Gets the info of this Acquisition.
+
+        :return: The info of this Acquisition.
+        :rtype: :class:`~flywheel.model.CommonInfo`
+
+    .. attribute:: session
+
+        Gets the session of this Acquisition.
+
+        :return: The session of this Acquisition.
+        :rtype: char
+
+    .. attribute:: uid
+
+        Gets the uid of this Acquisition.
+
+        :return: The uid of this Acquisition.
+        :rtype: char
+
+    .. attribute:: timestamp
+
+        Gets the timestamp of this Acquisition.
+
+        :return: The timestamp of this Acquisition.
+        :rtype: char
+
+    .. attribute:: timezone
+
+        Gets the timezone of this Acquisition.
+
+        :return: The timezone of this Acquisition.
+        :rtype: char
+
+    .. attribute:: id
+
+        Gets the id of this Acquisition.
+
+        :return: The id of this Acquisition.
+        :rtype: char
+
+    .. attribute:: collections
+
+        Gets the collections of this Acquisition.
+
+        :return: The collections of this Acquisition.
+        :rtype: vector[char]
+
+    .. attribute:: files
+
+        Gets the files of this Acquisition.
+
+        :return: The files of this Acquisition.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: created
+
+        Gets the created of this Acquisition.
+
+        :return: The created of this Acquisition.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this Acquisition.
+
+        :return: The modified of this Acquisition.
+        :rtype: char
+
+    .. attribute:: infoExists
+
+        Gets the infoExists of this Acquisition.
+
+        :return: The infoExists of this Acquisition.
+        :rtype: logical
+
+    .. attribute:: permissions
+
+        Gets the permissions of this Acquisition.
+
+        :return: The permissions of this Acquisition.
+        :rtype: :class:`~flywheel.model.Permission`
+
+    .. attribute:: notes
+
+        Gets the notes of this Acquisition.
+
+        :return: The notes of this Acquisition.
+        :rtype: :class:`~flywheel.model.Note`
+
+    .. attribute:: tags
+
+        Gets the tags of this Acquisition.
+
+        :return: The tags of this Acquisition.
+        :rtype: vector[char]
+
+    .. attribute:: analyses
+
+        Gets the analyses of this Acquisition.
+
+        :return: The analyses of this Acquisition.
+        :rtype: :class:`~flywheel.model.AnalysisOutput`
+
+
+
+AcquisitionMetadataInput
+-------------------------------------------------------------------------------
+
+
+.. class:: AcquisitionMetadataInput
+
+    .. attribute:: public
+
+        Gets the public of this AcquisitionMetadataInput.
+
+        :return: The public of this AcquisitionMetadataInput.
+        :rtype: logical
+
+    .. attribute:: label
+
+        Gets the label of this AcquisitionMetadataInput.
+
+        :return: The label of this AcquisitionMetadataInput.
+        :rtype: char
+
+    .. attribute:: info
+
+        Gets the info of this AcquisitionMetadataInput.
+
+        :return: The info of this AcquisitionMetadataInput.
+        :rtype: containers.Map
+
+    .. attribute:: metadata
+
+        Gets the metadata of this AcquisitionMetadataInput.
+
+        :return: The metadata of this AcquisitionMetadataInput.
+        :rtype: containers.Map
+
+    .. attribute:: measurement
+
+        Gets the measurement of this AcquisitionMetadataInput.
+
+        :return: The measurement of this AcquisitionMetadataInput.
+        :rtype: char
+
+    .. attribute:: instrument
+
+        Gets the instrument of this AcquisitionMetadataInput.
+
+        :return: The instrument of this AcquisitionMetadataInput.
+        :rtype: char
+
+    .. attribute:: uid
+
+        Gets the uid of this AcquisitionMetadataInput.
+
+        :return: The uid of this AcquisitionMetadataInput.
+        :rtype: char
+
+    .. attribute:: timestamp
+
+        Gets the timestamp of this AcquisitionMetadataInput.
+
+        :return: The timestamp of this AcquisitionMetadataInput.
+        :rtype: char
+
+    .. attribute:: timezone
+
+        Gets the timezone of this AcquisitionMetadataInput.
+
+        :return: The timezone of this AcquisitionMetadataInput.
+        :rtype: char
+
+    .. attribute:: files
+
+        Gets the files of this AcquisitionMetadataInput.
+
+        :return: The files of this AcquisitionMetadataInput.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+
+
+AnalysisFilesCreateTicketOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: AnalysisFilesCreateTicketOutput
+
+    .. attribute:: ticket
+
+        Gets the ticket of this AnalysisFilesCreateTicketOutput.
+
+        :return: The ticket of this AnalysisFilesCreateTicketOutput.
+        :rtype: char
+
+    .. attribute:: filename
+
+        Gets the filename of this AnalysisFilesCreateTicketOutput.
+
+        :return: The filename of this AnalysisFilesCreateTicketOutput.
+        :rtype: char
+
+    .. attribute:: fileCnt
+
+        Gets the fileCnt of this AnalysisFilesCreateTicketOutput.
+
+        :return: The fileCnt of this AnalysisFilesCreateTicketOutput.
+        :rtype: integer
+
+    .. attribute:: size
+
+        Gets the size of this AnalysisFilesCreateTicketOutput.
+
+        :return: The size of this AnalysisFilesCreateTicketOutput.
+        :rtype: integer
+
+
+
+AnalysisInput
+-------------------------------------------------------------------------------
+
+
+.. class:: AnalysisInput
+
+    .. attribute:: inputs
+
+        Gets the inputs of this AnalysisInput.
+
+        :return: The inputs of this AnalysisInput.
+        :rtype: :class:`~flywheel.model.FileReference`
+
+    .. attribute:: notes
+
+        Gets the notes of this AnalysisInput.
+
+        :return: The notes of this AnalysisInput.
+        :rtype: :class:`~flywheel.model.Note`
+
+    .. attribute:: description
+
+        Gets the description of this AnalysisInput.
+
+        :return: The description of this AnalysisInput.
+        :rtype: char
+
+    .. attribute:: label
+
+        Gets the label of this AnalysisInput.
+
+        :return: The label of this AnalysisInput.
+        :rtype: char
+
+    .. attribute:: job
+
+        Gets the job of this AnalysisInput.
+
+        :return: The job of this AnalysisInput.
+        :rtype: :class:`~flywheel.model.Job`
+
+
+
+AnalysisInputAny
+-------------------------------------------------------------------------------
+
+
+.. class:: AnalysisInputAny
+
+
+
+AnalysisInputLegacy
+-------------------------------------------------------------------------------
+
+
+.. class:: AnalysisInputLegacy
+
+    .. attribute:: inputs
+
+        Gets the inputs of this AnalysisInputLegacy.
+
+        :return: The inputs of this AnalysisInputLegacy.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: outputs
+
+        Gets the outputs of this AnalysisInputLegacy.
+
+        :return: The outputs of this AnalysisInputLegacy.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: notes
+
+        Gets the notes of this AnalysisInputLegacy.
+
+        :return: The notes of this AnalysisInputLegacy.
+        :rtype: :class:`~flywheel.model.Note`
+
+    .. attribute:: description
+
+        Gets the description of this AnalysisInputLegacy.
+
+        :return: The description of this AnalysisInputLegacy.
+        :rtype: char
+
+    .. attribute:: label
+
+        Gets the label of this AnalysisInputLegacy.
+
+        :return: The label of this AnalysisInputLegacy.
+        :rtype: char
+
+
+
+AnalysisListEntry
+-------------------------------------------------------------------------------
+
+
+.. class:: AnalysisListEntry
+
+    .. attribute:: id
+
+        Gets the id of this AnalysisListEntry.
+
+        :return: The id of this AnalysisListEntry.
+        :rtype: char
+
+    .. attribute:: inputs
+
+        Gets the inputs of this AnalysisListEntry.
+
+        :return: The inputs of this AnalysisListEntry.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: files
+
+        Gets the files of this AnalysisListEntry.
+
+        :return: The files of this AnalysisListEntry.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: job
+
+        Gets the job of this AnalysisListEntry.
+
+        :return: The job of this AnalysisListEntry.
+        :rtype: char
+
+    .. attribute:: notes
+
+        Gets the notes of this AnalysisListEntry.
+
+        :return: The notes of this AnalysisListEntry.
+        :rtype: :class:`~flywheel.model.Note`
+
+    .. attribute:: description
+
+        Gets the description of this AnalysisListEntry.
+
+        :return: The description of this AnalysisListEntry.
+        :rtype: char
+
+    .. attribute:: label
+
+        Gets the label of this AnalysisListEntry.
+
+        :return: The label of this AnalysisListEntry.
+        :rtype: char
+
+    .. attribute:: created
+
+        Gets the created of this AnalysisListEntry.
+
+        :return: The created of this AnalysisListEntry.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this AnalysisListEntry.
+
+        :return: The modified of this AnalysisListEntry.
+        :rtype: char
+
+
+
+AnalysisOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: AnalysisOutput
+
+    .. attribute:: id
+
+        Gets the id of this AnalysisOutput.
+
+        :return: The id of this AnalysisOutput.
+        :rtype: char
+
+    .. attribute:: inputs
+
+        Gets the inputs of this AnalysisOutput.
+
+        :return: The inputs of this AnalysisOutput.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: files
+
+        Gets the files of this AnalysisOutput.
+
+        :return: The files of this AnalysisOutput.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: job
+
+        Gets the job of this AnalysisOutput.
+
+        :return: The job of this AnalysisOutput.
+        :rtype: :class:`~flywheel.model.Job`
+
+    .. attribute:: notes
+
+        Gets the notes of this AnalysisOutput.
+
+        :return: The notes of this AnalysisOutput.
+        :rtype: :class:`~flywheel.model.Note`
+
+    .. attribute:: tags
+
+        Gets the tags of this AnalysisOutput.
+
+        :return: The tags of this AnalysisOutput.
+        :rtype: vector[char]
+
+    .. attribute:: info
+
+        Gets the info of this AnalysisOutput.
+
+        :return: The info of this AnalysisOutput.
+        :rtype: :class:`~flywheel.model.CommonInfo`
+
+    .. attribute:: description
+
+        Gets the description of this AnalysisOutput.
+
+        :return: The description of this AnalysisOutput.
+        :rtype: char
+
+    .. attribute:: label
+
+        Gets the label of this AnalysisOutput.
+
+        :return: The label of this AnalysisOutput.
+        :rtype: char
+
+    .. attribute:: created
+
+        Gets the created of this AnalysisOutput.
+
+        :return: The created of this AnalysisOutput.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this AnalysisOutput.
+
+        :return: The modified of this AnalysisOutput.
+        :rtype: char
+
+
+
+AnalysisUpdate
+-------------------------------------------------------------------------------
+
+
+.. class:: AnalysisUpdate
+
+    .. attribute:: label
+
+        Gets the label of this AnalysisUpdate.
+
+        :return: The label of this AnalysisUpdate.
+        :rtype: char
+
+
+
+AuthLoginOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: AuthLoginOutput
+
+    .. attribute:: token
+
+        Gets the token of this AuthLoginOutput.
+
+        :return: The token of this AuthLoginOutput.
+        :rtype: char
+
+
+
+AuthLogoutOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: AuthLogoutOutput
+
+    .. attribute:: tokensRemoved
+
+        Gets the tokensRemoved of this AuthLogoutOutput.
+
+        :return: The tokensRemoved of this AuthLogoutOutput.
+        :rtype: integer
+
+
+
+Avatars
+-------------------------------------------------------------------------------
+
+
+.. class:: Avatars
+
+    .. attribute:: gravatar
+
+        Gets the gravatar of this Avatars.
+
+        :return: The gravatar of this Avatars.
+        :rtype: char
+
+    .. attribute:: provider
+
+        Gets the provider of this Avatars.
+
+        :return: The provider of this Avatars.
+        :rtype: char
+
+    .. attribute:: custom
+
+        Gets the custom of this Avatars.
+
+        :return: The custom of this Avatars.
+        :rtype: char
+
+
+
+Batch
+-------------------------------------------------------------------------------
+
+
+.. class:: Batch
+
+    .. attribute:: id
+
+        Gets the id of this Batch.
+
+        :return: The id of this Batch.
+        :rtype: char
+
+    .. attribute:: gearId
+
+        Gets the gearId of this Batch.
+
+        :return: The gearId of this Batch.
+        :rtype: char
+
+    .. attribute:: state
+
+        Gets the state of this Batch.
+
+        :return: The state of this Batch.
+        :rtype: char
+
+    .. attribute:: origin
+
+        Gets the origin of this Batch.
+
+        :return: The origin of this Batch.
+        :rtype: :class:`~flywheel.model.JobOrigin`
+
+    .. attribute:: config
+
+        Gets the config of this Batch.
+
+        :return: The config of this Batch.
+        :rtype: :class:`~flywheel.model.JobConfig`
+
+    .. attribute:: jobs
+
+        Gets the jobs of this Batch.
+
+        :return: The jobs of this Batch.
+        :rtype: vector[char]
+
+    .. attribute:: created
+
+        Gets the created of this Batch.
+
+        :return: The created of this Batch.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this Batch.
+
+        :return: The modified of this Batch.
+        :rtype: char
+
+
+
+BatchCancelOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: BatchCancelOutput
+
+    .. attribute:: numberCancelled
+
+        Gets the numberCancelled of this BatchCancelOutput.
+
+        :return: The numberCancelled of this BatchCancelOutput.
+        :rtype: integer
+
+
+
+BatchProposal
+-------------------------------------------------------------------------------
+
+
+.. class:: BatchProposal
+
+    .. attribute:: id
+
+        Gets the id of this BatchProposal.
+
+        :return: The id of this BatchProposal.
+        :rtype: char
+
+    .. attribute:: gearId
+
+        Gets the gearId of this BatchProposal.
+
+        :return: The gearId of this BatchProposal.
+        :rtype: char
+
+    .. attribute:: state
+
+        Gets the state of this BatchProposal.
+
+        :return: The state of this BatchProposal.
+        :rtype: char
+
+    .. attribute:: config
+
+        Gets the config of this BatchProposal.
+
+        :return: The config of this BatchProposal.
+        :rtype: :class:`~flywheel.model.JobConfig`
+
+    .. attribute:: origin
+
+        Gets the origin of this BatchProposal.
+
+        :return: The origin of this BatchProposal.
+        :rtype: :class:`~flywheel.model.JobOrigin`
+
+    .. attribute:: proposal
+
+        Gets the proposal of this BatchProposal.
+
+        :return: The proposal of this BatchProposal.
+        :rtype: :class:`~flywheel.model.BatchProposalDetail`
+
+    .. attribute:: ambiguous
+
+        Gets the ambiguous of this BatchProposal.
+
+        :return: The ambiguous of this BatchProposal.
+        :rtype: :class:`~flywheel.model.ContainerOutputWithFiles`
+
+    .. attribute:: matched
+
+        Gets the matched of this BatchProposal.
+
+        :return: The matched of this BatchProposal.
+        :rtype: :class:`~flywheel.model.ContainerOutputWithFiles`
+
+    .. attribute:: notMatched
+
+        Gets the notMatched of this BatchProposal.
+
+        :return: The notMatched of this BatchProposal.
+        :rtype: :class:`~flywheel.model.ContainerOutputWithFiles`
+
+    .. attribute:: improperPermissions
+
+        Gets the improperPermissions of this BatchProposal.
+
+        :return: The improperPermissions of this BatchProposal.
+        :rtype: vector[char]
+
+    .. attribute:: created
+
+        Gets the created of this BatchProposal.
+
+        :return: The created of this BatchProposal.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this BatchProposal.
+
+        :return: The modified of this BatchProposal.
+        :rtype: char
+
+
+
+BatchProposalDetail
+-------------------------------------------------------------------------------
+
+
+.. class:: BatchProposalDetail
+
+    .. attribute:: analysis
+
+        Gets the analysis of this BatchProposalDetail.
+
+        :return: The analysis of this BatchProposalDetail.
+        :rtype: :class:`~flywheel.model.AnalysisInput`
+
+    .. attribute:: tags
+
+        Gets the tags of this BatchProposalDetail.
+
+        :return: The tags of this BatchProposalDetail.
+        :rtype: vector[char]
+
+
+
+BatchProposalInput
+-------------------------------------------------------------------------------
+
+
+.. class:: BatchProposalInput
+
+    .. attribute:: gearId
+
+        Gets the gearId of this BatchProposalInput.
+
+        :return: The gearId of this BatchProposalInput.
+        :rtype: char
+
+    .. attribute:: config
+
+        Gets the config of this BatchProposalInput.
+
+        :return: The config of this BatchProposalInput.
+        :rtype: :class:`~flywheel.model.JobConfig`
+
+    .. attribute:: tags
+
+        Gets the tags of this BatchProposalInput.
+
+        :return: The tags of this BatchProposalInput.
+        :rtype: vector[char]
+
+    .. attribute:: analysis
+
+        Gets the analysis of this BatchProposalInput.
+
+        :return: The analysis of this BatchProposalInput.
+        :rtype: :class:`~flywheel.model.AnalysisInput`
+
+    .. attribute:: targets
+
+        Gets the targets of this BatchProposalInput.
+
+        :return: The targets of this BatchProposalInput.
+        :rtype: :class:`~flywheel.model.ContainerReference`
+
+
+
+Collection
+-------------------------------------------------------------------------------
+
+
+.. class:: Collection
+
+    .. attribute:: public
+
+        Gets the public of this Collection.
+
+        :return: The public of this Collection.
+        :rtype: logical
+
+    .. attribute:: label
+
+        Gets the label of this Collection.
+
+        :return: The label of this Collection.
+        :rtype: char
+
+    .. attribute:: info
+
+        Gets the info of this Collection.
+
+        :return: The info of this Collection.
+        :rtype: :class:`~flywheel.model.CommonInfo`
+
+    .. attribute:: description
+
+        Gets the description of this Collection.
+
+        :return: The description of this Collection.
+        :rtype: char
+
+    .. attribute:: contents
+
+        Gets the contents of this Collection.
+
+        :return: The contents of this Collection.
+        :rtype: :class:`~flywheel.model.CollectionOperation`
+
+    .. attribute:: id
+
+        Gets the id of this Collection.
+
+        :return: The id of this Collection.
+        :rtype: char
+
+    .. attribute:: infoExists
+
+        Gets the infoExists of this Collection.
+
+        :return: The infoExists of this Collection.
+        :rtype: logical
+
+    .. attribute:: curator
+
+        Gets the curator of this Collection.
+
+        :return: The curator of this Collection.
+        :rtype: char
+
+    .. attribute:: created
+
+        Gets the created of this Collection.
+
+        :return: The created of this Collection.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this Collection.
+
+        :return: The modified of this Collection.
+        :rtype: char
+
+    .. attribute:: permissions
+
+        Gets the permissions of this Collection.
+
+        :return: The permissions of this Collection.
+        :rtype: :class:`~flywheel.model.Permission`
+
+    .. attribute:: files
+
+        Gets the files of this Collection.
+
+        :return: The files of this Collection.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: notes
+
+        Gets the notes of this Collection.
+
+        :return: The notes of this Collection.
+        :rtype: :class:`~flywheel.model.Note`
+
+    .. attribute:: tags
+
+        Gets the tags of this Collection.
+
+        :return: The tags of this Collection.
+        :rtype: vector[char]
+
+    .. attribute:: analyses
+
+        Gets the analyses of this Collection.
+
+        :return: The analyses of this Collection.
+        :rtype: :class:`~flywheel.model.AnalysisOutput`
+
+
+
+CollectionNewOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: CollectionNewOutput
+
+    .. attribute:: id
+
+        Gets the id of this CollectionNewOutput.
+
+        :return: The id of this CollectionNewOutput.
+        :rtype: char
+
+
+
+CollectionNode
+-------------------------------------------------------------------------------
+
+
+.. class:: CollectionNode
+
+    .. attribute:: level
+
+        Gets the level of this CollectionNode.
+
+        :return: The level of this CollectionNode.
+        :rtype: char
+
+    .. attribute:: id
+
+        Gets the id of this CollectionNode.
+
+        :return: The id of this CollectionNode.
+        :rtype: char
+
+
+
+CollectionOperation
+-------------------------------------------------------------------------------
+
+
+.. class:: CollectionOperation
+
+    .. attribute:: operation
+
+        Gets the operation of this CollectionOperation.
+
+        :return: The operation of this CollectionOperation.
+        :rtype: char
+
+    .. attribute:: nodes
+
+        Gets the nodes of this CollectionOperation.
+
+        :return: The nodes of this CollectionOperation.
+        :rtype: :class:`~flywheel.model.CollectionNode`
+
+
+
+CommonDeletedCount
+-------------------------------------------------------------------------------
+
+
+.. class:: CommonDeletedCount
+
+    .. attribute:: deleted
+
+        Gets the deleted of this CommonDeletedCount.
+
+        :return: The deleted of this CommonDeletedCount.
+        :rtype: integer
+
+
+
+CommonInfo
+-------------------------------------------------------------------------------
+
+
+.. class:: CommonInfo
+
+
+
+CommonModifiedCount
+-------------------------------------------------------------------------------
+
+
+.. class:: CommonModifiedCount
+
+    .. attribute:: modified
+
+        Gets the modified of this CommonModifiedCount.
+
+        :return: The modified of this CommonModifiedCount.
+        :rtype: integer
+
+
+
+CommonObjectCreated
+-------------------------------------------------------------------------------
+
+
+.. class:: CommonObjectCreated
+
+    .. attribute:: id
+
+        Gets the id of this CommonObjectCreated.
+
+        :return: The id of this CommonObjectCreated.
+        :rtype: char
+
+
+
+ConfigAuthOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: ConfigAuthOutput
+
+    .. attribute:: verifyEndpoint
+
+        Gets the verifyEndpoint of this ConfigAuthOutput.
+
+        :return: The verifyEndpoint of this ConfigAuthOutput.
+        :rtype: char
+
+    .. attribute:: clientId
+
+        Gets the clientId of this ConfigAuthOutput.
+
+        :return: The clientId of this ConfigAuthOutput.
+        :rtype: char
+
+    .. attribute:: clientSecret
+
+        Gets the clientSecret of this ConfigAuthOutput.
+
+        :return: The clientSecret of this ConfigAuthOutput.
+        :rtype: char
+
+    .. attribute:: authEndpoint
+
+        Gets the authEndpoint of this ConfigAuthOutput.
+
+        :return: The authEndpoint of this ConfigAuthOutput.
+        :rtype: char
+
+    .. attribute:: refreshEndpoint
+
+        Gets the refreshEndpoint of this ConfigAuthOutput.
+
+        :return: The refreshEndpoint of this ConfigAuthOutput.
+        :rtype: char
+
+
+
+ConfigOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: ConfigOutput
+
+    .. attribute:: site
+
+        Gets the site of this ConfigOutput.
+
+        :return: The site of this ConfigOutput.
+        :rtype: :class:`~flywheel.model.ConfigSiteConfigOutput`
+
+    .. attribute:: modified
+
+        Gets the modified of this ConfigOutput.
+
+        :return: The modified of this ConfigOutput.
+        :rtype: char
+
+    .. attribute:: auth
+
+        Gets the auth of this ConfigOutput.
+
+        :return: The auth of this ConfigOutput.
+        :rtype: :class:`~flywheel.model.ConfigAuthOutput`
+
+    .. attribute:: created
+
+        Gets the created of this ConfigOutput.
+
+        :return: The created of this ConfigOutput.
+        :rtype: char
+
+
+
+ConfigSiteConfigOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: ConfigSiteConfigOutput
+
+    .. attribute:: centralUrl
+
+        Gets the centralUrl of this ConfigSiteConfigOutput.
+
+        :return: The centralUrl of this ConfigSiteConfigOutput.
+        :rtype: char
+
+    .. attribute:: sslCert
+
+        Gets the sslCert of this ConfigSiteConfigOutput.
+
+        :return: The sslCert of this ConfigSiteConfigOutput.
+        :rtype: char
+
+    .. attribute:: apiUrl
+
+        Gets the apiUrl of this ConfigSiteConfigOutput.
+
+        :return: The apiUrl of this ConfigSiteConfigOutput.
+        :rtype: char
+
+    .. attribute:: registered
+
+        Gets the registered of this ConfigSiteConfigOutput.
+
+        :return: The registered of this ConfigSiteConfigOutput.
+        :rtype: logical
+
+    .. attribute:: id
+
+        Gets the id of this ConfigSiteConfigOutput.
+
+        :return: The id of this ConfigSiteConfigOutput.
+        :rtype: char
+
+    .. attribute:: name
+
+        Gets the name of this ConfigSiteConfigOutput.
+
+        :return: The name of this ConfigSiteConfigOutput.
+        :rtype: char
+
+
+
+ContainerNewOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: ContainerNewOutput
+
+    .. attribute:: id
+
+        Gets the id of this ContainerNewOutput.
+
+        :return: The id of this ContainerNewOutput.
+        :rtype: char
+
+
+
+ContainerOutputWithFiles
+-------------------------------------------------------------------------------
+Generic container output with files
+
+.. class:: ContainerOutputWithFiles
+
+        Generic container output with files
+
+    .. attribute:: id
+
+        Gets the id of this ContainerOutputWithFiles.
+
+        :return: The id of this ContainerOutputWithFiles.
+        :rtype: char
+
+    .. attribute:: label
+
+        Gets the label of this ContainerOutputWithFiles.
+
+        :return: The label of this ContainerOutputWithFiles.
+        :rtype: char
+
+    .. attribute:: files
+
+        Gets the files of this ContainerOutputWithFiles.
+
+        :return: The files of this ContainerOutputWithFiles.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: created
+
+        Gets the created of this ContainerOutputWithFiles.
+
+        :return: The created of this ContainerOutputWithFiles.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this ContainerOutputWithFiles.
+
+        :return: The modified of this ContainerOutputWithFiles.
+        :rtype: char
+
+
+
+ContainerReference
+-------------------------------------------------------------------------------
+A reference to an individual container, by type and id
+
+.. class:: ContainerReference
+
+        A reference to an individual container, by type and id
+
+    .. attribute:: type
+
+        The type of container (e.g. session)
+
+        :return: The type of this ContainerReference.
+        :rtype: char
+
+    .. attribute:: id
+
+        Gets the id of this ContainerReference.
+
+        :return: The id of this ContainerReference.
+        :rtype: char
+
+
+
+Device
+-------------------------------------------------------------------------------
+
+
+.. class:: Device
+
+    .. attribute:: id
+
+        Gets the id of this Device.
+
+        :return: The id of this Device.
+        :rtype: char
+
+    .. attribute:: method
+
+        Gets the method of this Device.
+
+        :return: The method of this Device.
+        :rtype: char
+
+    .. attribute:: name
+
+        Gets the name of this Device.
+
+        :return: The name of this Device.
+        :rtype: char
+
+    .. attribute:: errors
+
+        Gets the errors of this Device.
+
+        :return: The errors of this Device.
+        :rtype: vector[char]
+
+    .. attribute:: info
+
+        Gets the info of this Device.
+
+        :return: The info of this Device.
+        :rtype: :class:`~flywheel.model.CommonInfo`
+
+    .. attribute:: interval
+
+        Gets the interval of this Device.
+
+        :return: The interval of this Device.
+        :rtype: integer
+
+    .. attribute:: lastSeen
+
+        Gets the lastSeen of this Device.
+
+        :return: The lastSeen of this Device.
+        :rtype: char
+
+
+
+DeviceStatus
+-------------------------------------------------------------------------------
+
+
+.. class:: DeviceStatus
+
+
+
+DeviceStatusEntry
+-------------------------------------------------------------------------------
+
+
+.. class:: DeviceStatusEntry
+
+    .. attribute:: errors
+
+        Gets the errors of this DeviceStatusEntry.
+
+        :return: The errors of this DeviceStatusEntry.
+        :rtype: vector[char]
+
+    .. attribute:: lastSeen
+
+        Gets the lastSeen of this DeviceStatusEntry.
+
+        :return: The lastSeen of this DeviceStatusEntry.
+        :rtype: char
+
+    .. attribute:: status
+
+        Gets the status of this DeviceStatusEntry.
+
+        :return: The status of this DeviceStatusEntry.
+        :rtype: char
+
+
+
+Download
+-------------------------------------------------------------------------------
+
+
+.. class:: Download
+
+    .. attribute:: optional
+
+        Gets the optional of this Download.
+
+        :return: The optional of this Download.
+        :rtype: logical
+
+    .. attribute:: nodes
+
+        Gets the nodes of this Download.
+
+        :return: The nodes of this Download.
+        :rtype: :class:`~flywheel.model.DownloadNode`
+
+    .. attribute:: filters
+
+        Gets the filters of this Download.
+
+        :return: The filters of this Download.
+        :rtype: :class:`~flywheel.model.DownloadFilter`
+
+
+
+DownloadFilter
+-------------------------------------------------------------------------------
+
+
+.. class:: DownloadFilter
+
+    .. attribute:: tags
+
+        Gets the tags of this DownloadFilter.
+
+        :return: The tags of this DownloadFilter.
+        :rtype: :class:`~flywheel.model.DownloadFilterDefinition`
+
+    .. attribute:: types
+
+        Gets the types of this DownloadFilter.
+
+        :return: The types of this DownloadFilter.
+        :rtype: :class:`~flywheel.model.DownloadFilterDefinition`
+
+
+
+DownloadFilterDefinition
+-------------------------------------------------------------------------------
+
+
+.. class:: DownloadFilterDefinition
+
+    .. attribute:: plus
+
+        Gets the plus of this DownloadFilterDefinition.
+
+        :return: The plus of this DownloadFilterDefinition.
+        :rtype: vector[char]
+
+    .. attribute:: minus
+
+        Gets the minus of this DownloadFilterDefinition.
+
+        :return: The minus of this DownloadFilterDefinition.
+        :rtype: vector[char]
+
+
+
+DownloadInput
+-------------------------------------------------------------------------------
+
+
+.. class:: DownloadInput
+
+    .. attribute:: optional
+
+        Gets the optional of this DownloadInput.
+
+        :return: The optional of this DownloadInput.
+        :rtype: logical
+
+    .. attribute:: nodes
+
+        Gets the nodes of this DownloadInput.
+
+        :return: The nodes of this DownloadInput.
+        :rtype: :class:`~flywheel.model.DownloadNode`
+
+    .. attribute:: filters
+
+        Gets the filters of this DownloadInput.
+
+        :return: The filters of this DownloadInput.
+        :rtype: :class:`~flywheel.model.DownloadFilter`
+
+
+
+DownloadNode
+-------------------------------------------------------------------------------
+
+
+.. class:: DownloadNode
+
+    .. attribute:: level
+
+        Gets the level of this DownloadNode.
+
+        :return: The level of this DownloadNode.
+        :rtype: char
+
+    .. attribute:: id
+
+        Gets the id of this DownloadNode.
+
+        :return: The id of this DownloadNode.
+        :rtype: char
+
+
+
+DownloadTicket
+-------------------------------------------------------------------------------
+
+
+.. class:: DownloadTicket
+
+    .. attribute:: ticket
+
+        Gets the ticket of this DownloadTicket.
+
+        :return: The ticket of this DownloadTicket.
+        :rtype: char
+
+
+
+DownloadTicketWithSummary
+-------------------------------------------------------------------------------
+
+
+.. class:: DownloadTicketWithSummary
+
+    .. attribute:: ticket
+
+        The ticket to use to perform the actual download
+
+        :return: The ticket of this DownloadTicketWithSummary.
+        :rtype: char
+
+    .. attribute:: fileCnt
+
+        The number of files that will be included in the download
+
+        :return: The fileCnt of this DownloadTicketWithSummary.
+        :rtype: integer
+
+    .. attribute:: size
+
+        An estimated total number of bytes that will be downloaded
+
+        :return: The size of this DownloadTicketWithSummary.
+        :rtype: integer
+
+
+
+EnginemetadataEngineUploadInput
+-------------------------------------------------------------------------------
+
+
+.. class:: EnginemetadataEngineUploadInput
+
+    .. attribute:: project
+
+        Gets the project of this EnginemetadataEngineUploadInput.
+
+        :return: The project of this EnginemetadataEngineUploadInput.
+        :rtype: :class:`~flywheel.model.ProjectMetadataInput`
+
+    .. attribute:: session
+
+        Gets the session of this EnginemetadataEngineUploadInput.
+
+        :return: The session of this EnginemetadataEngineUploadInput.
+        :rtype: :class:`~flywheel.model.SessionMetadataInput`
+
+    .. attribute:: acquisition
+
+        Gets the acquisition of this EnginemetadataEngineUploadInput.
+
+        :return: The acquisition of this EnginemetadataEngineUploadInput.
+        :rtype: :class:`~flywheel.model.AcquisitionMetadataInput`
+
+
+
+EnginemetadataLabelUploadInput
+-------------------------------------------------------------------------------
+
+
+.. class:: EnginemetadataLabelUploadInput
+
+    .. attribute:: group
+
+        Gets the group of this EnginemetadataLabelUploadInput.
+
+        :return: The group of this EnginemetadataLabelUploadInput.
+        :rtype: :class:`~flywheel.model.GroupMetadataInput`
+
+    .. attribute:: project
+
+        Gets the project of this EnginemetadataLabelUploadInput.
+
+        :return: The project of this EnginemetadataLabelUploadInput.
+        :rtype: :class:`~flywheel.model.ProjectMetadataInput`
+
+    .. attribute:: session
+
+        Gets the session of this EnginemetadataLabelUploadInput.
+
+        :return: The session of this EnginemetadataLabelUploadInput.
+        :rtype: :class:`~flywheel.model.SessionMetadataInput`
+
+    .. attribute:: acquisition
+
+        Gets the acquisition of this EnginemetadataLabelUploadInput.
+
+        :return: The acquisition of this EnginemetadataLabelUploadInput.
+        :rtype: :class:`~flywheel.model.EnginemetadataUploadAcquisitionMetadataInput`
+
+
+
+EnginemetadataUidMatchUploadInput
+-------------------------------------------------------------------------------
+
+
+.. class:: EnginemetadataUidMatchUploadInput
+
+    .. attribute:: project
+
+        Gets the project of this EnginemetadataUidMatchUploadInput.
+
+        :return: The project of this EnginemetadataUidMatchUploadInput.
+        :rtype: :class:`~flywheel.model.ProjectMetadataInput`
+
+    .. attribute:: session
+
+        Gets the session of this EnginemetadataUidMatchUploadInput.
+
+        :return: The session of this EnginemetadataUidMatchUploadInput.
+        :rtype: :class:`~flywheel.model.SessionMetadataInput`
+
+    .. attribute:: acquisition
+
+        Gets the acquisition of this EnginemetadataUidMatchUploadInput.
+
+        :return: The acquisition of this EnginemetadataUidMatchUploadInput.
+        :rtype: :class:`~flywheel.model.EnginemetadataUploadAcquisitionMetadataInput`
+
+
+
+EnginemetadataUidUploadInput
+-------------------------------------------------------------------------------
+
+
+.. class:: EnginemetadataUidUploadInput
+
+    .. attribute:: group
+
+        Gets the group of this EnginemetadataUidUploadInput.
+
+        :return: The group of this EnginemetadataUidUploadInput.
+        :rtype: :class:`~flywheel.model.GroupMetadataInput`
+
+    .. attribute:: project
+
+        Gets the project of this EnginemetadataUidUploadInput.
+
+        :return: The project of this EnginemetadataUidUploadInput.
+        :rtype: :class:`~flywheel.model.ProjectMetadataInput`
+
+    .. attribute:: session
+
+        Gets the session of this EnginemetadataUidUploadInput.
+
+        :return: The session of this EnginemetadataUidUploadInput.
+        :rtype: :class:`~flywheel.model.SessionMetadataInput`
+
+    .. attribute:: acquisition
+
+        Gets the acquisition of this EnginemetadataUidUploadInput.
+
+        :return: The acquisition of this EnginemetadataUidUploadInput.
+        :rtype: :class:`~flywheel.model.EnginemetadataUploadAcquisitionMetadataInput`
+
+
+
+EnginemetadataUploadAcquisitionMetadataInput
+-------------------------------------------------------------------------------
+
+
+.. class:: EnginemetadataUploadAcquisitionMetadataInput
+
+    .. attribute:: public
+
+        Gets the public of this EnginemetadataUploadAcquisitionMetadataInput.
+
+        :return: The public of this EnginemetadataUploadAcquisitionMetadataInput.
+        :rtype: logical
+
+    .. attribute:: label
+
+        Gets the label of this EnginemetadataUploadAcquisitionMetadataInput.
+
+        :return: The label of this EnginemetadataUploadAcquisitionMetadataInput.
+        :rtype: char
+
+    .. attribute:: info
+
+        Gets the info of this EnginemetadataUploadAcquisitionMetadataInput.
+
+        :return: The info of this EnginemetadataUploadAcquisitionMetadataInput.
+        :rtype: containers.Map
+
+    .. attribute:: uid
+
+        Gets the uid of this EnginemetadataUploadAcquisitionMetadataInput.
+
+        :return: The uid of this EnginemetadataUploadAcquisitionMetadataInput.
+        :rtype: char
+
+    .. attribute:: timestamp
+
+        Gets the timestamp of this EnginemetadataUploadAcquisitionMetadataInput.
+
+        :return: The timestamp of this EnginemetadataUploadAcquisitionMetadataInput.
+        :rtype: char
+
+    .. attribute:: timezone
+
+        Gets the timezone of this EnginemetadataUploadAcquisitionMetadataInput.
+
+        :return: The timezone of this EnginemetadataUploadAcquisitionMetadataInput.
+        :rtype: char
+
+    .. attribute:: files
+
+        Gets the files of this EnginemetadataUploadAcquisitionMetadataInput.
+
+        :return: The files of this EnginemetadataUploadAcquisitionMetadataInput.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+
+
+FileEntry
+-------------------------------------------------------------------------------
+
+
+.. class:: FileEntry
+
+    .. attribute:: name
+
+        Gets the name of this FileEntry.
+
+        :return: The name of this FileEntry.
+        :rtype: char
+
+    .. attribute:: type
+
+        Gets the type of this FileEntry.
+
+        :return: The type of this FileEntry.
+        :rtype: char
+
+    .. attribute:: mimetype
+
+        Gets the mimetype of this FileEntry.
+
+        :return: The mimetype of this FileEntry.
+        :rtype: char
+
+    .. attribute:: modality
+
+        Gets the modality of this FileEntry.
+
+        :return: The modality of this FileEntry.
+        :rtype: char
+
+    .. attribute:: measurements
+
+        Gets the measurements of this FileEntry.
+
+        :return: The measurements of this FileEntry.
+        :rtype: vector[char]
+
+    .. attribute:: tags
+
+        Gets the tags of this FileEntry.
+
+        :return: The tags of this FileEntry.
+        :rtype: vector[char]
+
+    .. attribute:: info
+
+        Gets the info of this FileEntry.
+
+        :return: The info of this FileEntry.
+        :rtype: :class:`~flywheel.model.CommonInfo`
+
+    .. attribute:: origin
+
+        Gets the origin of this FileEntry.
+
+        :return: The origin of this FileEntry.
+        :rtype: :class:`~flywheel.model.FileOrigin`
+
+    .. attribute:: hash
+
+        Gets the hash of this FileEntry.
+
+        :return: The hash of this FileEntry.
+        :rtype: char
+
+    .. attribute:: created
+
+        Gets the created of this FileEntry.
+
+        :return: The created of this FileEntry.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this FileEntry.
+
+        :return: The modified of this FileEntry.
+        :rtype: char
+
+    .. attribute:: size
+
+        Gets the size of this FileEntry.
+
+        :return: The size of this FileEntry.
+        :rtype: integer
+
+    .. attribute:: infoExists
+
+        Gets the infoExists of this FileEntry.
+
+        :return: The infoExists of this FileEntry.
+        :rtype: logical
+
+
+
+FileOrigin
+-------------------------------------------------------------------------------
+
+
+.. class:: FileOrigin
+
+    .. attribute:: id
+
+        Gets the id of this FileOrigin.
+
+        :return: The id of this FileOrigin.
+        :rtype: char
+
+    .. attribute:: method
+
+        Gets the method of this FileOrigin.
+
+        :return: The method of this FileOrigin.
+        :rtype: char
+
+    .. attribute:: type
+
+        Gets the type of this FileOrigin.
+
+        :return: The type of this FileOrigin.
+        :rtype: char
+
+    .. attribute:: name
+
+        Gets the name of this FileOrigin.
+
+        :return: The name of this FileOrigin.
+        :rtype: char
+
+    .. attribute:: via
+
+        Gets the via of this FileOrigin.
+
+        :return: The via of this FileOrigin.
+        :rtype: :class:`~flywheel.model.FileVia`
+
+
+
+FileReference
+-------------------------------------------------------------------------------
+A reference to an individual file in a container, by type, id and name
+
+.. class:: FileReference
+
+        A reference to an individual file in a container, by type, id and name
+
+    .. attribute:: type
+
+        The type of container (e.g. session)
+
+        :return: The type of this FileReference.
+        :rtype: char
+
+    .. attribute:: id
+
+        Gets the id of this FileReference.
+
+        :return: The id of this FileReference.
+        :rtype: char
+
+    .. attribute:: name
+
+        Gets the name of this FileReference.
+
+        :return: The name of this FileReference.
+        :rtype: char
+
+
+
+FileVia
+-------------------------------------------------------------------------------
+
+
+.. class:: FileVia
+
+    .. attribute:: id
+
+        Gets the id of this FileVia.
+
+        :return: The id of this FileVia.
+        :rtype: char
+
+    .. attribute:: method
+
+        Gets the method of this FileVia.
+
+        :return: The method of this FileVia.
+        :rtype: char
+
+    .. attribute:: type
+
+        Gets the type of this FileVia.
+
+        :return: The type of this FileVia.
+        :rtype: char
+
+    .. attribute:: name
+
+        Gets the name of this FileVia.
+
+        :return: The name of this FileVia.
+        :rtype: char
+
+
+
+Gear
+-------------------------------------------------------------------------------
+Gear manifest
+
+.. class:: Gear
+
+        Gear manifest
+
+    .. attribute:: author
+
+        The author of this gear.
+
+        :return: The author of this Gear.
+        :rtype: char
+
+    .. attribute:: maintainer
+
+        (optional) The maintainer of this gear. Can be used to distinguish the algorithm author from the gear maintainer.
+
+        :return: The maintainer of this Gear.
+        :rtype: char
+
+    .. attribute:: cite
+
+        (optional) Any citations relevant to the algorithm(s) or work present in the gear.
+
+        :return: The cite of this Gear.
+        :rtype: char
+
+    .. attribute:: config
+
+        Gets the config of this Gear.
+
+        :return: The config of this Gear.
+        :rtype: :class:`~flywheel.model.GearConfig`
+
+    .. attribute:: custom
+
+        Gets the custom of this Gear.
+
+        :return: The custom of this Gear.
+        :rtype: :class:`~flywheel.model.GearCustom`
+
+    .. attribute:: description
+
+        A brief description of the gear's purpose. Ideally 1-4 sentences.
+
+        :return: The description of this Gear.
+        :rtype: char
+
+    .. attribute:: environment
+
+        Gets the environment of this Gear.
+
+        :return: The environment of this Gear.
+        :rtype: :class:`~flywheel.model.GearEnvironment`
+
+    .. attribute:: command
+
+        If provided, the starting command for the gear, rather than /flywheel/v0/run. Will be templated according to the spec.
+
+        :return: The command of this Gear.
+        :rtype: char
+
+    .. attribute:: inputs
+
+        Gets the inputs of this Gear.
+
+        :return: The inputs of this Gear.
+        :rtype: :class:`~flywheel.model.GearInputs`
+
+    .. attribute:: label
+
+        The human-friendly name of this gear.
+
+        :return: The label of this Gear.
+        :rtype: char
+
+    .. attribute:: license
+
+        Software license of the gear
+
+        :return: The license of this Gear.
+        :rtype: char
+
+    .. attribute:: name
+
+        The identification of this gear.
+
+        :return: The name of this Gear.
+        :rtype: char
+
+    .. attribute:: source
+
+        A valid URI, or empty string.
+
+        :return: The source of this Gear.
+        :rtype: char
+
+    .. attribute:: url
+
+        A valid URI, or empty string.
+
+        :return: The url of this Gear.
+        :rtype: char
+
+    .. attribute:: version
+
+        A human-friendly string explaining the release version of this gear. Example: 3.2.1
+
+        :return: The version of this Gear.
+        :rtype: char
+
+
+
+GearConfig
+-------------------------------------------------------------------------------
+Schema snippets describing the options this gear consumes. Not currently processed.
+
+.. class:: GearConfig
+
+        Schema snippets describing the options this gear consumes. Not currently processed.
+
+
+
+GearContextLookup
+-------------------------------------------------------------------------------
+Describes a gear input
+
+.. class:: GearContextLookup
+
+        Describes a gear input
+
+
+
+GearContextLookupItem
+-------------------------------------------------------------------------------
+
+
+.. class:: GearContextLookupItem
+
+    .. attribute:: found
+
+        Was the context value found?
+
+        :return: The found of this GearContextLookupItem.
+        :rtype: logical
+
+    .. attribute:: containerType
+
+        The type of container (e.g. session)
+
+        :return: The containerType of this GearContextLookupItem.
+        :rtype: char
+
+    .. attribute:: id
+
+        Id of the container where the context value was found, if any.
+
+        :return: The id of this GearContextLookupItem.
+        :rtype: char
+
+    .. attribute:: label
+
+        Label of the container where the context value was found, if any.
+
+        :return: The label of this GearContextLookupItem.
+        :rtype: char
+
+    .. attribute:: value
+
+        The value if found. Valid IFF found is true. Can be null.
+
+        :return: The value of this GearContextLookupItem.
+        :rtype: containers.Map
+
+
+
+GearCustom
+-------------------------------------------------------------------------------
+A place for gear authors to put arbitrary information.
+
+.. class:: GearCustom
+
+        A place for gear authors to put arbitrary information.
+
+
+
+GearDirective
+-------------------------------------------------------------------------------
+A schema directive.
+
+.. class:: GearDirective
+
+        A schema directive.
+
+
+
+GearDoc
+-------------------------------------------------------------------------------
+A full gear description, including manifest and exchange information
+
+.. class:: GearDoc
+
+        A full gear description, including manifest and exchange information
+
+    .. attribute:: id
+
+        Gets the id of this GearDoc.
+
+        :return: The id of this GearDoc.
+        :rtype: char
+
+    .. attribute:: category
+
+        The gear category
+
+        :return: The category of this GearDoc.
+        :rtype: char
+
+    .. attribute:: gear
+
+        Gets the gear of this GearDoc.
+
+        :return: The gear of this GearDoc.
+        :rtype: :class:`~flywheel.model.Gear`
+
+    .. attribute:: exchange
+
+        Gets the exchange of this GearDoc.
+
+        :return: The exchange of this GearDoc.
+        :rtype: :class:`~flywheel.model.GearExchange`
+
+    .. attribute:: created
+
+        Gets the created of this GearDoc.
+
+        :return: The created of this GearDoc.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this GearDoc.
+
+        :return: The modified of this GearDoc.
+        :rtype: char
+
+
+
+GearEnvironment
+-------------------------------------------------------------------------------
+Environment variables that should be set for the gear.
+
+.. class:: GearEnvironment
+
+        Environment variables that should be set for the gear.
+
+
+
+GearExchange
+-------------------------------------------------------------------------------
+Metadata object that describes the origin of a gear version
+
+.. class:: GearExchange
+
+        Metadata object that describes the origin of a gear version
+
+    .. attribute:: gitCommit
+
+        The SHA-1 hash referring to the git commit
+
+        :return: The gitCommit of this GearExchange.
+        :rtype: char
+
+    .. attribute:: rootfsHash
+
+        The cryptographic hash of the root filesystem in the form of \"algorithm:<base16 hash>\"
+
+        :return: The rootfsHash of this GearExchange.
+        :rtype: char
+
+    .. attribute:: rootfsUrl
+
+        The absolute URL of the gear's root file system
+
+        :return: The rootfsUrl of this GearExchange.
+        :rtype: char
+
+
+
+GearInputItem
+-------------------------------------------------------------------------------
+Describes a gear input
+
+.. class:: GearInputItem
+
+        Describes a gear input
+
+    .. attribute:: base
+
+        The type of gear input.
+
+        :return: The base of this GearInputItem.
+        :rtype: char
+
+    .. attribute:: description
+
+        Hackaround for description not technically being a schema directive
+
+        :return: The description of this GearInputItem.
+        :rtype: char
+
+    .. attribute:: optional
+
+        Allow the gear to mark an input file as optional.
+
+        :return: The optional of this GearInputItem.
+        :rtype: logical
+
+
+
+GearInputs
+-------------------------------------------------------------------------------
+Schema snippets describing the inputs this gear consumes.
+
+.. class:: GearInputs
+
+        Schema snippets describing the inputs this gear consumes.
+
+
+
+Group
+-------------------------------------------------------------------------------
+
+
+.. class:: Group
+
+    .. attribute:: id
+
+        Gets the id of this Group.
+
+        :return: The id of this Group.
+        :rtype: char
+
+    .. attribute:: label
+
+        Gets the label of this Group.
+
+        :return: The label of this Group.
+        :rtype: char
+
+    .. attribute:: permissions
+
+        Gets the permissions of this Group.
+
+        :return: The permissions of this Group.
+        :rtype: :class:`~flywheel.model.Permission`
+
+    .. attribute:: created
+
+        Gets the created of this Group.
+
+        :return: The created of this Group.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this Group.
+
+        :return: The modified of this Group.
+        :rtype: char
+
+    .. attribute:: tags
+
+        Gets the tags of this Group.
+
+        :return: The tags of this Group.
+        :rtype: vector[char]
+
+
+
+GroupMetadataInput
+-------------------------------------------------------------------------------
+
+
+.. class:: GroupMetadataInput
+
+    .. attribute:: id
+
+        Gets the id of this GroupMetadataInput.
+
+        :return: The id of this GroupMetadataInput.
+        :rtype: char
+
+
+
+GroupNewOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: GroupNewOutput
+
+    .. attribute:: id
+
+        Gets the id of this GroupNewOutput.
+
+        :return: The id of this GroupNewOutput.
+        :rtype: char
+
+
+
+InfoAddRemove
+-------------------------------------------------------------------------------
+
+
+.. class:: InfoAddRemove
+
+    .. attribute:: set
+
+        Gets the set of this InfoAddRemove.
+
+        :return: The set of this InfoAddRemove.
+        :rtype: containers.Map
+
+    .. attribute:: delete
+
+        Gets the delete of this InfoAddRemove.
+
+        :return: The delete of this InfoAddRemove.
+        :rtype: vector[char]
+
+
+
+InfoReplace
+-------------------------------------------------------------------------------
+
+
+.. class:: InfoReplace
+
+    .. attribute:: replace
+
+        Gets the replace of this InfoReplace.
+
+        :return: The replace of this InfoReplace.
+        :rtype: containers.Map
+
+
+
+InfoUpdateInput
+-------------------------------------------------------------------------------
+Helper endpoint for editing an object's info key
+
+.. class:: InfoUpdateInput
+
+        Helper endpoint for editing an object's info key
+
+    .. attribute:: set
+
+        Gets the set of this InfoUpdateInput.
+
+        :return: The set of this InfoUpdateInput.
+        :rtype: containers.Map
+
+    .. attribute:: delete
+
+        Gets the delete of this InfoUpdateInput.
+
+        :return: The delete of this InfoUpdateInput.
+        :rtype: vector[char]
+
+    .. attribute:: replace
+
+        Gets the replace of this InfoUpdateInput.
+
+        :return: The replace of this InfoUpdateInput.
+        :rtype: containers.Map
+
+
+
+InlineResponse200
+-------------------------------------------------------------------------------
+
+
+.. class:: InlineResponse200
+
+    .. attribute:: deleted
+
+        Gets the deleted of this InlineResponse200.
+
+        :return: The deleted of this InlineResponse200.
+        :rtype: integer
+
+
+
+InlineResponse2001
+-------------------------------------------------------------------------------
+
+
+.. class:: InlineResponse2001
+
+    .. attribute:: modified
+
+        Gets the modified of this InlineResponse2001.
+
+        :return: The modified of this InlineResponse2001.
+        :rtype: integer
+
+
+
+InlineResponse2002
+-------------------------------------------------------------------------------
+
+
+.. class:: InlineResponse2002
+
+    .. attribute:: firstname
+
+        Gets the firstname of this InlineResponse2002.
+
+        :return: The firstname of this InlineResponse2002.
+        :rtype: char
+
+    .. attribute:: lastname
+
+        Gets the lastname of this InlineResponse2002.
+
+        :return: The lastname of this InlineResponse2002.
+        :rtype: char
+
+    .. attribute:: id
+
+        Gets the id of this InlineResponse2002.
+
+        :return: The id of this InlineResponse2002.
+        :rtype: char
+
+
+
+InlineResponse2003
+-------------------------------------------------------------------------------
+
+
+.. class:: InlineResponse2003
+
+    .. attribute:: modified
+
+        Gets the modified of this InlineResponse2003.
+
+        :return: The modified of this InlineResponse2003.
+        :rtype: integer
+
+    .. attribute:: jobsTriggered
+
+        Gets the jobsTriggered of this InlineResponse2003.
+
+        :return: The jobsTriggered of this InlineResponse2003.
+        :rtype: integer
+
+
+
+Job
+-------------------------------------------------------------------------------
+
+
+.. class:: Job
+
+    .. attribute:: id
+
+        Gets the id of this Job.
+
+        :return: The id of this Job.
+        :rtype: char
+
+    .. attribute:: origin
+
+        Gets the origin of this Job.
+
+        :return: The origin of this Job.
+        :rtype: :class:`~flywheel.model.JobOrigin`
+
+    .. attribute:: gearId
+
+        Gets the gearId of this Job.
+
+        :return: The gearId of this Job.
+        :rtype: char
+
+    .. attribute:: previousJobId
+
+        Gets the previousJobId of this Job.
+
+        :return: The previousJobId of this Job.
+        :rtype: char
+
+    .. attribute:: inputs
+
+        Gets the inputs of this Job.
+
+        :return: The inputs of this Job.
+        :rtype: :class:`~flywheel.model.JobInputsObject`
+
+    .. attribute:: destination
+
+        Gets the destination of this Job.
+
+        :return: The destination of this Job.
+        :rtype: :class:`~flywheel.model.JobDestination`
+
+    .. attribute:: tags
+
+        Gets the tags of this Job.
+
+        :return: The tags of this Job.
+        :rtype: vector[char]
+
+    .. attribute:: state
+
+        Gets the state of this Job.
+
+        :return: The state of this Job.
+        :rtype: char
+
+    .. attribute:: attempt
+
+        Gets the attempt of this Job.
+
+        :return: The attempt of this Job.
+        :rtype: integer
+
+    .. attribute:: created
+
+        Gets the created of this Job.
+
+        :return: The created of this Job.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this Job.
+
+        :return: The modified of this Job.
+        :rtype: char
+
+    .. attribute:: config
+
+        Gets the config of this Job.
+
+        :return: The config of this Job.
+        :rtype: :class:`~flywheel.model.JobConfig`
+
+    .. attribute:: request
+
+        Gets the request of this Job.
+
+        :return: The request of this Job.
+        :rtype: :class:`~flywheel.model.JobRequest`
+
+    .. attribute:: savedFiles
+
+        Gets the savedFiles of this Job.
+
+        :return: The savedFiles of this Job.
+        :rtype: vector[char]
+
+    .. attribute:: producedMetadata
+
+        Gets the producedMetadata of this Job.
+
+        :return: The producedMetadata of this Job.
+        :rtype: :class:`~flywheel.model.JobProducedMetadata`
+
+
+
+JobConfig
+-------------------------------------------------------------------------------
+
+
+.. class:: JobConfig
+
+
+
+JobDestination
+-------------------------------------------------------------------------------
+
+
+.. class:: JobDestination
+
+    .. attribute:: type
+
+        Gets the type of this JobDestination.
+
+        :return: The type of this JobDestination.
+        :rtype: char
+
+    .. attribute:: id
+
+        Gets the id of this JobDestination.
+
+        :return: The id of this JobDestination.
+        :rtype: char
+
+
+
+JobInputsItem
+-------------------------------------------------------------------------------
+
+
+.. class:: JobInputsItem
+
+    .. attribute:: type
+
+        Gets the type of this JobInputsItem.
+
+        :return: The type of this JobInputsItem.
+        :rtype: char
+
+    .. attribute:: uri
+
+        Gets the uri of this JobInputsItem.
+
+        :return: The uri of this JobInputsItem.
+        :rtype: char
+
+    .. attribute:: location
+
+        Gets the location of this JobInputsItem.
+
+        :return: The location of this JobInputsItem.
+        :rtype: char
+
+    .. attribute:: vu
+
+        Gets the vu of this JobInputsItem.
+
+        :return: The vu of this JobInputsItem.
+        :rtype: char
+
+
+
+JobInputsObject
+-------------------------------------------------------------------------------
+
+
+.. class:: JobInputsObject
+
+
+
+JobLog
+-------------------------------------------------------------------------------
+
+
+.. class:: JobLog
+
+    .. attribute:: id
+
+        Gets the id of this JobLog.
+
+        :return: The id of this JobLog.
+        :rtype: char
+
+    .. attribute:: logs
+
+        Gets the logs of this JobLog.
+
+        :return: The logs of this JobLog.
+        :rtype: :class:`~flywheel.model.JobLogStatement`
+
+
+
+JobLogStatement
+-------------------------------------------------------------------------------
+
+
+.. class:: JobLogStatement
+
+    .. attribute:: fd
+
+        Gets the fd of this JobLogStatement.
+
+        :return: The fd of this JobLogStatement.
+        :rtype: integer
+
+    .. attribute:: msg
+
+        Gets the msg of this JobLogStatement.
+
+        :return: The msg of this JobLogStatement.
+        :rtype: char
+
+
+
+JobOrigin
+-------------------------------------------------------------------------------
+
+
+.. class:: JobOrigin
+
+    .. attribute:: type
+
+        Gets the type of this JobOrigin.
+
+        :return: The type of this JobOrigin.
+        :rtype: char
+
+    .. attribute:: id
+
+        Gets the id of this JobOrigin.
+
+        :return: The id of this JobOrigin.
+        :rtype: char
+
+
+
+JobProducedMetadata
+-------------------------------------------------------------------------------
+
+
+.. class:: JobProducedMetadata
+
+
+
+JobRequest
+-------------------------------------------------------------------------------
+
+
+.. class:: JobRequest
+
+    .. attribute:: inputs
+
+        Gets the inputs of this JobRequest.
+
+        :return: The inputs of this JobRequest.
+        :rtype: :class:`~flywheel.model.JobInputsItem`
+
+    .. attribute:: target
+
+        Gets the target of this JobRequest.
+
+        :return: The target of this JobRequest.
+        :rtype: containers.Map
+
+    .. attribute:: outputs
+
+        Gets the outputs of this JobRequest.
+
+        :return: The outputs of this JobRequest.
+        :rtype: vector[containers.Map]
+
+
+
+Note
+-------------------------------------------------------------------------------
+
+
+.. class:: Note
+
+    .. attribute:: text
+
+        Gets the text of this Note.
+
+        :return: The text of this Note.
+        :rtype: char
+
+    .. attribute:: id
+
+        Gets the id of this Note.
+
+        :return: The id of this Note.
+        :rtype: char
+
+    .. attribute:: created
+
+        Gets the created of this Note.
+
+        :return: The created of this Note.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this Note.
+
+        :return: The modified of this Note.
+        :rtype: char
+
+    .. attribute:: user
+
+        Gets the user of this Note.
+
+        :return: The user of this Note.
+        :rtype: char
+
+
+
+Packfile
+-------------------------------------------------------------------------------
+
+
+.. class:: Packfile
+
+    .. attribute:: project
+
+        Gets the project of this Packfile.
+
+        :return: The project of this Packfile.
+        :rtype: :class:`~flywheel.model.PackfileProjectInput`
+
+    .. attribute:: session
+
+        Gets the session of this Packfile.
+
+        :return: The session of this Packfile.
+        :rtype: :class:`~flywheel.model.PackfileSessionInput`
+
+    .. attribute:: acquisition
+
+        Gets the acquisition of this Packfile.
+
+        :return: The acquisition of this Packfile.
+        :rtype: :class:`~flywheel.model.PackfileAcquisitionInput`
+
+    .. attribute:: packfile
+
+        Gets the packfile of this Packfile.
+
+        :return: The packfile of this Packfile.
+        :rtype: :class:`~flywheel.model.PackfilePackfileInput`
+
+
+
+PackfileAcquisitionInput
+-------------------------------------------------------------------------------
+
+
+.. class:: PackfileAcquisitionInput
+
+    .. attribute:: label
+
+        Gets the label of this PackfileAcquisitionInput.
+
+        :return: The label of this PackfileAcquisitionInput.
+        :rtype: char
+
+    .. attribute:: timestamp
+
+        Gets the timestamp of this PackfileAcquisitionInput.
+
+        :return: The timestamp of this PackfileAcquisitionInput.
+        :rtype: char
+
+    .. attribute:: timezone
+
+        Gets the timezone of this PackfileAcquisitionInput.
+
+        :return: The timezone of this PackfileAcquisitionInput.
+        :rtype: char
+
+
+
+PackfilePackfileInput
+-------------------------------------------------------------------------------
+
+
+.. class:: PackfilePackfileInput
+
+    .. attribute:: type
+
+        Gets the type of this PackfilePackfileInput.
+
+        :return: The type of this PackfilePackfileInput.
+        :rtype: char
+
+
+
+PackfileProjectInput
+-------------------------------------------------------------------------------
+
+
+.. class:: PackfileProjectInput
+
+    .. attribute:: id
+
+        Gets the id of this PackfileProjectInput.
+
+        :return: The id of this PackfileProjectInput.
+        :rtype: char
+
+
+
+PackfileSessionInput
+-------------------------------------------------------------------------------
+
+
+.. class:: PackfileSessionInput
+
+    .. attribute:: label
+
+        Gets the label of this PackfileSessionInput.
+
+        :return: The label of this PackfileSessionInput.
+        :rtype: char
+
+    .. attribute:: subject
+
+        Gets the subject of this PackfileSessionInput.
+
+        :return: The subject of this PackfileSessionInput.
+        :rtype: :class:`~flywheel.model.Subject`
+
+
+
+PackfileStart
+-------------------------------------------------------------------------------
+
+
+.. class:: PackfileStart
+
+    .. attribute:: token
+
+        Gets the token of this PackfileStart.
+
+        :return: The token of this PackfileStart.
+        :rtype: char
+
+
+
+Permission
+-------------------------------------------------------------------------------
+
+
+.. class:: Permission
+
+    .. attribute:: id
+
+        Gets the id of this Permission.
+
+        :return: The id of this Permission.
+        :rtype: char
+
+    .. attribute:: access
+
+        Gets the access of this Permission.
+
+        :return: The access of this Permission.
+        :rtype: char
+
+
+
+Project
+-------------------------------------------------------------------------------
+
+
+.. class:: Project
+
+    .. attribute:: public
+
+        Gets the public of this Project.
+
+        :return: The public of this Project.
+        :rtype: logical
+
+    .. attribute:: label
+
+        Gets the label of this Project.
+
+        :return: The label of this Project.
+        :rtype: char
+
+    .. attribute:: info
+
+        Gets the info of this Project.
+
+        :return: The info of this Project.
+        :rtype: :class:`~flywheel.model.CommonInfo`
+
+    .. attribute:: description
+
+        Gets the description of this Project.
+
+        :return: The description of this Project.
+        :rtype: char
+
+    .. attribute:: group
+
+        Gets the group of this Project.
+
+        :return: The group of this Project.
+        :rtype: char
+
+    .. attribute:: id
+
+        Gets the id of this Project.
+
+        :return: The id of this Project.
+        :rtype: char
+
+    .. attribute:: infoExists
+
+        Gets the infoExists of this Project.
+
+        :return: The infoExists of this Project.
+        :rtype: logical
+
+    .. attribute:: created
+
+        Gets the created of this Project.
+
+        :return: The created of this Project.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this Project.
+
+        :return: The modified of this Project.
+        :rtype: char
+
+    .. attribute:: template
+
+        Gets the template of this Project.
+
+        :return: The template of this Project.
+        :rtype: containers.Map
+
+    .. attribute:: permissions
+
+        Gets the permissions of this Project.
+
+        :return: The permissions of this Project.
+        :rtype: :class:`~flywheel.model.Permission`
+
+    .. attribute:: files
+
+        Gets the files of this Project.
+
+        :return: The files of this Project.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: notes
+
+        Gets the notes of this Project.
+
+        :return: The notes of this Project.
+        :rtype: :class:`~flywheel.model.Note`
+
+    .. attribute:: tags
+
+        Gets the tags of this Project.
+
+        :return: The tags of this Project.
+        :rtype: vector[char]
+
+    .. attribute:: analyses
+
+        Gets the analyses of this Project.
+
+        :return: The analyses of this Project.
+        :rtype: :class:`~flywheel.model.AnalysisOutput`
+
+
+
+ProjectMetadataInput
+-------------------------------------------------------------------------------
+
+
+.. class:: ProjectMetadataInput
+
+    .. attribute:: public
+
+        Gets the public of this ProjectMetadataInput.
+
+        :return: The public of this ProjectMetadataInput.
+        :rtype: logical
+
+    .. attribute:: label
+
+        Gets the label of this ProjectMetadataInput.
+
+        :return: The label of this ProjectMetadataInput.
+        :rtype: char
+
+    .. attribute:: info
+
+        Gets the info of this ProjectMetadataInput.
+
+        :return: The info of this ProjectMetadataInput.
+        :rtype: containers.Map
+
+    .. attribute:: files
+
+        Gets the files of this ProjectMetadataInput.
+
+        :return: The files of this ProjectMetadataInput.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+
+
+ProjectTemplate
+-------------------------------------------------------------------------------
+A project's session template
+
+.. class:: ProjectTemplate
+
+        A project's session template
+
+    .. attribute:: session
+
+        Gets the session of this ProjectTemplate.
+
+        :return: The session of this ProjectTemplate.
+        :rtype: containers.Map
+
+    .. attribute:: acquisitions
+
+        Gets the acquisitions of this ProjectTemplate.
+
+        :return: The acquisitions of this ProjectTemplate.
+        :rtype: :class:`~flywheel.model.ProjectTemplateRequirement`
+
+
+
+ProjectTemplateRequirement
+-------------------------------------------------------------------------------
+
+
+.. class:: ProjectTemplateRequirement
+
+    .. attribute:: minimum
+
+        Gets the minimum of this ProjectTemplateRequirement.
+
+        :return: The minimum of this ProjectTemplateRequirement.
+        :rtype: integer
+
+    .. attribute:: maximum
+
+        Gets the maximum of this ProjectTemplateRequirement.
+
+        :return: The maximum of this ProjectTemplateRequirement.
+        :rtype: integer
+
+
+
+ReportDemographicsGrid
+-------------------------------------------------------------------------------
+
+
+.. class:: ReportDemographicsGrid
+
+    .. attribute:: blackOrAfricanAmerican
+
+        Gets the blackOrAfricanAmerican of this ReportDemographicsGrid.
+
+        :return: The blackOrAfricanAmerican of this ReportDemographicsGrid.
+        :rtype: :class:`~flywheel.model.ReportEthnicityGrid`
+
+    .. attribute:: unknownOrNotReported
+
+        Gets the unknownOrNotReported of this ReportDemographicsGrid.
+
+        :return: The unknownOrNotReported of this ReportDemographicsGrid.
+        :rtype: :class:`~flywheel.model.ReportEthnicityGrid`
+
+    .. attribute:: americanIndianOrAlaskaNative
+
+        Gets the americanIndianOrAlaskaNative of this ReportDemographicsGrid.
+
+        :return: The americanIndianOrAlaskaNative of this ReportDemographicsGrid.
+        :rtype: :class:`~flywheel.model.ReportEthnicityGrid`
+
+    .. attribute:: asian
+
+        Gets the asian of this ReportDemographicsGrid.
+
+        :return: The asian of this ReportDemographicsGrid.
+        :rtype: :class:`~flywheel.model.ReportEthnicityGrid`
+
+    .. attribute:: white
+
+        Gets the white of this ReportDemographicsGrid.
+
+        :return: The white of this ReportDemographicsGrid.
+        :rtype: :class:`~flywheel.model.ReportEthnicityGrid`
+
+    .. attribute:: total
+
+        Gets the total of this ReportDemographicsGrid.
+
+        :return: The total of this ReportDemographicsGrid.
+        :rtype: :class:`~flywheel.model.ReportEthnicityGrid`
+
+    .. attribute:: nativeHawaiianOrOtherPacificIslander
+
+        Gets the nativeHawaiianOrOtherPacificIslander of this ReportDemographicsGrid.
+
+        :return: The nativeHawaiianOrOtherPacificIslander of this ReportDemographicsGrid.
+        :rtype: :class:`~flywheel.model.ReportEthnicityGrid`
+
+    .. attribute:: moreThanOneRace
+
+        Gets the moreThanOneRace of this ReportDemographicsGrid.
+
+        :return: The moreThanOneRace of this ReportDemographicsGrid.
+        :rtype: :class:`~flywheel.model.ReportEthnicityGrid`
+
+    .. attribute:: maleCount
+
+        Gets the maleCount of this ReportDemographicsGrid.
+
+        :return: The maleCount of this ReportDemographicsGrid.
+        :rtype: integer
+
+    .. attribute:: groupLabel
+
+        Gets the groupLabel of this ReportDemographicsGrid.
+
+        :return: The groupLabel of this ReportDemographicsGrid.
+        :rtype: char
+
+    .. attribute:: over18Count
+
+        Gets the over18Count of this ReportDemographicsGrid.
+
+        :return: The over18Count of this ReportDemographicsGrid.
+        :rtype: integer
+
+    .. attribute:: under18Count
+
+        Gets the under18Count of this ReportDemographicsGrid.
+
+        :return: The under18Count of this ReportDemographicsGrid.
+        :rtype: integer
+
+    .. attribute:: femaleCount
+
+        Gets the femaleCount of this ReportDemographicsGrid.
+
+        :return: The femaleCount of this ReportDemographicsGrid.
+        :rtype: integer
+
+    .. attribute:: subjectsCount
+
+        Gets the subjectsCount of this ReportDemographicsGrid.
+
+        :return: The subjectsCount of this ReportDemographicsGrid.
+        :rtype: integer
+
+    .. attribute:: otherCount
+
+        Gets the otherCount of this ReportDemographicsGrid.
+
+        :return: The otherCount of this ReportDemographicsGrid.
+        :rtype: integer
+
+    .. attribute:: name
+
+        Gets the name of this ReportDemographicsGrid.
+
+        :return: The name of this ReportDemographicsGrid.
+        :rtype: char
+
+    .. attribute:: sessionCount
+
+        Gets the sessionCount of this ReportDemographicsGrid.
+
+        :return: The sessionCount of this ReportDemographicsGrid.
+        :rtype: integer
+
+    .. attribute:: admins
+
+        Gets the admins of this ReportDemographicsGrid.
+
+        :return: The admins of this ReportDemographicsGrid.
+        :rtype: vector[char]
+
+    .. attribute:: demographicsTotal
+
+        Gets the demographicsTotal of this ReportDemographicsGrid.
+
+        :return: The demographicsTotal of this ReportDemographicsGrid.
+        :rtype: integer
+
+
+
+ReportEthnicityGrid
+-------------------------------------------------------------------------------
+
+
+.. class:: ReportEthnicityGrid
+
+    .. attribute:: notHispanicOrLatino
+
+        Gets the notHispanicOrLatino of this ReportEthnicityGrid.
+
+        :return: The notHispanicOrLatino of this ReportEthnicityGrid.
+        :rtype: :class:`~flywheel.model.ReportGenderCount`
+
+    .. attribute:: hispanicOrLatino
+
+        Gets the hispanicOrLatino of this ReportEthnicityGrid.
+
+        :return: The hispanicOrLatino of this ReportEthnicityGrid.
+        :rtype: :class:`~flywheel.model.ReportGenderCount`
+
+    .. attribute:: unknownOrNotReported
+
+        Gets the unknownOrNotReported of this ReportEthnicityGrid.
+
+        :return: The unknownOrNotReported of this ReportEthnicityGrid.
+        :rtype: :class:`~flywheel.model.ReportGenderCount`
+
+    .. attribute:: total
+
+        Gets the total of this ReportEthnicityGrid.
+
+        :return: The total of this ReportEthnicityGrid.
+        :rtype: integer
+
+
+
+ReportGenderCount
+-------------------------------------------------------------------------------
+
+
+.. class:: ReportGenderCount
+
+    .. attribute:: male
+
+        Gets the male of this ReportGenderCount.
+
+        :return: The male of this ReportGenderCount.
+        :rtype: integer
+
+    .. attribute:: unknownOrNotReported
+
+        Gets the unknownOrNotReported of this ReportGenderCount.
+
+        :return: The unknownOrNotReported of this ReportGenderCount.
+        :rtype: integer
+
+    .. attribute:: female
+
+        Gets the female of this ReportGenderCount.
+
+        :return: The female of this ReportGenderCount.
+        :rtype: integer
+
+
+
+ReportGroupReport
+-------------------------------------------------------------------------------
+
+
+.. class:: ReportGroupReport
+
+    .. attribute:: projectCount
+
+        Gets the projectCount of this ReportGroupReport.
+
+        :return: The projectCount of this ReportGroupReport.
+        :rtype: integer
+
+    .. attribute:: label
+
+        Gets the label of this ReportGroupReport.
+
+        :return: The label of this ReportGroupReport.
+        :rtype: char
+
+    .. attribute:: sessionCount
+
+        Gets the sessionCount of this ReportGroupReport.
+
+        :return: The sessionCount of this ReportGroupReport.
+        :rtype: integer
+
+
+
+ReportProject
+-------------------------------------------------------------------------------
+
+
+.. class:: ReportProject
+
+    .. attribute:: projects
+
+        Gets the projects of this ReportProject.
+
+        :return: The projects of this ReportProject.
+        :rtype: :class:`~flywheel.model.ReportDemographicsGrid`
+
+
+
+ReportSite
+-------------------------------------------------------------------------------
+
+
+.. class:: ReportSite
+
+    .. attribute:: groupCount
+
+        Gets the groupCount of this ReportSite.
+
+        :return: The groupCount of this ReportSite.
+        :rtype: integer
+
+    .. attribute:: groups
+
+        Gets the groups of this ReportSite.
+
+        :return: The groups of this ReportSite.
+        :rtype: :class:`~flywheel.model.ReportGroupReport`
+
+
+
+ResolverInput
+-------------------------------------------------------------------------------
+
+
+.. class:: ResolverInput
+
+    .. attribute:: path
+
+        Gets the path of this ResolverInput.
+
+        :return: The path of this ResolverInput.
+        :rtype: vector[char]
+
+
+
+ResolverNode
+-------------------------------------------------------------------------------
+
+
+.. class:: ResolverNode
+
+    .. attribute:: nodeType
+
+        Gets the nodeType of this ResolverNode.
+
+        :return: The nodeType of this ResolverNode.
+        :rtype: char
+
+
+
+ResolverOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: ResolverOutput
+
+    .. attribute:: path
+
+        Gets the path of this ResolverOutput.
+
+        :return: The path of this ResolverOutput.
+        :rtype: :class:`~flywheel.model.ResolverNode`
+
+    .. attribute:: children
+
+        Gets the children of this ResolverOutput.
+
+        :return: The children of this ResolverOutput.
+        :rtype: :class:`~flywheel.model.ResolverNode`
+
+
+
+Rule
+-------------------------------------------------------------------------------
+
+
+.. class:: Rule
+
+    .. attribute:: id
+
+        Gets the id of this Rule.
+
+        :return: The id of this Rule.
+        :rtype: char
+
+    .. attribute:: projectId
+
+        Gets the projectId of this Rule.
+
+        :return: The projectId of this Rule.
+        :rtype: char
+
+    .. attribute:: alg
+
+        Gets the alg of this Rule.
+
+        :return: The alg of this Rule.
+        :rtype: char
+
+    .. attribute:: name
+
+        Gets the name of this Rule.
+
+        :return: The name of this Rule.
+        :rtype: char
+
+    .. attribute:: any
+
+        Gets the any of this Rule.
+
+        :return: The any of this Rule.
+        :rtype: :class:`~flywheel.model.RuleAny`
+
+    .. attribute:: all
+
+        Gets the all of this Rule.
+
+        :return: The all of this Rule.
+        :rtype: :class:`~flywheel.model.RuleAny`
+
+    .. attribute:: disabled
+
+        Gets the disabled of this Rule.
+
+        :return: The disabled of this Rule.
+        :rtype: logical
+
+
+
+RuleAny
+-------------------------------------------------------------------------------
+
+
+.. class:: RuleAny
+
+    .. attribute:: type
+
+        Gets the type of this RuleAny.
+
+        :return: The type of this RuleAny.
+        :rtype: char
+
+    .. attribute:: value
+
+        Gets the value of this RuleAny.
+
+        :return: The value of this RuleAny.
+        :rtype: char
+
+    .. attribute:: regex
+
+        Gets the regex of this RuleAny.
+
+        :return: The regex of this RuleAny.
+        :rtype: logical
+
+
+
+SearchAcquisitionResponse
+-------------------------------------------------------------------------------
+Fields for acquisition search response
+
+.. class:: SearchAcquisitionResponse
+
+        Fields for acquisition search response
+
+    .. attribute:: id
+
+        Gets the id of this SearchAcquisitionResponse.
+
+        :return: The id of this SearchAcquisitionResponse.
+        :rtype: char
+
+    .. attribute:: label
+
+        Gets the label of this SearchAcquisitionResponse.
+
+        :return: The label of this SearchAcquisitionResponse.
+        :rtype: char
+
+    .. attribute:: timestamp
+
+        Gets the timestamp of this SearchAcquisitionResponse.
+
+        :return: The timestamp of this SearchAcquisitionResponse.
+        :rtype: char
+
+    .. attribute:: created
+
+        Gets the created of this SearchAcquisitionResponse.
+
+        :return: The created of this SearchAcquisitionResponse.
+        :rtype: char
+
+
+
+SearchAnalysisResponse
+-------------------------------------------------------------------------------
+Fields for acquisition search response
+
+.. class:: SearchAnalysisResponse
+
+        Fields for acquisition search response
+
+    .. attribute:: id
+
+        Gets the id of this SearchAnalysisResponse.
+
+        :return: The id of this SearchAnalysisResponse.
+        :rtype: char
+
+    .. attribute:: label
+
+        Gets the label of this SearchAnalysisResponse.
+
+        :return: The label of this SearchAnalysisResponse.
+        :rtype: char
+
+    .. attribute:: user
+
+        Gets the user of this SearchAnalysisResponse.
+
+        :return: The user of this SearchAnalysisResponse.
+        :rtype: char
+
+    .. attribute:: created
+
+        Gets the created of this SearchAnalysisResponse.
+
+        :return: The created of this SearchAnalysisResponse.
+        :rtype: char
+
+
+
+SearchCollectionResponse
+-------------------------------------------------------------------------------
+Fields for collection search response
+
+.. class:: SearchCollectionResponse
+
+        Fields for collection search response
+
+    .. attribute:: id
+
+        Gets the id of this SearchCollectionResponse.
+
+        :return: The id of this SearchCollectionResponse.
+        :rtype: char
+
+    .. attribute:: label
+
+        Gets the label of this SearchCollectionResponse.
+
+        :return: The label of this SearchCollectionResponse.
+        :rtype: char
+
+    .. attribute:: curator
+
+        Gets the curator of this SearchCollectionResponse.
+
+        :return: The curator of this SearchCollectionResponse.
+        :rtype: char
+
+    .. attribute:: created
+
+        Gets the created of this SearchCollectionResponse.
+
+        :return: The created of this SearchCollectionResponse.
+        :rtype: char
+
+
+
+SearchFileResponse
+-------------------------------------------------------------------------------
+Fields for file search response
+
+.. class:: SearchFileResponse
+
+        Fields for file search response
+
+    .. attribute:: measurements
+
+        Gets the measurements of this SearchFileResponse.
+
+        :return: The measurements of this SearchFileResponse.
+        :rtype: vector[char]
+
+    .. attribute:: created
+
+        Gets the created of this SearchFileResponse.
+
+        :return: The created of this SearchFileResponse.
+        :rtype: char
+
+    .. attribute:: type
+
+        Gets the type of this SearchFileResponse.
+
+        :return: The type of this SearchFileResponse.
+        :rtype: char
+
+    .. attribute:: name
+
+        Gets the name of this SearchFileResponse.
+
+        :return: The name of this SearchFileResponse.
+        :rtype: char
+
+    .. attribute:: size
+
+        Gets the size of this SearchFileResponse.
+
+        :return: The size of this SearchFileResponse.
+        :rtype: integer
+
+
+
+SearchGroupResponse
+-------------------------------------------------------------------------------
+Fields for group search response
+
+.. class:: SearchGroupResponse
+
+        Fields for group search response
+
+    .. attribute:: id
+
+        Gets the id of this SearchGroupResponse.
+
+        :return: The id of this SearchGroupResponse.
+        :rtype: char
+
+    .. attribute:: label
+
+        Gets the label of this SearchGroupResponse.
+
+        :return: The label of this SearchGroupResponse.
+        :rtype: char
+
+
+
+SearchParentResponse
+-------------------------------------------------------------------------------
+Fields for parent search response
+
+.. class:: SearchParentResponse
+
+        Fields for parent search response
+
+    .. attribute:: id
+
+        Gets the id of this SearchParentResponse.
+
+        :return: The id of this SearchParentResponse.
+        :rtype: char
+
+    .. attribute:: type
+
+        The type of container (e.g. session)
+
+        :return: The type of this SearchParentResponse.
+        :rtype: char
+
+
+
+SearchProjectResponse
+-------------------------------------------------------------------------------
+Fields for project search response
+
+.. class:: SearchProjectResponse
+
+        Fields for project search response
+
+    .. attribute:: id
+
+        Gets the id of this SearchProjectResponse.
+
+        :return: The id of this SearchProjectResponse.
+        :rtype: char
+
+    .. attribute:: label
+
+        Gets the label of this SearchProjectResponse.
+
+        :return: The label of this SearchProjectResponse.
+        :rtype: char
+
+
+
+SearchQuery
+-------------------------------------------------------------------------------
+
+
+.. class:: SearchQuery
+
+    .. attribute:: returnType
+
+        Sets the type of search results to return
+
+        :return: The returnType of this SearchQuery.
+        :rtype: char
+
+    .. attribute:: searchString
+
+        Represents the plain text search query
+
+        :return: The searchString of this SearchQuery.
+        :rtype: char
+
+    .. attribute:: allData
+
+        When set will include all data that the user does not have access to read
+
+        :return: The allData of this SearchQuery.
+        :rtype: logical
+
+    .. attribute:: filters
+
+        See https://www.elastic.co/guide/en/elasticsearch/reference/current/term-level-queries.html
+
+        :return: The filters of this SearchQuery.
+        :rtype: containers.Map
+
+
+
+SearchResponse
+-------------------------------------------------------------------------------
+Single search response entry
+
+.. class:: SearchResponse
+
+        Single search response entry
+
+    .. attribute:: project
+
+        Gets the project of this SearchResponse.
+
+        :return: The project of this SearchResponse.
+        :rtype: :class:`~flywheel.model.SearchProjectResponse`
+
+    .. attribute:: group
+
+        Gets the group of this SearchResponse.
+
+        :return: The group of this SearchResponse.
+        :rtype: :class:`~flywheel.model.SearchGroupResponse`
+
+    .. attribute:: session
+
+        Gets the session of this SearchResponse.
+
+        :return: The session of this SearchResponse.
+        :rtype: :class:`~flywheel.model.SearchSessionResponse`
+
+    .. attribute:: acquisition
+
+        Gets the acquisition of this SearchResponse.
+
+        :return: The acquisition of this SearchResponse.
+        :rtype: :class:`~flywheel.model.SearchAcquisitionResponse`
+
+    .. attribute:: subject
+
+        Gets the subject of this SearchResponse.
+
+        :return: The subject of this SearchResponse.
+        :rtype: :class:`~flywheel.model.SearchSubjectResponse`
+
+    .. attribute:: file
+
+        Gets the file of this SearchResponse.
+
+        :return: The file of this SearchResponse.
+        :rtype: :class:`~flywheel.model.SearchFileResponse`
+
+    .. attribute:: collection
+
+        Gets the collection of this SearchResponse.
+
+        :return: The collection of this SearchResponse.
+        :rtype: :class:`~flywheel.model.SearchCollectionResponse`
+
+    .. attribute:: analysis
+
+        Gets the analysis of this SearchResponse.
+
+        :return: The analysis of this SearchResponse.
+        :rtype: :class:`~flywheel.model.SearchAnalysisResponse`
+
+    .. attribute:: parent
+
+        Gets the parent of this SearchResponse.
+
+        :return: The parent of this SearchResponse.
+        :rtype: :class:`~flywheel.model.SearchParentResponse`
+
+    .. attribute:: permissions
+
+        Gets the permissions of this SearchResponse.
+
+        :return: The permissions of this SearchResponse.
+        :rtype: :class:`~flywheel.model.Permission`
+
+
+
+SearchSessionResponse
+-------------------------------------------------------------------------------
+Fields for session search response
+
+.. class:: SearchSessionResponse
+
+        Fields for session search response
+
+    .. attribute:: id
+
+        Gets the id of this SearchSessionResponse.
+
+        :return: The id of this SearchSessionResponse.
+        :rtype: char
+
+    .. attribute:: label
+
+        Gets the label of this SearchSessionResponse.
+
+        :return: The label of this SearchSessionResponse.
+        :rtype: char
+
+    .. attribute:: timestamp
+
+        Gets the timestamp of this SearchSessionResponse.
+
+        :return: The timestamp of this SearchSessionResponse.
+        :rtype: char
+
+    .. attribute:: created
+
+        Gets the created of this SearchSessionResponse.
+
+        :return: The created of this SearchSessionResponse.
+        :rtype: char
+
+
+
+SearchSubjectResponse
+-------------------------------------------------------------------------------
+Fields for subject search response
+
+.. class:: SearchSubjectResponse
+
+        Fields for subject search response
+
+    .. attribute:: code
+
+        Gets the code of this SearchSubjectResponse.
+
+        :return: The code of this SearchSubjectResponse.
+        :rtype: char
+
+
+
+Session
+-------------------------------------------------------------------------------
+
+
+.. class:: Session
+
+    .. attribute:: operator
+
+        Gets the operator of this Session.
+
+        :return: The operator of this Session.
+        :rtype: char
+
+    .. attribute:: public
+
+        Gets the public of this Session.
+
+        :return: The public of this Session.
+        :rtype: logical
+
+    .. attribute:: label
+
+        Gets the label of this Session.
+
+        :return: The label of this Session.
+        :rtype: char
+
+    .. attribute:: info
+
+        Gets the info of this Session.
+
+        :return: The info of this Session.
+        :rtype: :class:`~flywheel.model.CommonInfo`
+
+    .. attribute:: project
+
+        Gets the project of this Session.
+
+        :return: The project of this Session.
+        :rtype: char
+
+    .. attribute:: uid
+
+        Gets the uid of this Session.
+
+        :return: The uid of this Session.
+        :rtype: char
+
+    .. attribute:: timestamp
+
+        Gets the timestamp of this Session.
+
+        :return: The timestamp of this Session.
+        :rtype: char
+
+    .. attribute:: timezone
+
+        Gets the timezone of this Session.
+
+        :return: The timezone of this Session.
+        :rtype: char
+
+    .. attribute:: subject
+
+        Gets the subject of this Session.
+
+        :return: The subject of this Session.
+        :rtype: :class:`~flywheel.model.Subject`
+
+    .. attribute:: id
+
+        Gets the id of this Session.
+
+        :return: The id of this Session.
+        :rtype: char
+
+    .. attribute:: infoExists
+
+        Gets the infoExists of this Session.
+
+        :return: The infoExists of this Session.
+        :rtype: logical
+
+    .. attribute:: created
+
+        Gets the created of this Session.
+
+        :return: The created of this Session.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this Session.
+
+        :return: The modified of this Session.
+        :rtype: char
+
+    .. attribute:: permissions
+
+        Gets the permissions of this Session.
+
+        :return: The permissions of this Session.
+        :rtype: :class:`~flywheel.model.Permission`
+
+    .. attribute:: group
+
+        Gets the group of this Session.
+
+        :return: The group of this Session.
+        :rtype: char
+
+    .. attribute:: projectHasTemplate
+
+        Gets the projectHasTemplate of this Session.
+
+        :return: The projectHasTemplate of this Session.
+        :rtype: logical
+
+    .. attribute:: satisfiesTemplate
+
+        Gets the satisfiesTemplate of this Session.
+
+        :return: The satisfiesTemplate of this Session.
+        :rtype: logical
+
+    .. attribute:: files
+
+        Gets the files of this Session.
+
+        :return: The files of this Session.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: notes
+
+        Gets the notes of this Session.
+
+        :return: The notes of this Session.
+        :rtype: :class:`~flywheel.model.Note`
+
+    .. attribute:: tags
+
+        Gets the tags of this Session.
+
+        :return: The tags of this Session.
+        :rtype: vector[char]
+
+    .. attribute:: analyses
+
+        Gets the analyses of this Session.
+
+        :return: The analyses of this Session.
+        :rtype: :class:`~flywheel.model.AnalysisOutput`
+
+
+
+SessionJobsOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: SessionJobsOutput
+
+    .. attribute:: jobs
+
+        Gets the jobs of this SessionJobsOutput.
+
+        :return: The jobs of this SessionJobsOutput.
+        :rtype: :class:`~flywheel.model.Job`
+
+    .. attribute:: containers
+
+        Gets the containers of this SessionJobsOutput.
+
+        :return: The containers of this SessionJobsOutput.
+        :rtype: containers.Map[String, containers.Map]
+
+
+
+SessionMetadataInput
+-------------------------------------------------------------------------------
+
+
+.. class:: SessionMetadataInput
+
+    .. attribute:: public
+
+        Gets the public of this SessionMetadataInput.
+
+        :return: The public of this SessionMetadataInput.
+        :rtype: logical
+
+    .. attribute:: label
+
+        Gets the label of this SessionMetadataInput.
+
+        :return: The label of this SessionMetadataInput.
+        :rtype: char
+
+    .. attribute:: info
+
+        Gets the info of this SessionMetadataInput.
+
+        :return: The info of this SessionMetadataInput.
+        :rtype: containers.Map
+
+    .. attribute:: operator
+
+        Gets the operator of this SessionMetadataInput.
+
+        :return: The operator of this SessionMetadataInput.
+        :rtype: char
+
+    .. attribute:: uid
+
+        Gets the uid of this SessionMetadataInput.
+
+        :return: The uid of this SessionMetadataInput.
+        :rtype: char
+
+    .. attribute:: timestamp
+
+        Gets the timestamp of this SessionMetadataInput.
+
+        :return: The timestamp of this SessionMetadataInput.
+        :rtype: char
+
+    .. attribute:: timezone
+
+        Gets the timezone of this SessionMetadataInput.
+
+        :return: The timezone of this SessionMetadataInput.
+        :rtype: char
+
+    .. attribute:: subject
+
+        Gets the subject of this SessionMetadataInput.
+
+        :return: The subject of this SessionMetadataInput.
+        :rtype: :class:`~flywheel.model.Subject`
+
+    .. attribute:: files
+
+        Gets the files of this SessionMetadataInput.
+
+        :return: The files of this SessionMetadataInput.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+
+
+SessionTemplateRecalcOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: SessionTemplateRecalcOutput
+
+    .. attribute:: sessionsChanged
+
+        Gets the sessionsChanged of this SessionTemplateRecalcOutput.
+
+        :return: The sessionsChanged of this SessionTemplateRecalcOutput.
+        :rtype: vector[char]
+
+
+
+Subject
+-------------------------------------------------------------------------------
+
+
+.. class:: Subject
+
+    .. attribute:: id
+
+        Gets the id of this Subject.
+
+        :return: The id of this Subject.
+        :rtype: char
+
+    .. attribute:: firstname
+
+        Gets the firstname of this Subject.
+
+        :return: The firstname of this Subject.
+        :rtype: char
+
+    .. attribute:: lastname
+
+        Gets the lastname of this Subject.
+
+        :return: The lastname of this Subject.
+        :rtype: char
+
+    .. attribute:: age
+
+        Gets the age of this Subject.
+
+        :return: The age of this Subject.
+        :rtype: integer
+
+    .. attribute:: sex
+
+        Gets the sex of this Subject.
+
+        :return: The sex of this Subject.
+        :rtype: char
+
+    .. attribute:: race
+
+        Gets the race of this Subject.
+
+        :return: The race of this Subject.
+        :rtype: char
+
+    .. attribute:: ethnicity
+
+        Gets the ethnicity of this Subject.
+
+        :return: The ethnicity of this Subject.
+        :rtype: char
+
+    .. attribute:: code
+
+        Gets the code of this Subject.
+
+        :return: The code of this Subject.
+        :rtype: char
+
+    .. attribute:: tags
+
+        Gets the tags of this Subject.
+
+        :return: The tags of this Subject.
+        :rtype: vector[char]
+
+    .. attribute:: info
+
+        Gets the info of this Subject.
+
+        :return: The info of this Subject.
+        :rtype: :class:`~flywheel.model.CommonInfo`
+
+    .. attribute:: files
+
+        Gets the files of this Subject.
+
+        :return: The files of this Subject.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: infoExists
+
+        Gets the infoExists of this Subject.
+
+        :return: The infoExists of this Subject.
+        :rtype: logical
+
+
+
+Tag
+-------------------------------------------------------------------------------
+
+
+.. class:: Tag
+
+    .. attribute:: value
+
+        Gets the value of this Tag.
+
+        :return: The value of this Tag.
+        :rtype: char
+
+
+
+User
+-------------------------------------------------------------------------------
+
+
+.. class:: User
+
+    .. attribute:: id
+
+        Gets the id of this User.
+
+        :return: The id of this User.
+        :rtype: char
+
+    .. attribute:: firstname
+
+        Gets the firstname of this User.
+
+        :return: The firstname of this User.
+        :rtype: char
+
+    .. attribute:: lastname
+
+        Gets the lastname of this User.
+
+        :return: The lastname of this User.
+        :rtype: char
+
+    .. attribute:: email
+
+        Gets the email of this User.
+
+        :return: The email of this User.
+        :rtype: char
+
+    .. attribute:: avatar
+
+        Gets the avatar of this User.
+
+        :return: The avatar of this User.
+        :rtype: char
+
+    .. attribute:: avatars
+
+        Gets the avatars of this User.
+
+        :return: The avatars of this User.
+        :rtype: :class:`~flywheel.model.Avatars`
+
+    .. attribute:: root
+
+        Gets the root of this User.
+
+        :return: The root of this User.
+        :rtype: logical
+
+    .. attribute:: disabled
+
+        Gets the disabled of this User.
+
+        :return: The disabled of this User.
+        :rtype: logical
+
+    .. attribute:: preferences
+
+        Gets the preferences of this User.
+
+        :return: The preferences of this User.
+        :rtype: :class:`~flywheel.model.UserPreferences`
+
+    .. attribute:: wechat
+
+        Gets the wechat of this User.
+
+        :return: The wechat of this User.
+        :rtype: :class:`~flywheel.model.UserWechat`
+
+    .. attribute:: firstlogin
+
+        Gets the firstlogin of this User.
+
+        :return: The firstlogin of this User.
+        :rtype: char
+
+    .. attribute:: lastlogin
+
+        Gets the lastlogin of this User.
+
+        :return: The lastlogin of this User.
+        :rtype: char
+
+    .. attribute:: created
+
+        Gets the created of this User.
+
+        :return: The created of this User.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this User.
+
+        :return: The modified of this User.
+        :rtype: char
+
+    .. attribute:: apiKey
+
+        Gets the apiKey of this User.
+
+        :return: The apiKey of this User.
+        :rtype: :class:`~flywheel.model.UserApiKey`
+
+
+
+UserApiKey
+-------------------------------------------------------------------------------
+
+
+.. class:: UserApiKey
+
+    .. attribute:: key
+
+        Gets the key of this UserApiKey.
+
+        :return: The key of this UserApiKey.
+        :rtype: char
+
+    .. attribute:: created
+
+        Gets the created of this UserApiKey.
+
+        :return: The created of this UserApiKey.
+        :rtype: char
+
+    .. attribute:: lastUsed
+
+        Gets the lastUsed of this UserApiKey.
+
+        :return: The lastUsed of this UserApiKey.
+        :rtype: char
+
+
+
+UserPreferences
+-------------------------------------------------------------------------------
+
+
+.. class:: UserPreferences
+
+
+
+UserWechat
+-------------------------------------------------------------------------------
+
+
+.. class:: UserWechat
+
+
+
+VersionOutput
+-------------------------------------------------------------------------------
+
+
+.. class:: VersionOutput
+
+    .. attribute:: id
+
+        Gets the id of this VersionOutput.
+
+        :return: The id of this VersionOutput.
+        :rtype: char
+
+    .. attribute:: database
+
+        Gets the database of this VersionOutput.
+
+        :return: The database of this VersionOutput.
+        :rtype: integer
+
+
+
+ResolverAcquisitionNode
+-------------------------------------------------------------------------------
+
+
+.. class:: ResolverAcquisitionNode
+
+    .. attribute:: public
+
+        Gets the public of this ResolverAcquisitionNode.
+
+        :return: The public of this ResolverAcquisitionNode.
+        :rtype: logical
+
+    .. attribute:: label
+
+        Gets the label of this ResolverAcquisitionNode.
+
+        :return: The label of this ResolverAcquisitionNode.
+        :rtype: char
+
+    .. attribute:: info
+
+        Gets the info of this ResolverAcquisitionNode.
+
+        :return: The info of this ResolverAcquisitionNode.
+        :rtype: :class:`~flywheel.model.CommonInfo`
+
+    .. attribute:: session
+
+        Gets the session of this ResolverAcquisitionNode.
+
+        :return: The session of this ResolverAcquisitionNode.
+        :rtype: char
+
+    .. attribute:: uid
+
+        Gets the uid of this ResolverAcquisitionNode.
+
+        :return: The uid of this ResolverAcquisitionNode.
+        :rtype: char
+
+    .. attribute:: timestamp
+
+        Gets the timestamp of this ResolverAcquisitionNode.
+
+        :return: The timestamp of this ResolverAcquisitionNode.
+        :rtype: char
+
+    .. attribute:: timezone
+
+        Gets the timezone of this ResolverAcquisitionNode.
+
+        :return: The timezone of this ResolverAcquisitionNode.
+        :rtype: char
+
+    .. attribute:: id
+
+        Gets the id of this ResolverAcquisitionNode.
+
+        :return: The id of this ResolverAcquisitionNode.
+        :rtype: char
+
+    .. attribute:: collections
+
+        Gets the collections of this ResolverAcquisitionNode.
+
+        :return: The collections of this ResolverAcquisitionNode.
+        :rtype: vector[char]
+
+    .. attribute:: files
+
+        Gets the files of this ResolverAcquisitionNode.
+
+        :return: The files of this ResolverAcquisitionNode.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: created
+
+        Gets the created of this ResolverAcquisitionNode.
+
+        :return: The created of this ResolverAcquisitionNode.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this ResolverAcquisitionNode.
+
+        :return: The modified of this ResolverAcquisitionNode.
+        :rtype: char
+
+    .. attribute:: infoExists
+
+        Gets the infoExists of this ResolverAcquisitionNode.
+
+        :return: The infoExists of this ResolverAcquisitionNode.
+        :rtype: logical
+
+    .. attribute:: permissions
+
+        Gets the permissions of this ResolverAcquisitionNode.
+
+        :return: The permissions of this ResolverAcquisitionNode.
+        :rtype: :class:`~flywheel.model.Permission`
+
+    .. attribute:: notes
+
+        Gets the notes of this ResolverAcquisitionNode.
+
+        :return: The notes of this ResolverAcquisitionNode.
+        :rtype: :class:`~flywheel.model.Note`
+
+    .. attribute:: tags
+
+        Gets the tags of this ResolverAcquisitionNode.
+
+        :return: The tags of this ResolverAcquisitionNode.
+        :rtype: vector[char]
+
+    .. attribute:: analyses
+
+        Gets the analyses of this ResolverAcquisitionNode.
+
+        :return: The analyses of this ResolverAcquisitionNode.
+        :rtype: :class:`~flywheel.model.AnalysisOutput`
+
+
+
+ResolverFileNode
+-------------------------------------------------------------------------------
+
+
+.. class:: ResolverFileNode
+
+    .. attribute:: name
+
+        Gets the name of this ResolverFileNode.
+
+        :return: The name of this ResolverFileNode.
+        :rtype: char
+
+    .. attribute:: type
+
+        Gets the type of this ResolverFileNode.
+
+        :return: The type of this ResolverFileNode.
+        :rtype: char
+
+    .. attribute:: mimetype
+
+        Gets the mimetype of this ResolverFileNode.
+
+        :return: The mimetype of this ResolverFileNode.
+        :rtype: char
+
+    .. attribute:: modality
+
+        Gets the modality of this ResolverFileNode.
+
+        :return: The modality of this ResolverFileNode.
+        :rtype: char
+
+    .. attribute:: measurements
+
+        Gets the measurements of this ResolverFileNode.
+
+        :return: The measurements of this ResolverFileNode.
+        :rtype: vector[char]
+
+    .. attribute:: tags
+
+        Gets the tags of this ResolverFileNode.
+
+        :return: The tags of this ResolverFileNode.
+        :rtype: vector[char]
+
+    .. attribute:: info
+
+        Gets the info of this ResolverFileNode.
+
+        :return: The info of this ResolverFileNode.
+        :rtype: :class:`~flywheel.model.CommonInfo`
+
+    .. attribute:: origin
+
+        Gets the origin of this ResolverFileNode.
+
+        :return: The origin of this ResolverFileNode.
+        :rtype: :class:`~flywheel.model.FileOrigin`
+
+    .. attribute:: hash
+
+        Gets the hash of this ResolverFileNode.
+
+        :return: The hash of this ResolverFileNode.
+        :rtype: char
+
+    .. attribute:: created
+
+        Gets the created of this ResolverFileNode.
+
+        :return: The created of this ResolverFileNode.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this ResolverFileNode.
+
+        :return: The modified of this ResolverFileNode.
+        :rtype: char
+
+    .. attribute:: size
+
+        Gets the size of this ResolverFileNode.
+
+        :return: The size of this ResolverFileNode.
+        :rtype: integer
+
+    .. attribute:: infoExists
+
+        Gets the infoExists of this ResolverFileNode.
+
+        :return: The infoExists of this ResolverFileNode.
+        :rtype: logical
+
+
+
+ResolverGroupNode
+-------------------------------------------------------------------------------
+
+
+.. class:: ResolverGroupNode
+
+    .. attribute:: id
+
+        Gets the id of this ResolverGroupNode.
+
+        :return: The id of this ResolverGroupNode.
+        :rtype: char
+
+    .. attribute:: label
+
+        Gets the label of this ResolverGroupNode.
+
+        :return: The label of this ResolverGroupNode.
+        :rtype: char
+
+    .. attribute:: permissions
+
+        Gets the permissions of this ResolverGroupNode.
+
+        :return: The permissions of this ResolverGroupNode.
+        :rtype: :class:`~flywheel.model.Permission`
+
+    .. attribute:: created
+
+        Gets the created of this ResolverGroupNode.
+
+        :return: The created of this ResolverGroupNode.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this ResolverGroupNode.
+
+        :return: The modified of this ResolverGroupNode.
+        :rtype: char
+
+    .. attribute:: tags
+
+        Gets the tags of this ResolverGroupNode.
+
+        :return: The tags of this ResolverGroupNode.
+        :rtype: vector[char]
+
+
+
+ResolverProjectNode
+-------------------------------------------------------------------------------
+
+
+.. class:: ResolverProjectNode
+
+    .. attribute:: public
+
+        Gets the public of this ResolverProjectNode.
+
+        :return: The public of this ResolverProjectNode.
+        :rtype: logical
+
+    .. attribute:: label
+
+        Gets the label of this ResolverProjectNode.
+
+        :return: The label of this ResolverProjectNode.
+        :rtype: char
+
+    .. attribute:: info
+
+        Gets the info of this ResolverProjectNode.
+
+        :return: The info of this ResolverProjectNode.
+        :rtype: :class:`~flywheel.model.CommonInfo`
+
+    .. attribute:: description
+
+        Gets the description of this ResolverProjectNode.
+
+        :return: The description of this ResolverProjectNode.
+        :rtype: char
+
+    .. attribute:: group
+
+        Gets the group of this ResolverProjectNode.
+
+        :return: The group of this ResolverProjectNode.
+        :rtype: char
+
+    .. attribute:: id
+
+        Gets the id of this ResolverProjectNode.
+
+        :return: The id of this ResolverProjectNode.
+        :rtype: char
+
+    .. attribute:: infoExists
+
+        Gets the infoExists of this ResolverProjectNode.
+
+        :return: The infoExists of this ResolverProjectNode.
+        :rtype: logical
+
+    .. attribute:: created
+
+        Gets the created of this ResolverProjectNode.
+
+        :return: The created of this ResolverProjectNode.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this ResolverProjectNode.
+
+        :return: The modified of this ResolverProjectNode.
+        :rtype: char
+
+    .. attribute:: template
+
+        Gets the template of this ResolverProjectNode.
+
+        :return: The template of this ResolverProjectNode.
+        :rtype: containers.Map
+
+    .. attribute:: permissions
+
+        Gets the permissions of this ResolverProjectNode.
+
+        :return: The permissions of this ResolverProjectNode.
+        :rtype: :class:`~flywheel.model.Permission`
+
+    .. attribute:: files
+
+        Gets the files of this ResolverProjectNode.
+
+        :return: The files of this ResolverProjectNode.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: notes
+
+        Gets the notes of this ResolverProjectNode.
+
+        :return: The notes of this ResolverProjectNode.
+        :rtype: :class:`~flywheel.model.Note`
+
+    .. attribute:: tags
+
+        Gets the tags of this ResolverProjectNode.
+
+        :return: The tags of this ResolverProjectNode.
+        :rtype: vector[char]
+
+    .. attribute:: analyses
+
+        Gets the analyses of this ResolverProjectNode.
+
+        :return: The analyses of this ResolverProjectNode.
+        :rtype: :class:`~flywheel.model.AnalysisOutput`
+
+
+
+ResolverSessionNode
+-------------------------------------------------------------------------------
+
+
+.. class:: ResolverSessionNode
+
+    .. attribute:: operator
+
+        Gets the operator of this ResolverSessionNode.
+
+        :return: The operator of this ResolverSessionNode.
+        :rtype: char
+
+    .. attribute:: public
+
+        Gets the public of this ResolverSessionNode.
+
+        :return: The public of this ResolverSessionNode.
+        :rtype: logical
+
+    .. attribute:: label
+
+        Gets the label of this ResolverSessionNode.
+
+        :return: The label of this ResolverSessionNode.
+        :rtype: char
+
+    .. attribute:: info
+
+        Gets the info of this ResolverSessionNode.
+
+        :return: The info of this ResolverSessionNode.
+        :rtype: :class:`~flywheel.model.CommonInfo`
+
+    .. attribute:: project
+
+        Gets the project of this ResolverSessionNode.
+
+        :return: The project of this ResolverSessionNode.
+        :rtype: char
+
+    .. attribute:: uid
+
+        Gets the uid of this ResolverSessionNode.
+
+        :return: The uid of this ResolverSessionNode.
+        :rtype: char
+
+    .. attribute:: timestamp
+
+        Gets the timestamp of this ResolverSessionNode.
+
+        :return: The timestamp of this ResolverSessionNode.
+        :rtype: char
+
+    .. attribute:: timezone
+
+        Gets the timezone of this ResolverSessionNode.
+
+        :return: The timezone of this ResolverSessionNode.
+        :rtype: char
+
+    .. attribute:: subject
+
+        Gets the subject of this ResolverSessionNode.
+
+        :return: The subject of this ResolverSessionNode.
+        :rtype: :class:`~flywheel.model.Subject`
+
+    .. attribute:: id
+
+        Gets the id of this ResolverSessionNode.
+
+        :return: The id of this ResolverSessionNode.
+        :rtype: char
+
+    .. attribute:: infoExists
+
+        Gets the infoExists of this ResolverSessionNode.
+
+        :return: The infoExists of this ResolverSessionNode.
+        :rtype: logical
+
+    .. attribute:: created
+
+        Gets the created of this ResolverSessionNode.
+
+        :return: The created of this ResolverSessionNode.
+        :rtype: char
+
+    .. attribute:: modified
+
+        Gets the modified of this ResolverSessionNode.
+
+        :return: The modified of this ResolverSessionNode.
+        :rtype: char
+
+    .. attribute:: permissions
+
+        Gets the permissions of this ResolverSessionNode.
+
+        :return: The permissions of this ResolverSessionNode.
+        :rtype: :class:`~flywheel.model.Permission`
+
+    .. attribute:: group
+
+        Gets the group of this ResolverSessionNode.
+
+        :return: The group of this ResolverSessionNode.
+        :rtype: char
+
+    .. attribute:: projectHasTemplate
+
+        Gets the projectHasTemplate of this ResolverSessionNode.
+
+        :return: The projectHasTemplate of this ResolverSessionNode.
+        :rtype: logical
+
+    .. attribute:: satisfiesTemplate
+
+        Gets the satisfiesTemplate of this ResolverSessionNode.
+
+        :return: The satisfiesTemplate of this ResolverSessionNode.
+        :rtype: logical
+
+    .. attribute:: files
+
+        Gets the files of this ResolverSessionNode.
+
+        :return: The files of this ResolverSessionNode.
+        :rtype: :class:`~flywheel.model.FileEntry`
+
+    .. attribute:: notes
+
+        Gets the notes of this ResolverSessionNode.
+
+        :return: The notes of this ResolverSessionNode.
+        :rtype: :class:`~flywheel.model.Note`
+
+    .. attribute:: tags
+
+        Gets the tags of this ResolverSessionNode.
+
+        :return: The tags of this ResolverSessionNode.
+        :rtype: vector[char]
+
+    .. attribute:: analyses
+
+        Gets the analyses of this ResolverSessionNode.
+
+        :return: The analyses of this ResolverSessionNode.
+        :rtype: :class:`~flywheel.model.AnalysisOutput`
+
+

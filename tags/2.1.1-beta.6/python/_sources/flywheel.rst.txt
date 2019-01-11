@@ -1,0 +1,62 @@
+flywheel package
+================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    flywheel.api
+    flywheel.models
+
+Submodules
+----------
+
+flywheel.api\_client module
+---------------------------
+
+.. automodule:: flywheel.api_client
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.configuration module
+-----------------------------
+
+.. automodule:: flywheel.configuration
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.file\_spec module
+--------------------------
+
+.. automodule:: flywheel.file_spec
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.flywheel module
+------------------------
+
+.. automodule:: flywheel.flywheel
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.rest module
+--------------------
+
+.. automodule:: flywheel.rest
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: flywheel
+    :members:
+    :undoc-members:
+    :show-inheritance:

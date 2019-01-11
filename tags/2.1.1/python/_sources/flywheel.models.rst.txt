@@ -1,0 +1,1046 @@
+flywheel.models package
+=======================
+
+Submodules
+----------
+
+flywheel.models.acquisition module
+----------------------------------
+
+.. automodule:: flywheel.models.acquisition
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.acquisition\_metadata\_input module
+---------------------------------------------------
+
+.. automodule:: flywheel.models.acquisition_metadata_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.analysis\_files\_create\_ticket\_output module
+--------------------------------------------------------------
+
+.. automodule:: flywheel.models.analysis_files_create_ticket_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.analysis\_input module
+--------------------------------------
+
+.. automodule:: flywheel.models.analysis_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.analysis\_input\_any module
+-------------------------------------------
+
+.. automodule:: flywheel.models.analysis_input_any
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.analysis\_input\_legacy module
+----------------------------------------------
+
+.. automodule:: flywheel.models.analysis_input_legacy
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.analysis\_list\_entry module
+--------------------------------------------
+
+.. automodule:: flywheel.models.analysis_list_entry
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.analysis\_output module
+---------------------------------------
+
+.. automodule:: flywheel.models.analysis_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.analysis\_update module
+---------------------------------------
+
+.. automodule:: flywheel.models.analysis_update
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.auth\_login\_output module
+------------------------------------------
+
+.. automodule:: flywheel.models.auth_login_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.auth\_logout\_output module
+-------------------------------------------
+
+.. automodule:: flywheel.models.auth_logout_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.avatars module
+------------------------------
+
+.. automodule:: flywheel.models.avatars
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.batch module
+----------------------------
+
+.. automodule:: flywheel.models.batch
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.batch\_cancel\_output module
+--------------------------------------------
+
+.. automodule:: flywheel.models.batch_cancel_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.batch\_proposal module
+--------------------------------------
+
+.. automodule:: flywheel.models.batch_proposal
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.batch\_proposal\_detail module
+----------------------------------------------
+
+.. automodule:: flywheel.models.batch_proposal_detail
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.batch\_proposal\_input module
+---------------------------------------------
+
+.. automodule:: flywheel.models.batch_proposal_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.collection module
+---------------------------------
+
+.. automodule:: flywheel.models.collection
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.collection\_new\_output module
+----------------------------------------------
+
+.. automodule:: flywheel.models.collection_new_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.collection\_node module
+---------------------------------------
+
+.. automodule:: flywheel.models.collection_node
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.collection\_operation module
+--------------------------------------------
+
+.. automodule:: flywheel.models.collection_operation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.common\_deleted\_count module
+---------------------------------------------
+
+.. automodule:: flywheel.models.common_deleted_count
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.common\_info module
+-----------------------------------
+
+.. automodule:: flywheel.models.common_info
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.common\_modified\_count module
+----------------------------------------------
+
+.. automodule:: flywheel.models.common_modified_count
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.common\_object\_created module
+----------------------------------------------
+
+.. automodule:: flywheel.models.common_object_created
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.config\_auth\_output module
+-------------------------------------------
+
+.. automodule:: flywheel.models.config_auth_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.config\_output module
+-------------------------------------
+
+.. automodule:: flywheel.models.config_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.config\_site\_config\_output module
+---------------------------------------------------
+
+.. automodule:: flywheel.models.config_site_config_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.container\_new\_output module
+---------------------------------------------
+
+.. automodule:: flywheel.models.container_new_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.container\_output\_with\_files module
+-----------------------------------------------------
+
+.. automodule:: flywheel.models.container_output_with_files
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.container\_reference module
+-------------------------------------------
+
+.. automodule:: flywheel.models.container_reference
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.device module
+-----------------------------
+
+.. automodule:: flywheel.models.device
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.device\_status module
+-------------------------------------
+
+.. automodule:: flywheel.models.device_status
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.device\_status\_entry module
+--------------------------------------------
+
+.. automodule:: flywheel.models.device_status_entry
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.download module
+-------------------------------
+
+.. automodule:: flywheel.models.download
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.download\_filter module
+---------------------------------------
+
+.. automodule:: flywheel.models.download_filter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.download\_filter\_definition module
+---------------------------------------------------
+
+.. automodule:: flywheel.models.download_filter_definition
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.download\_input module
+--------------------------------------
+
+.. automodule:: flywheel.models.download_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.download\_node module
+-------------------------------------
+
+.. automodule:: flywheel.models.download_node
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.download\_ticket module
+---------------------------------------
+
+.. automodule:: flywheel.models.download_ticket
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.download\_ticket\_with\_summary module
+------------------------------------------------------
+
+.. automodule:: flywheel.models.download_ticket_with_summary
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.enginemetadata\_engine\_upload\_input module
+------------------------------------------------------------
+
+.. automodule:: flywheel.models.enginemetadata_engine_upload_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.enginemetadata\_label\_upload\_input module
+-----------------------------------------------------------
+
+.. automodule:: flywheel.models.enginemetadata_label_upload_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.enginemetadata\_uid\_match\_upload\_input module
+----------------------------------------------------------------
+
+.. automodule:: flywheel.models.enginemetadata_uid_match_upload_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.enginemetadata\_uid\_upload\_input module
+---------------------------------------------------------
+
+.. automodule:: flywheel.models.enginemetadata_uid_upload_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.enginemetadata\_upload\_acquisition\_metadata\_input module
+---------------------------------------------------------------------------
+
+.. automodule:: flywheel.models.enginemetadata_upload_acquisition_metadata_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.file\_entry module
+----------------------------------
+
+.. automodule:: flywheel.models.file_entry
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.file\_origin module
+-----------------------------------
+
+.. automodule:: flywheel.models.file_origin
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.file\_reference module
+--------------------------------------
+
+.. automodule:: flywheel.models.file_reference
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.file\_via module
+--------------------------------
+
+.. automodule:: flywheel.models.file_via
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.gear module
+---------------------------
+
+.. automodule:: flywheel.models.gear
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.gear\_config module
+-----------------------------------
+
+.. automodule:: flywheel.models.gear_config
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.gear\_custom module
+-----------------------------------
+
+.. automodule:: flywheel.models.gear_custom
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.gear\_directive module
+--------------------------------------
+
+.. automodule:: flywheel.models.gear_directive
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.gear\_doc module
+--------------------------------
+
+.. automodule:: flywheel.models.gear_doc
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.gear\_environment module
+----------------------------------------
+
+.. automodule:: flywheel.models.gear_environment
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.gear\_exchange module
+-------------------------------------
+
+.. automodule:: flywheel.models.gear_exchange
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.gear\_input\_item module
+----------------------------------------
+
+.. automodule:: flywheel.models.gear_input_item
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.gear\_inputs module
+-----------------------------------
+
+.. automodule:: flywheel.models.gear_inputs
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.group module
+----------------------------
+
+.. automodule:: flywheel.models.group
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.group\_metadata\_input module
+---------------------------------------------
+
+.. automodule:: flywheel.models.group_metadata_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.group\_new\_output module
+-----------------------------------------
+
+.. automodule:: flywheel.models.group_new_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.info\_add\_remove module
+----------------------------------------
+
+.. automodule:: flywheel.models.info_add_remove
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.info\_replace module
+------------------------------------
+
+.. automodule:: flywheel.models.info_replace
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.info\_update\_input module
+------------------------------------------
+
+.. automodule:: flywheel.models.info_update_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.inline\_response\_200 module
+--------------------------------------------
+
+.. automodule:: flywheel.models.inline_response_200
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.inline\_response\_200\_1 module
+-----------------------------------------------
+
+.. automodule:: flywheel.models.inline_response_200_1
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.inline\_response\_200\_2 module
+-----------------------------------------------
+
+.. automodule:: flywheel.models.inline_response_200_2
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.inline\_response\_200\_3 module
+-----------------------------------------------
+
+.. automodule:: flywheel.models.inline_response_200_3
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.job module
+--------------------------
+
+.. automodule:: flywheel.models.job
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.job\_config module
+----------------------------------
+
+.. automodule:: flywheel.models.job_config
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.job\_destination module
+---------------------------------------
+
+.. automodule:: flywheel.models.job_destination
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.job\_inputs\_item module
+----------------------------------------
+
+.. automodule:: flywheel.models.job_inputs_item
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.job\_inputs\_object module
+------------------------------------------
+
+.. automodule:: flywheel.models.job_inputs_object
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.job\_log module
+-------------------------------
+
+.. automodule:: flywheel.models.job_log
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.job\_log\_statement module
+------------------------------------------
+
+.. automodule:: flywheel.models.job_log_statement
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.job\_origin module
+----------------------------------
+
+.. automodule:: flywheel.models.job_origin
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.job\_produced\_metadata module
+----------------------------------------------
+
+.. automodule:: flywheel.models.job_produced_metadata
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.job\_request module
+-----------------------------------
+
+.. automodule:: flywheel.models.job_request
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.note module
+---------------------------
+
+.. automodule:: flywheel.models.note
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.packfile module
+-------------------------------
+
+.. automodule:: flywheel.models.packfile
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.packfile\_acquisition\_input module
+---------------------------------------------------
+
+.. automodule:: flywheel.models.packfile_acquisition_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.packfile\_packfile\_input module
+------------------------------------------------
+
+.. automodule:: flywheel.models.packfile_packfile_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.packfile\_project\_input module
+-----------------------------------------------
+
+.. automodule:: flywheel.models.packfile_project_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.packfile\_session\_input module
+-----------------------------------------------
+
+.. automodule:: flywheel.models.packfile_session_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.packfile\_start module
+--------------------------------------
+
+.. automodule:: flywheel.models.packfile_start
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.permission module
+---------------------------------
+
+.. automodule:: flywheel.models.permission
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.project module
+------------------------------
+
+.. automodule:: flywheel.models.project
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.project\_metadata\_input module
+-----------------------------------------------
+
+.. automodule:: flywheel.models.project_metadata_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.project\_template module
+----------------------------------------
+
+.. automodule:: flywheel.models.project_template
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.project\_template\_requirement module
+-----------------------------------------------------
+
+.. automodule:: flywheel.models.project_template_requirement
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.report\_demographics\_grid module
+-------------------------------------------------
+
+.. automodule:: flywheel.models.report_demographics_grid
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.report\_ethnicity\_grid module
+----------------------------------------------
+
+.. automodule:: flywheel.models.report_ethnicity_grid
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.report\_gender\_count module
+--------------------------------------------
+
+.. automodule:: flywheel.models.report_gender_count
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.report\_group\_report module
+--------------------------------------------
+
+.. automodule:: flywheel.models.report_group_report
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.report\_project module
+--------------------------------------
+
+.. automodule:: flywheel.models.report_project
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.report\_site module
+-----------------------------------
+
+.. automodule:: flywheel.models.report_site
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.resolver\_acquisition\_node module
+--------------------------------------------------
+
+.. automodule:: flywheel.models.resolver_acquisition_node
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.resolver\_file\_node module
+-------------------------------------------
+
+.. automodule:: flywheel.models.resolver_file_node
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.resolver\_group\_node module
+--------------------------------------------
+
+.. automodule:: flywheel.models.resolver_group_node
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.resolver\_input module
+--------------------------------------
+
+.. automodule:: flywheel.models.resolver_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.resolver\_node module
+-------------------------------------
+
+.. automodule:: flywheel.models.resolver_node
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.resolver\_output module
+---------------------------------------
+
+.. automodule:: flywheel.models.resolver_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.resolver\_project\_node module
+----------------------------------------------
+
+.. automodule:: flywheel.models.resolver_project_node
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.resolver\_session\_node module
+----------------------------------------------
+
+.. automodule:: flywheel.models.resolver_session_node
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.rule module
+---------------------------
+
+.. automodule:: flywheel.models.rule
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.rule\_any module
+--------------------------------
+
+.. automodule:: flywheel.models.rule_any
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.search\_acquisition\_response module
+----------------------------------------------------
+
+.. automodule:: flywheel.models.search_acquisition_response
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.search\_analysis\_response module
+-------------------------------------------------
+
+.. automodule:: flywheel.models.search_analysis_response
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.search\_collection\_response module
+---------------------------------------------------
+
+.. automodule:: flywheel.models.search_collection_response
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.search\_file\_response module
+---------------------------------------------
+
+.. automodule:: flywheel.models.search_file_response
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.search\_group\_response module
+----------------------------------------------
+
+.. automodule:: flywheel.models.search_group_response
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.search\_parent\_response module
+-----------------------------------------------
+
+.. automodule:: flywheel.models.search_parent_response
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.search\_project\_response module
+------------------------------------------------
+
+.. automodule:: flywheel.models.search_project_response
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.search\_query module
+------------------------------------
+
+.. automodule:: flywheel.models.search_query
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.search\_response module
+---------------------------------------
+
+.. automodule:: flywheel.models.search_response
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.search\_session\_response module
+------------------------------------------------
+
+.. automodule:: flywheel.models.search_session_response
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.search\_subject\_response module
+------------------------------------------------
+
+.. automodule:: flywheel.models.search_subject_response
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.session module
+------------------------------
+
+.. automodule:: flywheel.models.session
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.session\_jobs\_output module
+--------------------------------------------
+
+.. automodule:: flywheel.models.session_jobs_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.session\_metadata\_input module
+-----------------------------------------------
+
+.. automodule:: flywheel.models.session_metadata_input
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.session\_template\_recalc\_output module
+--------------------------------------------------------
+
+.. automodule:: flywheel.models.session_template_recalc_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.subject module
+------------------------------
+
+.. automodule:: flywheel.models.subject
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.tag module
+--------------------------
+
+.. automodule:: flywheel.models.tag
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.user module
+---------------------------
+
+.. automodule:: flywheel.models.user
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.user\_api\_key module
+-------------------------------------
+
+.. automodule:: flywheel.models.user_api_key
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.user\_preferences module
+----------------------------------------
+
+.. automodule:: flywheel.models.user_preferences
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.user\_wechat module
+-----------------------------------
+
+.. automodule:: flywheel.models.user_wechat
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+flywheel.models.version\_output module
+--------------------------------------
+
+.. automodule:: flywheel.models.version_output
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: flywheel.models
+    :members:
+    :undoc-members:
+    :show-inheritance:

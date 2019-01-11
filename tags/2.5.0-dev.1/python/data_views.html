@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Data Views &mdash; Flywheel SDK  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="flywheel package" href="flywheel.html" />
+    <link rel="prev" title="Examples" href="examples.html" /> 
+
+  
+  <script src="../../../static/theme/sphinx_rtd/0.3.1/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Flywheel SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started with Flywheel SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Data Views</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-data-views">Creating Data Views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#executing-data-views">Executing Data Views</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#load-json-data-view">Load JSON Data View</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#load-pandas-dataframe">Load pandas DataFrame</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#save-dataframe-to-csv">Save DataFrame to CSV</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#data-formats">Data Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#columns">Columns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#info-columns">Info Columns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#files">Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#saving-views">Saving Views</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="flywheel.html">flywheel package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Flywheel SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Data Views</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="data-views">
+<h1>Data Views<a class="headerlink" href="#data-views" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Often times it is useful to get attributes across a large number of objects in the Flywheel hierarchy.
+One possible way of retrieving fields in such a manner would be looping over each level in the hierarchy,
+collecting the desired fields at each level. This is problematic because it is tedious to write and inefficient
+to execute.</p>
+<p>A <a class="reference internal" href="flywheel.models.html#flywheel.models.data_view.DataView" title="flywheel.models.data_view.DataView"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataView</span></code></a> is an abstraction that describes how to collect and aggregate data on a Flywheel instance.
+Data views are defined as a set of columns to collect and are executed against a container (such as a project, subject or session).
+In addition, tabular or JSON file data may be aggregated from files, even files that are members of archives, or part of analysis output.</p>
+<p>Data views provide an alternative way to efficiently aggregate data across the hierarchy in a tabular way, producing
+results like this:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="13%" />
+<col width="13%" />
+<col width="20%" />
+<col width="12%" />
+<col width="15%" />
+<col width="10%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">project.label</th>
+<th class="head">subject.age</th>
+<th class="head">subject.sex</th>
+<th class="head">acquisition.label</th>
+<th class="head">trial_type</th>
+<th class="head">response_time</th>
+<th class="head">accuracy</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>color study</td>
+<td>1040688000</td>
+<td>male</td>
+<td>task-redBlue</td>
+<td>go</td>
+<td>1.435</td>
+<td>1</td>
+</tr>
+<tr class="row-odd"><td>color study</td>
+<td>1040688000</td>
+<td>male</td>
+<td>task-redBlue</td>
+<td>stop</td>
+<td>1.739</td>
+<td>0</td>
+</tr>
+<tr class="row-even"><td>color study</td>
+<td>851472000</td>
+<td>female</td>
+<td>task-redBlue</td>
+<td>go</td>
+<td>1.379</td>
+<td>1</td>
+</tr>
+<tr class="row-odd"><td>color study</td>
+<td>851472000</td>
+<td>female</td>
+<td>task-redBlue</td>
+<td>stop</td>
+<td>1.534</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="creating-data-views">
+<h2>Creating Data Views<a class="headerlink" href="#creating-data-views" title="Permalink to this headline">¶</a></h2>
+<p>Data views can be created using the <code class="xref py py-class docutils literal notranslate"><span class="pre">DataViewBuilder</span></code> class, or the short-hand <code class="xref py py-meth docutils literal notranslate"><span class="pre">build_data_view()</span></code> method.
+At a minimum, one column or file must be specified when creating a data view. A simple example would be to create a view that collects all of the built-in subject columns:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build using the DataViewBuilder class</span>
+<span class="n">view</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">build_data_view</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s1">&#39;subject&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="executing-data-views">
+<h2>Executing Data Views<a class="headerlink" href="#executing-data-views" title="Permalink to this headline">¶</a></h2>
+<p>A DataView object doesn’t become useful until you execute it against a container. Data view results can be loaded directly into memory, or saved to a file.
+If the <a class="reference external" href="https://pandas.pydata.org/">pandas</a> python package is available, you can also load data view results directly into a DataFrame.</p>
+<div class="section" id="load-json-data-view">
+<h3>Load JSON Data View<a class="headerlink" href="#load-json-data-view" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="k">with</span> <span class="n">fw</span><span class="o">.</span><span class="n">read_data_view_data</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">project_id</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="load-pandas-dataframe">
+<h3>Load pandas DataFrame<a class="headerlink" href="#load-pandas-dataframe" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">read_data_view_data_frame</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">project_id</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="save-dataframe-to-csv">
+<h3>Save DataFrame to CSV<a class="headerlink" href="#save-dataframe-to-csv" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fw</span><span class="o">.</span><span class="n">save_data_view_data</span><span class="p">(</span><span class="n">view</span><span class="p">,</span> <span class="n">project_id</span><span class="p">,</span> <span class="s1">&#39;/tmp/results.csv&#39;</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="data-formats">
+<h2>Data Formats<a class="headerlink" href="#data-formats" title="Permalink to this headline">¶</a></h2>
+<p>The following output formats are supported:</p>
+<ul class="simple">
+<li>json - The default format. Results will be returned as an array of objects, one per row.</li>
+<li>json-row-column - A second json format where columns are separate from rows, and rows is an array of arrays.</li>
+<li>csv - Comma-separated values format</li>
+<li>tsv - Tab-separated values format</li>
+</ul>
+<p>Data format can be specified on any of the data view</p>
+</div>
+<div class="section" id="columns">
+<h2>Columns<a class="headerlink" href="#columns" title="Permalink to this headline">¶</a></h2>
+<p>Data view columns are references to container fields in the form of <code class="docutils literal notranslate"><span class="pre">&lt;container&gt;.&lt;field&gt;</span></code>.</p>
+<p>A current list of pre-defined columns and groups of columns is available via the <code class="xref py py-meth docutils literal notranslate"><span class="pre">print_data_view_columns()</span></code> method.
+For example:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>project (group): All column aliases belonging to project
+project.id (string): The project id
+project.label (string): The project label
+project.info (string): The freeform project metadata
+subject (group): All column aliases belonging to subject
+subject.id (string): The subject id
+subject.label (string): The subject label or code
+subject.firstname (string): The subject first name
+subject.lastname (string): The subject last name
+subject.age (int): The subject age, in seconds
+subject.info (string): The freeform subject metadata
+...
+</pre></div>
+</div>
+<p>Adding the <code class="docutils literal notranslate"><span class="pre">project</span></code> group column will result in <code class="docutils literal notranslate"><span class="pre">project.id</span></code> and <code class="docutils literal notranslate"><span class="pre">project.label</span></code> being added. Likewise adding the <code class="docutils literal notranslate"><span class="pre">subject</span></code> group column
+will result in the subject <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">label</span></code>, <code class="docutils literal notranslate"><span class="pre">firstname</span></code>, <code class="docutils literal notranslate"><span class="pre">lastname</span></code>, <code class="docutils literal notranslate"><span class="pre">age</span></code> (and more) columns being added to the view.</p>
+<div class="section" id="info-columns">
+<h3>Info Columns<a class="headerlink" href="#info-columns" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">info</span></code> columns are unique in that they represent the unstructured metadata associated with a container. As such, they are not included in
+the column groups, and behave a little bit differently. If the output data format is CSV or TSV, then a set of columns are extracted from the first
+row encountered, which is generally the first object created. This may result in unexpected behavior if info fields are not uniform across each
+object. It’s better in most cases to explicitly state which info fields you wish as columns: e.g. <code class="docutils literal notranslate"><span class="pre">subject.info.IQ</span></code>.</p>
+</div>
+</div>
+<div class="section" id="files">
+<h2>Files<a class="headerlink" href="#files" title="Permalink to this headline">¶</a></h2>
+<p>Rows can also be extracted from CSV, TSV and JSON files that are present on the Flywheel instance. The data view builder provides a short-hand way
+of specifying which files to match, in the form of <code class="docutils literal notranslate"><span class="pre">&lt;container&gt;:&lt;filespec&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;container&gt;:&lt;analysis&gt;:&lt;filespec&gt;</span></code>.</p>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read all columns from files named behavioral_results_*.csv on each session</span>
+<span class="n">view</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">build_data_view</span><span class="p">(</span><span class="n">files</span><span class="o">=</span><span class="s1">&#39;session:behavioral_results*.csv&#39;</span><span class="p">)</span>
+
+<span class="c1"># Read Mean_Diffusivity.csv results from the newest AFQ analyses on each session, and include session and subject labels</span>
+<span class="n">builder</span> <span class="o">=</span> <span class="n">flywheel</span><span class="o">.</span><span class="n">DataViewBuilder</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;subject.label&#39;</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">label</span><span class="s1">&#39;], files=&#39;</span><span class="n">session</span><span class="p">:</span><span class="n">afq</span><span class="o">*</span><span class="p">:</span><span class="n">Mean_Diffusivity</span><span class="o">.</span><span class="n">csv</span><span class="s1">&#39;)</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">file_match</span><span class="p">(</span><span class="s1">&#39;newest&#39;</span><span class="p">)</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">file_column</span><span class="p">(</span><span class="s1">&#39;Left_Thalamic_Radiation&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">file_column</span><span class="p">(</span><span class="s1">&#39;Right_Thalamic_Radiation&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+<span class="n">view</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="saving-views">
+<h2>Saving Views<a class="headerlink" href="#saving-views" title="Permalink to this headline">¶</a></h2>
+<p>Views can be saved to your user account, or any project you have access to. For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">me</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">get_current_user</span><span class="p">()</span><span class="o">.</span><span class="n">id</span>
+<span class="n">subjects_view</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">build_data_view</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Subject Info&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">])</span>
+<span class="n">view_id</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">add_data_view</span><span class="p">(</span><span class="n">me</span><span class="p">,</span> <span class="n">subjects_view</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then you can execute the view any time against any container</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">read_data_view_data_frame</span><span class="p">(</span><span class="n">view_id</span><span class="p">,</span> <span class="n">project_id</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="flywheel.html" class="btn btn-neutral float-right" title="flywheel package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="examples.html" class="btn btn-neutral" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018 Flywheel All rights reserved.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/jquery.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/underscore.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

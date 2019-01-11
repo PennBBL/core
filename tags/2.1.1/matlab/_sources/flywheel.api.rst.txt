@@ -1,0 +1,2125 @@
+flywheel.api package
+===============================================================================
+
+AcquisitionsApi Class
+-------------------------------------------------------------------------------
+AcquisitionsApi API Provider
+
+.. class:: AcquisitionsApi
+
+    .. method:: addAcquisition
+
+        Create a new acquisition
+
+        :param flywheel.model.Acquisition body: (required) 
+        :return: [:class:`~flywheel.model.ContainerNewOutput`, resp]
+
+    .. method:: addAcquisitionAnalysis
+
+        Create an analysis and upload files.
+
+        When query param \"job\" is \"true\", send JSON to create an analysis and job.  Otherwise, multipart/form-data to upload files and create an analysis. 
+
+        :param char acquisitionId: (required) 
+        :param flywheel.model.AnalysisInputAny body: (required) 
+        :param logical job: (optional) Return job as an object instead of an id
+        :return: [:class:`~flywheel.model.ContainerNewOutput`, resp]
+
+    .. method:: addAcquisitionAnalysisNote
+
+        Add a note to acquisition analysis.
+
+        :param char acquisitionId: (required) 
+        :param char analysisId: (required) 
+        :param flywheel.model.Note body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: addAcquisitionNote
+
+        Add a note to acquisition.
+
+        :param char acquisitionId: (required) 
+        :param flywheel.model.Note body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: addAcquisitionTag
+
+        Add a tag to acquisition.
+
+        Progates changes to projects, sessions and acquisitions
+
+        :param char acquisitionId: (required) 
+        :param flywheel.model.Tag body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteAcquisition
+
+        Delete a acquisition
+
+        Read-write project permissions are required to delete an acquisition. </br>Admin project permissions are required if the acquisition contains data uploaded by sources other than users and jobs.
+
+        :param char acquisitionId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse200`, resp]
+
+    .. method:: deleteAcquisitionAnalysis
+
+        Delete an anaylsis
+
+        :param char acquisitionId: (required) 
+        :param char analysisId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse200`, resp]
+
+    .. method:: deleteAcquisitionAnalysisNote
+
+        Remove a note from acquisition analysis.
+
+        :param char acquisitionId: (required) 
+        :param char analysisId: (required) 
+        :param char noteId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteAcquisitionFile
+
+        Delete a file
+
+        A user with read-write or higher permissions on the container may delete files that were uploaded by users or were the output of jobs. (Specifically, files whose `origin.type` is either `job` or `user`.) <br/> A user with admin permissions on the container may delete any file. 
+
+        :param char acquisitionId: (required) 
+        :param char fileName: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteAcquisitionNote
+
+        Remove a note from acquisition
+
+        :param char acquisitionId: (required) 
+        :param char noteId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteAcquisitionTag
+
+        Delete a tag
+
+        :param char acquisitionId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: downloadAcquisitionAnalysisInputs
+
+        Download analysis inputs.
+
+        If \"ticket\" query param is included and not empty, download inputs. If \"ticket\" query param is included and empty, create a ticket for all inputs in the anlaysis If no \"ticket\" query param is included, server error 500 
+
+        :param char acquisitionId: (required) 
+        :param char analysisId: (required) 
+        :param char ticket: (optional) ticket id of the inputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadAcquisitionAnalysisInputsByFilename
+
+        Download anaylsis inputs with filter.
+
+        If \"ticket\" query param is included and not empty, download inputs. If \"ticket\" query param is included and empty, create a ticket for matching inputs in the anlaysis. If no \"ticket\" query param is included, inputs will be downloaded directly. 
+
+        :param char acquisitionId: (required) 
+        :param char analysisId: (required) 
+        :param char filename: (required) regex to select inputs for download
+        :param char ticket: (optional) ticket id of the inputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadAcquisitionAnalysisOutputs
+
+        Download analysis outputs.
+
+        If \"ticket\" query param is included and not empty, download outputs. If \"ticket\" query param is included and empty, create a ticket for all outputs in the anlaysis If no \"ticket\" query param is included, server error 500 
+
+        :param char acquisitionId: (required) 
+        :param char analysisId: (required) 
+        :param char ticket: (optional) ticket id of the outputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadAcquisitionAnalysisOutputsByFilename
+
+        Download anaylsis outputs with filter.
+
+        If \"ticket\" query param is included and not empty, download outputs. If \"ticket\" query param is included and empty, create a ticket for matching outputs in the anlaysis. If no \"ticket\" query param is included, outputs will be downloaded directly. 
+
+        :param char acquisitionId: (required) 
+        :param char analysisId: (required) 
+        :param char filename: (required) regex to select outputs for download
+        :param char ticket: (optional) ticket id of the outputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadFileFromAcquisition
+
+        Download a file.
+
+        Files can be downloaded directly from this endpoint with a valid \"Authorization\" header or via a ticket id.  To generate a ticket:   - Make a request with an empty \"ticket\" parameter and a valid \"Authorization\" header. The server will respond with a generated ticket id.   - Make another request with the received ticket id in the \"ticket\" parameter. A valid \"Authorization\" header is no longer required.  When \"view\" is true, [RFC7233](https://tools.ietf.org/html/rfc7233) range request headers are supported. 
+
+        :param char acquisitionId: (required) 
+        :param char fileName: (required) 
+        :param logical view: (optional) If true, the proper \"Content-Type\" header based on the file's mimetype is set on response If false, the \"Content-Type\" header is set to \"application/octet-stream\" 
+        :param logical info: (optional) If the file is a zipfile, return a json response of zipfile member information
+        :param char member: (optional) The filename of a zipfile member to download rather than the entire file
+        :return: [:class:`~flywheel.model.DownloadTicket`, resp]
+
+    .. method:: getAcquisitionDownloadTicket
+
+        Download a file.
+
+        Files can be downloaded directly from this endpoint with a valid \"Authorization\" header or via a ticket id.  To generate a ticket:   - Make a request with an empty \"ticket\" parameter and a valid \"Authorization\" header. The server will respond with a generated ticket id.   - Make another request with the received ticket id in the \"ticket\" parameter. A valid \"Authorization\" header is no longer required.  When \"view\" is true, [RFC7233](https://tools.ietf.org/html/rfc7233) range request headers are supported. 
+
+        :param char acquisitionId: (required) 
+        :param char fileName: (required) 
+        :param char ticket: (optional) The generated ticket id for the download, or present but empty to generate a ticket id
+        :param logical view: (optional) If true, the proper \"Content-Type\" header based on the file's mimetype is set on response If false, the \"Content-Type\" header is set to \"application/octet-stream\" 
+        :param logical info: (optional) If the file is a zipfile, return a json response of zipfile member information
+        :param char member: (optional) The filename of a zipfile member to download rather than the entire file
+        :return: [:class:`~flywheel.model.DownloadTicket`, resp]
+
+    .. method:: getAcquisition
+
+        Get a single acquisition
+
+        :param char acquisitionId: (required) 
+        :return: [:class:`~flywheel.model.Acquisition`, resp]
+
+    .. method:: getAcquisitionAnalyses
+
+        Get analyses for acquisition.
+
+        Returns analyses that directly belong to this resource.
+
+        :param char acquisitionId: (required) 
+        :return: [:class:`~flywheel.model.vector[AnalysisListEntry]`, resp]
+
+    .. method:: getAcquisitionAnalysis
+
+        Get an analysis.
+
+        :param char acquisitionId: (required) 
+        :param char analysisId: (required) 
+        :param logical inflateJob: (optional) Return job as an object instead of an id
+        :return: [:class:`~flywheel.model.AnalysisOutput`, resp]
+
+    .. method:: getAcquisitionFileInfo
+
+        Get info for a particular file.
+
+        :param char acquisitionId: (required) 
+        :param char fileName: (required) 
+        :return: [:class:`~flywheel.model.FileEntry`, resp]
+
+    .. method:: getAcquisitionNote
+
+        Get a note on acquisition.
+
+        :param char acquisitionId: (required) 
+        :param char noteId: (required) 
+        :return: [:class:`~flywheel.model.Note`, resp]
+
+    .. method:: getAcquisitionTag
+
+        Get the value of a tag, by name.
+
+        :param char acquisitionId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :return: [:class:`~flywheel.model.Tag`, resp]
+
+    .. method:: getAllAcquisitions
+
+        Get a list of acquisitions
+
+        :return: [:class:`~flywheel.model.vector[Acquisition]`, resp]
+
+    .. method:: modifyAcquisition
+
+        Update a acquisition
+
+        :param char acquisitionId: (required) 
+        :param flywheel.model.Acquisition body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: modifyAcquisitionFile
+
+        Modify a file's attributes
+
+        :param char acquisitionId: (required) 
+        :param char fileName: (required) 
+        :param flywheel.model.FileEntry body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2003`, resp]
+
+    .. method:: modifyAcquisitionFileInfo
+
+        Update info for a particular file.
+
+        :param char acquisitionId: (required) 
+        :param char fileName: (required) 
+        :param flywheel.model.InfoUpdateInput body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: modifyAcquisitionInfo
+
+        Update or replace info for a acquisition.
+
+        :param char acquisitionId: (required) 
+        :param flywheel.model.InfoUpdateInput body: (required) 
+        :return: [none, resp]
+
+    .. method:: modifyAcquisitionNote
+
+        Update a note on acquisition.
+
+        :param char acquisitionId: (required) 
+        :param char noteId: (required) 
+        :param flywheel.model.Note body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: renameAcquisitionTag
+
+        Rename a tag.
+
+        :param char acquisitionId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :param Tag body: (optional) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: replaceAcquisitionFile
+
+        Replace a file
+
+        :param char acquisitionId: (required) 
+        :param char fileName: (required) 
+        :return: [none, resp]
+
+    .. method:: uploadFileToAcquisition
+
+        Upload a file to acquisition.
+
+        :param char acquisitionId: (required) 
+        :param flywheel.model.char file: (required) The file to upload
+        :return: [none, resp]
+
+AnalysesApi Class
+-------------------------------------------------------------------------------
+AnalysesApi API Provider
+
+.. class:: AnalysesApi
+
+    .. method:: downloadAnalysisInputs
+
+        Download analysis inputs.
+
+        If \"ticket\" query param is included and not empty, download inputs. If \"ticket\" query param is included and empty, create a ticket for all inputs in the anlaysis If no \"ticket\" query param is included, server error 500 
+
+        :param char analysisId: (required) 
+        :param char ticket: (optional) ticket id of the inputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadAnalysisInputsByFilename
+
+        Download anaylsis inputs with filter.
+
+        If \"ticket\" query param is included and not empty, download inputs. If \"ticket\" query param is included and empty, create a ticket for matching inputs in the anlaysis. If no \"ticket\" query param is included, inputs will be downloaded directly. 
+
+        :param char analysisId: (required) 
+        :param char filename: (required) regex to select inputs for download
+        :param char ticket: (optional) ticket id of the inputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadAnalysisOutputs
+
+        Download analysis outputs.
+
+        If \"ticket\" query param is included and not empty, download outputs. If \"ticket\" query param is included and empty, create a ticket for all outputs in the anlaysis If no \"ticket\" query param is included, server error 500 
+
+        :param char analysisId: (required) 
+        :param char ticket: (optional) ticket id of the outputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadAnalysisOutputsByFilename
+
+        Download anaylsis outputs with filter.
+
+        If \"ticket\" query param is included and not empty, download outputs. If \"ticket\" query param is included and empty, create a ticket for matching outputs in the anlaysis. If no \"ticket\" query param is included, outputs will be downloaded directly. 
+
+        :param char analysisId: (required) 
+        :param char filename: (required) regex to select outputs for download
+        :param char ticket: (optional) ticket id of the outputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: getAnalyses
+
+        Get nested analyses for a container
+
+        Returns analyses that belong to containers of the specified type that belong to ContainerId.  For example: `projects/{ProjectId}/acquisitions/analyses` will return any analyses  that have an acquisition that is under that project as a parent. The `all` keyword is also supported, for example: projects/{ProjectId}/all/analyses  will return any analyses that have any session or acquisition or the project itself as a parent. 
+
+        :param char containerName: (required) The parent container type
+        :param char containerId: (required) The parent container id
+        :param char subcontainerName: (required) The sub container type
+        :return: [:class:`~flywheel.model.vector[AnalysisListEntry]`, resp]
+
+    .. method:: getAnalysis
+
+        Get an analysis.
+
+        :param char analysisId: (required) 
+        :param logical inflateJob: (optional) Return job as an object instead of an id
+        :return: [:class:`~flywheel.model.AnalysisOutput`, resp]
+
+BatchApi Class
+-------------------------------------------------------------------------------
+BatchApi API Provider
+
+.. class:: BatchApi
+
+    .. method:: cancelBatch
+
+        Cancel a Job
+
+        Cancels jobs that are still pending, returns number of jobs cancelled. Moves a 'running' batch job to 'cancelled'. 
+
+        :param char batchId: (required) 
+        :return: [:class:`~flywheel.model.BatchCancelOutput`, resp]
+
+    .. method:: getAllBatches
+
+        Get a list of batch jobs the user has created.
+
+        Requires login.
+
+        :return: [:class:`~flywheel.model.vector[Batch]`, resp]
+
+    .. method:: getBatch
+
+        Get batch job details.
+
+        :param char batchId: (required) 
+        :param logical jobs: (optional) If true, return job objects instead of job ids
+        :return: [:class:`~flywheel.model.Batch`, resp]
+
+    .. method:: proposeBatch
+
+        Create a batch job proposal and insert it as 'pending'.
+
+        :param flywheel.model.BatchProposalInput body: (required) The batch proposal
+        :return: [:class:`~flywheel.model.BatchProposal`, resp]
+
+    .. method:: startBatch
+
+        Launch a job.
+
+        Creates jobs from proposed inputs, returns jobs enqueued. Moves 'pending' batch job to 'running'. 
+
+        :param char batchId: (required) 
+        :return: [:class:`~flywheel.model.vector[Job]`, resp]
+
+CollectionsApi Class
+-------------------------------------------------------------------------------
+CollectionsApi API Provider
+
+.. class:: CollectionsApi
+
+    .. method:: addCollection
+
+        Create a collection
+
+        :param flywheel.model.Collection body: (required) 
+        :return: [:class:`~flywheel.model.CollectionNewOutput`, resp]
+
+    .. method:: addCollectionAnalysis
+
+        Create an analysis and upload files.
+
+        When query param \"job\" is \"true\", send JSON to create an analysis and job.  Otherwise, multipart/form-data to upload files and create an analysis. 
+
+        :param char collectionId: (required) 
+        :param flywheel.model.AnalysisInputAny body: (required) 
+        :param logical job: (optional) Return job as an object instead of an id
+        :return: [:class:`~flywheel.model.ContainerNewOutput`, resp]
+
+    .. method:: addCollectionAnalysisNote
+
+        Add a note to collection analysis.
+
+        :param char collectionId: (required) 
+        :param char analysisId: (required) 
+        :param flywheel.model.Note body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: addCollectionNote
+
+        Add a note to collection.
+
+        :param char collectionId: (required) 
+        :param flywheel.model.Note body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: addCollectionPermission
+
+        Add a permission
+
+        :param char collectionId: (required) 
+        :param Permission body: (optional) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: addCollectionTag
+
+        Add a tag to collection.
+
+        Progates changes to projects, sessions and acquisitions
+
+        :param char collectionId: (required) 
+        :param flywheel.model.Tag body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteCollection
+
+        Delete a collection
+
+        :param char collectionId: (required) 
+        :return: [none, resp]
+
+    .. method:: deleteCollectionAnalysis
+
+        Delete an anaylsis
+
+        :param char collectionId: (required) 
+        :param char analysisId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse200`, resp]
+
+    .. method:: deleteCollectionAnalysisNote
+
+        Remove a note from collection analysis.
+
+        :param char collectionId: (required) 
+        :param char analysisId: (required) 
+        :param char noteId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteCollectionFile
+
+        Delete a file
+
+        A user with read-write or higher permissions on the container may delete files that were uploaded by users or were the output of jobs. (Specifically, files whose `origin.type` is either `job` or `user`.) <br/> A user with admin permissions on the container may delete any file. 
+
+        :param char collectionId: (required) 
+        :param char fileName: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteCollectionNote
+
+        Remove a note from collection
+
+        :param char collectionId: (required) 
+        :param char noteId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteCollectionTag
+
+        Delete a tag
+
+        :param char collectionId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteCollectionUserPermission
+
+        Delete a permission
+
+        :param char collectionId: (required) 
+        :param char userId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: downloadCollectionAnalysisInputs
+
+        Download analysis inputs.
+
+        If \"ticket\" query param is included and not empty, download inputs. If \"ticket\" query param is included and empty, create a ticket for all inputs in the anlaysis If no \"ticket\" query param is included, server error 500 
+
+        :param char collectionId: (required) 
+        :param char analysisId: (required) 
+        :param char ticket: (optional) ticket id of the inputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadCollectionAnalysisInputsByFilename
+
+        Download anaylsis inputs with filter.
+
+        If \"ticket\" query param is included and not empty, download inputs. If \"ticket\" query param is included and empty, create a ticket for matching inputs in the anlaysis. If no \"ticket\" query param is included, inputs will be downloaded directly. 
+
+        :param char collectionId: (required) 
+        :param char analysisId: (required) 
+        :param char filename: (required) regex to select inputs for download
+        :param char ticket: (optional) ticket id of the inputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadCollectionAnalysisOutputs
+
+        Download analysis outputs.
+
+        If \"ticket\" query param is included and not empty, download outputs. If \"ticket\" query param is included and empty, create a ticket for all outputs in the anlaysis If no \"ticket\" query param is included, server error 500 
+
+        :param char collectionId: (required) 
+        :param char analysisId: (required) 
+        :param char ticket: (optional) ticket id of the outputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadCollectionAnalysisOutputsByFilename
+
+        Download anaylsis outputs with filter.
+
+        If \"ticket\" query param is included and not empty, download outputs. If \"ticket\" query param is included and empty, create a ticket for matching outputs in the anlaysis. If no \"ticket\" query param is included, outputs will be downloaded directly. 
+
+        :param char collectionId: (required) 
+        :param char analysisId: (required) 
+        :param char filename: (required) regex to select outputs for download
+        :param char ticket: (optional) ticket id of the outputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadFileFromCollection
+
+        Download a file.
+
+        Files can be downloaded directly from this endpoint with a valid \"Authorization\" header or via a ticket id.  To generate a ticket:   - Make a request with an empty \"ticket\" parameter and a valid \"Authorization\" header. The server will respond with a generated ticket id.   - Make another request with the received ticket id in the \"ticket\" parameter. A valid \"Authorization\" header is no longer required.  When \"view\" is true, [RFC7233](https://tools.ietf.org/html/rfc7233) range request headers are supported. 
+
+        :param char collectionId: (required) 
+        :param char fileName: (required) 
+        :param logical view: (optional) If true, the proper \"Content-Type\" header based on the file's mimetype is set on response If false, the \"Content-Type\" header is set to \"application/octet-stream\" 
+        :param logical info: (optional) If the file is a zipfile, return a json response of zipfile member information
+        :param char member: (optional) The filename of a zipfile member to download rather than the entire file
+        :return: [:class:`~flywheel.model.DownloadTicket`, resp]
+
+    .. method:: getCollectionDownloadTicket
+
+        Download a file.
+
+        Files can be downloaded directly from this endpoint with a valid \"Authorization\" header or via a ticket id.  To generate a ticket:   - Make a request with an empty \"ticket\" parameter and a valid \"Authorization\" header. The server will respond with a generated ticket id.   - Make another request with the received ticket id in the \"ticket\" parameter. A valid \"Authorization\" header is no longer required.  When \"view\" is true, [RFC7233](https://tools.ietf.org/html/rfc7233) range request headers are supported. 
+
+        :param char collectionId: (required) 
+        :param char fileName: (required) 
+        :param char ticket: (optional) The generated ticket id for the download, or present but empty to generate a ticket id
+        :param logical view: (optional) If true, the proper \"Content-Type\" header based on the file's mimetype is set on response If false, the \"Content-Type\" header is set to \"application/octet-stream\" 
+        :param logical info: (optional) If the file is a zipfile, return a json response of zipfile member information
+        :param char member: (optional) The filename of a zipfile member to download rather than the entire file
+        :return: [:class:`~flywheel.model.DownloadTicket`, resp]
+
+    .. method:: getAllCollections
+
+        List all collections.
+
+        :return: [:class:`~flywheel.model.vector[Collection]`, resp]
+
+    .. method:: getAllCollectionsCurators
+
+        List all curators of collections
+
+        :return: [:class:`~flywheel.model.vector[InlineResponse2002]`, resp]
+
+    .. method:: getCollection
+
+        Retrieve a single collection
+
+        :param char collectionId: (required) 
+        :return: [:class:`~flywheel.model.Collection`, resp]
+
+    .. method:: getCollectionAcquisitions
+
+        List acquisitions in a collection
+
+        :param char collectionId: (required) 
+        :param char session: (optional) The id of a session, to which the acquisitions returned will be restricted
+        :return: [:class:`~flywheel.model.vector[Acquisition]`, resp]
+
+    .. method:: getCollectionAnalyses
+
+        Get analyses for collection.
+
+        Returns analyses that directly belong to this resource.
+
+        :param char collectionId: (required) 
+        :return: [:class:`~flywheel.model.vector[AnalysisListEntry]`, resp]
+
+    .. method:: getCollectionAnalysis
+
+        Get an analysis.
+
+        :param char collectionId: (required) 
+        :param char analysisId: (required) 
+        :param logical inflateJob: (optional) Return job as an object instead of an id
+        :return: [:class:`~flywheel.model.AnalysisOutput`, resp]
+
+    .. method:: getCollectionFileInfo
+
+        Get info for a particular file.
+
+        :param char collectionId: (required) 
+        :param char fileName: (required) 
+        :return: [:class:`~flywheel.model.FileEntry`, resp]
+
+    .. method:: getCollectionNote
+
+        Get a note on collection.
+
+        :param char collectionId: (required) 
+        :param char noteId: (required) 
+        :return: [:class:`~flywheel.model.Note`, resp]
+
+    .. method:: getCollectionSessions
+
+        List sessions in a collection
+
+        :param char collectionId: (required) 
+        :return: [:class:`~flywheel.model.vector[Session]`, resp]
+
+    .. method:: getCollectionTag
+
+        Get the value of a tag, by name.
+
+        :param char collectionId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :return: [:class:`~flywheel.model.Tag`, resp]
+
+    .. method:: getCollectionUserPermission
+
+        List a user's permissions for this collection.
+
+        :param char collectionId: (required) 
+        :param char userId: (required) 
+        :return: [:class:`~flywheel.model.Permission`, resp]
+
+    .. method:: modifyCollection
+
+        Update a collection and its contents
+
+        :param char collectionId: (required) 
+        :param flywheel.model.Collection body: (required) 
+        :return: [none, resp]
+
+    .. method:: modifyCollectionFile
+
+        Modify a file's attributes
+
+        :param char collectionId: (required) 
+        :param char fileName: (required) 
+        :param flywheel.model.FileEntry body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2003`, resp]
+
+    .. method:: modifyCollectionFileInfo
+
+        Update info for a particular file.
+
+        :param char collectionId: (required) 
+        :param char fileName: (required) 
+        :param flywheel.model.InfoUpdateInput body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: modifyCollectionInfo
+
+        Update or replace info for a collection.
+
+        :param char collectionId: (required) 
+        :param flywheel.model.InfoUpdateInput body: (required) 
+        :return: [none, resp]
+
+    .. method:: modifyCollectionNote
+
+        Update a note on collection.
+
+        :param char collectionId: (required) 
+        :param char noteId: (required) 
+        :param flywheel.model.Note body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: modifyCollectionUserPermission
+
+        Update a user's permission for this collection.
+
+        :param char collectionId: (required) 
+        :param char userId: (required) 
+        :param Permission body: (optional) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: renameCollectionTag
+
+        Rename a tag.
+
+        :param char collectionId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :param Tag body: (optional) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: replaceCollectionFile
+
+        Replace a file
+
+        :param char collectionId: (required) 
+        :param char fileName: (required) 
+        :return: [none, resp]
+
+    .. method:: uploadFileToCollection
+
+        Upload a file to collection.
+
+        :param char collectionId: (required) 
+        :param flywheel.model.char file: (required) The file to upload
+        :return: [none, resp]
+
+DefaultApi Class
+-------------------------------------------------------------------------------
+DefaultApi API Provider
+
+.. class:: DefaultApi
+
+    .. method:: cleanPackfiles
+
+        Clean up expired upload tokens and invalid token directories.
+
+        :return: [:class:`~flywheel.model.containers.Map`, resp]
+
+    .. method:: engineUpload
+
+        Upload a list of file fields.
+
+        ### Default behavior:  >Uploads a list of file fields sent as file1, file2, etc to an existing   container and updates fields of the files, the container and it's   parents as specified in the metadata fileformfield using the   engine placer class  ### When ``level`` is ``analysis``: > Uploads a list of files to an existing analysis object, marking   all files as ``output=true`` using the job-based analyses placer   class.  See schemas/input/analysis.json 
+
+        :param char level: (required) Which level to store files in
+        :param char id: (required) The ID of the container to place files in
+        :param char job: (required) Required if ``level`` is ``analysis``
+        :param EnginemetadataEngineUploadInput body: (optional) Object encoded as a JSON string. By default JSON must match the specified enginemetadata.json schema If ``level`` is ``analysis``, JSON must match AnalysisUploadMetadata schema 
+        :return: [:class:`~flywheel.model.containers.Map`, resp]
+
+    .. method:: getConfig
+
+        Return public Scitran configuration information
+
+        :return: [:class:`~flywheel.model.ConfigOutput`, resp]
+
+    .. method:: getConfigJs
+
+        Return public Scitran configuration information in javascript format.
+
+        :return: [none, resp]
+
+    .. method:: getVersion
+
+        Get server and database schema version info
+
+        :return: [:class:`~flywheel.model.VersionOutput`, resp]
+
+    .. method:: login
+
+        Login
+
+        Scitran Authentication
+
+        :return: [:class:`~flywheel.model.AuthLoginOutput`, resp]
+
+    .. method:: logout
+
+        Log Out
+
+        Remove authtokens for user
+
+        :return: [:class:`~flywheel.model.AuthLogoutOutput`, resp]
+
+    .. method:: resolvePath
+
+        Perform path based lookup of nodes in the Flywheel hierarchy
+
+        This will perform a deep lookup of a node (i.e. group/project/session/acquisition) and its children, including any files. The query path is an array of strings in the following order (by default):    * group id   * project label   * session label   * acquisition label  An ID can be used instead of a label by formatting the string as `<id:project_id>`. The full path to the node, and the node's children will be included in the response. 
+
+        :param flywheel.model.ResolverInput body: (required) 
+        :return: [:class:`~flywheel.model.ResolverOutput`, resp]
+
+    .. method:: search
+
+        Perform a search query
+
+        :param flywheel.model.SearchQuery body: (required) 
+        :param logical simple: (optional) 
+        :param integer limit: (optional) 
+        :return: [:class:`~flywheel.model.vector[SearchResponse]`, resp]
+
+DevicesApi Class
+-------------------------------------------------------------------------------
+DevicesApi API Provider
+
+.. class:: DevicesApi
+
+    .. method:: getAllDevices
+
+        List all devices.
+
+        Requires login.
+
+        :return: [:class:`~flywheel.model.vector[Device]`, resp]
+
+    .. method:: getAllDevicesStatus
+
+        Get status for all known devices.
+
+        ok - missing - error - unknown
+
+        :return: [:class:`~flywheel.model.DeviceStatus`, resp]
+
+    .. method:: getCurrentDevice
+
+        Get device document for device making the request.
+
+        Request must be a drone request.
+
+        :return: [:class:`~flywheel.model.Device`, resp]
+
+    .. method:: getDevice
+
+        Get device details
+
+        :param char deviceId: (required) 
+        :return: [:class:`~flywheel.model.Device`, resp]
+
+    .. method:: updateDevice
+
+        Modify a device's interval, info or set errors.
+
+        Will modify the device record of device making the request. Request must be drone request. 
+
+        :param Device body: (optional) 
+        :return: [:class:`~flywheel.model.containers.Map`, resp]
+
+FilesApi Class
+-------------------------------------------------------------------------------
+FilesApi API Provider
+
+.. class:: FilesApi
+
+    .. method:: createDownloadTicket
+
+        Create a download ticket
+
+        Use filters in the payload to exclude/include files. To pass a single filter, each of its conditions should be satisfied. If a file pass at least one filter, it is included in the targets. 
+
+        :param flywheel.model.Download body: (required) Download files with tag 'incomplete' OR type 'dicom'
+        :param char prefix: (optional) A string to customize the name of the download in the format <prefix>_<timestamp>.tar. Defaults to \"scitran\". 
+        :return: [:class:`~flywheel.model.DownloadTicketWithSummary`, resp]
+
+    .. method:: downloadTicket
+
+        Download files listed in the given ticket.
+
+        You can use POST to create a download ticket The files listed in the ticket are put into a tar archive 
+
+        :param char ticket: (required) ID of the download ticket
+        :return: [none, resp]
+
+    .. method:: uploadByLabel
+
+        Multipart form upload with N file fields, each with their desired filename.
+
+        For technical reasons, no form field names can be repeated. Instead, use (file1, file2) and so forth. A non-file form field called \"metadata\" is also required, which must be a string containing JSON. See api/schemas/input/labelupload.json for the format of this metadata. 
+
+        :param char formData: (optional) 
+        :return: [:class:`~flywheel.model.containers.Map`, resp]
+
+    .. method:: uploadByReaper
+
+        Bottom-up UID matching of Multipart form upload with N file fields, each with their desired filename.
+
+        Upload data, allowing users to move sessions during scans without causing new data to be created in referenced project/group.   ### Evaluation Order:  * If a matching acquisition UID is found anywhere on the system, the related files will be placed under that acquisition. * **OR** If a matching session UID is found, a new acquistion is created with the specified UID under that Session UID. * **OR** If a matching group ID and project label are found, a new session and acquisition will be created within that project * **OR** If a matching group ID is found, a new project and session and acquisition will be created within that group. * **OR** A new session and acquisition will be created within a special \"Unknown\" group and project, which is only visible to system administrators. 
+
+        :param char formData: (optional) 
+        :return: [:class:`~flywheel.model.vector[FileEntry]`, resp]
+
+    .. method:: uploadByUid
+
+        Multipart form upload with N file fields, each with their desired filename.
+
+        Same behavior as /api/upload/label,  except the metadata field must be uid format  See api/schemas/input/uidupload.json for the format of this metadata. 
+
+        :param char formData: (optional) 
+        :return: [:class:`~flywheel.model.containers.Map`, resp]
+
+    .. method:: uploadMatchUid
+
+        Multipart form upload with N file fields, each with their desired filename.
+
+        Accepts uploads to an existing data hierarchy, matched via Session and Acquisition UID See api/schemas/input/uidmatchupload.json for the format of this metadata. 
+
+        :param char formData: (optional) 
+        :return: [:class:`~flywheel.model.containers.Map`, resp]
+
+GearsApi Class
+-------------------------------------------------------------------------------
+GearsApi API Provider
+
+.. class:: GearsApi
+
+    .. method:: addGear
+
+        Create or update a gear.
+
+        If no existing gear is found, one will be created Otherwise, the specified gear will be updated 
+
+        :param char gearIdOrName: (required) Name of the gear to interact with
+        :param flywheel.model.GearDoc body: (required) 
+        :return: [:class:`~flywheel.model.CollectionNewOutput`, resp]
+
+    .. method:: deleteGear
+
+        Delete a gear (not recommended)
+
+        :param char gearIdOrName: (required) Id of the gear to interact with
+        :return: [none, resp]
+
+    .. method:: getAllGears
+
+        List all gears
+
+        :return: [:class:`~flywheel.model.vector[GearDoc]`, resp]
+
+    .. method:: getGear
+
+        Retrieve details about a specific gear
+
+        :param char gearIdOrName: (required) Id of the gear to interact with
+        :return: [:class:`~flywheel.model.GearDoc`, resp]
+
+    .. method:: getGearInvocation
+
+        Get a schema for invoking a gear.
+
+        :param char gearId: (required) Id of the gear to interact with
+        :return: [:class:`~flywheel.model.containers.Map`, resp]
+
+GroupsApi Class
+-------------------------------------------------------------------------------
+GroupsApi API Provider
+
+.. class:: GroupsApi
+
+    .. method:: addGroup
+
+        Add a group
+
+        :param flywheel.model.Group body: (required) 
+        :return: [:class:`~flywheel.model.GroupNewOutput`, resp]
+
+    .. method:: addGroupPermission
+
+        Add a permission
+
+        :param char groupId: (required) 
+        :param Permission body: (optional) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: addGroupTag
+
+        Add a tag to group.
+
+        Progates changes to projects, sessions and acquisitions
+
+        :param char groupId: (required) 
+        :param flywheel.model.Tag body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteGroup
+
+        Delete a group
+
+        :param char groupId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse200`, resp]
+
+    .. method:: deleteGroupTag
+
+        Delete a tag
+
+        :param char groupId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteGroupUserPermission
+
+        Delete a permission
+
+        :param char groupId: (required) 
+        :param char userId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: getAllGroups
+
+        List all groups
+
+        :return: [:class:`~flywheel.model.vector[Group]`, resp]
+
+    .. method:: getGroup
+
+        Get group info
+
+        :param char groupId: (required) 
+        :return: [:class:`~flywheel.model.Group`, resp]
+
+    .. method:: getGroupProjects
+
+        Get all projects in a group
+
+        :param char groupId: (required) 
+        :return: [:class:`~flywheel.model.vector[Project]`, resp]
+
+    .. method:: getGroupTag
+
+        Get the value of a tag, by name.
+
+        :param char groupId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :return: [:class:`~flywheel.model.Tag`, resp]
+
+    .. method:: getGroupUserPermission
+
+        List a user's permissions for this group.
+
+        :param char groupId: (required) 
+        :param char userId: (required) 
+        :return: [:class:`~flywheel.model.Permission`, resp]
+
+    .. method:: modifyGroup
+
+        Update group
+
+        :param char groupId: (required) 
+        :param flywheel.model.Group body: (required) 
+        :return: [none, resp]
+
+    .. method:: modifyGroupUserPermission
+
+        Update a user's permission for this group.
+
+        :param char groupId: (required) 
+        :param char userId: (required) 
+        :param Permission body: (optional) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: renameGroupTag
+
+        Rename a tag.
+
+        :param char groupId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :param Tag body: (optional) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+JobsApi Class
+-------------------------------------------------------------------------------
+JobsApi API Provider
+
+.. class:: JobsApi
+
+    .. method:: acceptFailedOutput
+
+        Accept failed job output.
+
+        Remove the 'from_failed_job' flag from the files. Create any automatic jobs for the accepted files. 
+
+        :param char jobId: (required) 
+        :return: [none, resp]
+
+    .. method:: addJob
+
+        Add a job
+
+        :param flywheel.model.Job body: (required) 
+        :return: [:class:`~flywheel.model.CommonObjectCreated`, resp]
+
+    .. method:: addJobLogs
+
+        Add logs to a job.
+
+        :param char jobId: (required) 
+        :param flywheel.model.vector[JobLogStatement] body: (required) 
+        :return: [none, resp]
+
+    .. method:: getJob
+
+        Get job details
+
+        :param char jobId: (required) 
+        :return: [:class:`~flywheel.model.Job`, resp]
+
+    .. method:: getJobConfig
+
+        Get a job's config
+
+        :param char jobId: (required) 
+        :return: [:class:`~flywheel.model.containers.Map`, resp]
+
+    .. method:: getJobLogs
+
+        Get job logs
+
+        :param char jobId: (required) 
+        :return: [:class:`~flywheel.model.JobLog`, resp]
+
+    .. method:: getJobsStats
+
+        Get stats about all current jobs
+
+        :return: [:class:`~flywheel.model.containers.Map`, resp]
+
+    .. method:: getNextJob
+
+        Get the next job in the queue
+
+        Used by the engine.
+
+        :param vector[char] tags: (optional) 
+        :return: [:class:`~flywheel.model.Job`, resp]
+
+    .. method:: modifyJob
+
+        Update a job.
+
+        Updates timestamp. Enforces a valid state machine transition, if any. Rejects any change to a job that is not currently in 'pending' or 'running' state. Accepts the same body as /api/jobs/add , except all fields are optional. 
+
+        :param char jobId: (required) 
+        :param containers.Map body: (required) 
+        :return: [none, resp]
+
+    .. method:: prepareCompete
+
+        Create a ticket with the job id and its status.
+
+        :param char jobId: (required) 
+        :param containers.Map body: (optional) 
+        :return: [:class:`~flywheel.model.containers.Map`, resp]
+
+    .. method:: reapJobs
+
+        Reap stale jobs
+
+        :return: [:class:`~flywheel.model.containers.Map`, resp]
+
+    .. method:: retryJob
+
+        Retry a job.
+
+        The job must have a state of 'failed', and must not have already been retried. The failed jobs config is copied to a new job. The ID of the new job is returned 
+
+        :param char jobId: (required) 
+        :return: [:class:`~flywheel.model.containers.Map`, resp]
+
+ProjectsApi Class
+-------------------------------------------------------------------------------
+ProjectsApi API Provider
+
+.. class:: ProjectsApi
+
+    .. method:: addProject
+
+        Create a new project
+
+        :param flywheel.model.Project body: (required) 
+        :return: [:class:`~flywheel.model.ContainerNewOutput`, resp]
+
+    .. method:: addProjectAnalysis
+
+        Create an analysis and upload files.
+
+        When query param \"job\" is \"true\", send JSON to create an analysis and job.  Otherwise, multipart/form-data to upload files and create an analysis. 
+
+        :param char projectId: (required) 
+        :param flywheel.model.AnalysisInputAny body: (required) 
+        :param logical job: (optional) Return job as an object instead of an id
+        :return: [:class:`~flywheel.model.ContainerNewOutput`, resp]
+
+    .. method:: addProjectAnalysisNote
+
+        Add a note to project analysis.
+
+        :param char projectId: (required) 
+        :param char analysisId: (required) 
+        :param flywheel.model.Note body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: addProjectNote
+
+        Add a note to project.
+
+        :param char projectId: (required) 
+        :param flywheel.model.Note body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: addProjectPermission
+
+        Add a permission
+
+        :param char projectId: (required) 
+        :param Permission body: (optional) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: addProjectRule
+
+        Create a new rule for a project.
+
+        :param char projectId: (required) 
+        :param Rule body: (optional) 
+        :return: [none, resp]
+
+    .. method:: addProjectTag
+
+        Add a tag to project.
+
+        Progates changes to projects, sessions and acquisitions
+
+        :param char projectId: (required) 
+        :param flywheel.model.Tag body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteProject
+
+        Delete a project
+
+        Only site admins and users with \"admin\" project permissions may delete a project
+
+        :param char projectId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse200`, resp]
+
+    .. method:: deleteProjectAnalysis
+
+        Delete an anaylsis
+
+        :param char projectId: (required) 
+        :param char analysisId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse200`, resp]
+
+    .. method:: deleteProjectAnalysisNote
+
+        Remove a note from project analysis.
+
+        :param char projectId: (required) 
+        :param char analysisId: (required) 
+        :param char noteId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteProjectFile
+
+        Delete a file
+
+        A user with read-write or higher permissions on the container may delete files that were uploaded by users or were the output of jobs. (Specifically, files whose `origin.type` is either `job` or `user`.) <br/> A user with admin permissions on the container may delete any file. 
+
+        :param char projectId: (required) 
+        :param char fileName: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteProjectNote
+
+        Remove a note from project
+
+        :param char projectId: (required) 
+        :param char noteId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteProjectTag
+
+        Delete a tag
+
+        :param char projectId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteProjectUserPermission
+
+        Delete a permission
+
+        :param char projectId: (required) 
+        :param char userId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: downloadFileFromProject
+
+        Download a file.
+
+        Files can be downloaded directly from this endpoint with a valid \"Authorization\" header or via a ticket id.  To generate a ticket:   - Make a request with an empty \"ticket\" parameter and a valid \"Authorization\" header. The server will respond with a generated ticket id.   - Make another request with the received ticket id in the \"ticket\" parameter. A valid \"Authorization\" header is no longer required.  When \"view\" is true, [RFC7233](https://tools.ietf.org/html/rfc7233) range request headers are supported. 
+
+        :param char projectId: (required) 
+        :param char fileName: (required) 
+        :param logical view: (optional) If true, the proper \"Content-Type\" header based on the file's mimetype is set on response If false, the \"Content-Type\" header is set to \"application/octet-stream\" 
+        :param logical info: (optional) If the file is a zipfile, return a json response of zipfile member information
+        :param char member: (optional) The filename of a zipfile member to download rather than the entire file
+        :return: [:class:`~flywheel.model.DownloadTicket`, resp]
+
+    .. method:: getProjectDownloadTicket
+
+        Download a file.
+
+        Files can be downloaded directly from this endpoint with a valid \"Authorization\" header or via a ticket id.  To generate a ticket:   - Make a request with an empty \"ticket\" parameter and a valid \"Authorization\" header. The server will respond with a generated ticket id.   - Make another request with the received ticket id in the \"ticket\" parameter. A valid \"Authorization\" header is no longer required.  When \"view\" is true, [RFC7233](https://tools.ietf.org/html/rfc7233) range request headers are supported. 
+
+        :param char projectId: (required) 
+        :param char fileName: (required) 
+        :param char ticket: (optional) The generated ticket id for the download, or present but empty to generate a ticket id
+        :param logical view: (optional) If true, the proper \"Content-Type\" header based on the file's mimetype is set on response If false, the \"Content-Type\" header is set to \"application/octet-stream\" 
+        :param logical info: (optional) If the file is a zipfile, return a json response of zipfile member information
+        :param char member: (optional) The filename of a zipfile member to download rather than the entire file
+        :return: [:class:`~flywheel.model.DownloadTicket`, resp]
+
+    .. method:: downloadProjectAnalysisInputs
+
+        Download analysis inputs.
+
+        If \"ticket\" query param is included and not empty, download inputs. If \"ticket\" query param is included and empty, create a ticket for all inputs in the anlaysis If no \"ticket\" query param is included, server error 500 
+
+        :param char projectId: (required) 
+        :param char analysisId: (required) 
+        :param char ticket: (optional) ticket id of the inputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadProjectAnalysisInputsByFilename
+
+        Download anaylsis inputs with filter.
+
+        If \"ticket\" query param is included and not empty, download inputs. If \"ticket\" query param is included and empty, create a ticket for matching inputs in the anlaysis. If no \"ticket\" query param is included, inputs will be downloaded directly. 
+
+        :param char projectId: (required) 
+        :param char analysisId: (required) 
+        :param char filename: (required) regex to select inputs for download
+        :param char ticket: (optional) ticket id of the inputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadProjectAnalysisOutputs
+
+        Download analysis outputs.
+
+        If \"ticket\" query param is included and not empty, download outputs. If \"ticket\" query param is included and empty, create a ticket for all outputs in the anlaysis If no \"ticket\" query param is included, server error 500 
+
+        :param char projectId: (required) 
+        :param char analysisId: (required) 
+        :param char ticket: (optional) ticket id of the outputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadProjectAnalysisOutputsByFilename
+
+        Download anaylsis outputs with filter.
+
+        If \"ticket\" query param is included and not empty, download outputs. If \"ticket\" query param is included and empty, create a ticket for matching outputs in the anlaysis. If no \"ticket\" query param is included, outputs will be downloaded directly. 
+
+        :param char projectId: (required) 
+        :param char analysisId: (required) 
+        :param char filename: (required) regex to select outputs for download
+        :param char ticket: (optional) ticket id of the outputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: endProjectPackfileUpload
+
+        End a packfile upload
+
+        :param char projectId: (required) 
+        :param char token: (required) 
+        :param char metadata: (required) string-encoded metadata json object.
+        :return: [none, resp]
+
+    .. method:: getAllProjects
+
+        Get a list of projects
+
+        :return: [:class:`~flywheel.model.vector[Project]`, resp]
+
+    .. method:: getAllProjectsGroups
+
+        List all groups which have a project in them
+
+        :return: [:class:`~flywheel.model.vector[Group]`, resp]
+
+    .. method:: getProject
+
+        Get a single project
+
+        :param char projectId: (required) 
+        :return: [:class:`~flywheel.model.Project`, resp]
+
+    .. method:: getProjectAcquisitions
+
+        List all acquisitions for the given project.
+
+        :param char projectId: (required) 
+        :return: [:class:`~flywheel.model.vector[Acquisition]`, resp]
+
+    .. method:: getProjectAnalyses
+
+        Get analyses for project.
+
+        Returns analyses that directly belong to this resource.
+
+        :param char projectId: (required) 
+        :return: [:class:`~flywheel.model.vector[AnalysisListEntry]`, resp]
+
+    .. method:: getProjectAnalysis
+
+        Get an analysis.
+
+        :param char projectId: (required) 
+        :param char analysisId: (required) 
+        :param logical inflateJob: (optional) Return job as an object instead of an id
+        :return: [:class:`~flywheel.model.AnalysisOutput`, resp]
+
+    .. method:: getProjectFileInfo
+
+        Get info for a particular file.
+
+        :param char projectId: (required) 
+        :param char fileName: (required) 
+        :return: [:class:`~flywheel.model.FileEntry`, resp]
+
+    .. method:: getProjectNote
+
+        Get a note on project.
+
+        :param char projectId: (required) 
+        :param char noteId: (required) 
+        :return: [:class:`~flywheel.model.Note`, resp]
+
+    .. method:: getProjectRule
+
+        Get a project rule.
+
+        :param char projectId: (required) 
+        :param char ruleId: (required) 
+        :return: [:class:`~flywheel.model.Rule`, resp]
+
+    .. method:: getProjectRules
+
+        List all rules for a project.
+
+        :param char projectId: (required) 
+        :return: [:class:`~flywheel.model.vector[Rule]`, resp]
+
+    .. method:: getProjectSessions
+
+        List all sessions for the given project.
+
+        :param char projectId: (required) 
+        :return: [:class:`~flywheel.model.vector[Session]`, resp]
+
+    .. method:: getProjectTag
+
+        Get the value of a tag, by name.
+
+        :param char projectId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :return: [:class:`~flywheel.model.Tag`, resp]
+
+    .. method:: getProjectUserPermission
+
+        List a user's permissions for this project.
+
+        :param char projectId: (required) 
+        :param char userId: (required) 
+        :return: [:class:`~flywheel.model.Permission`, resp]
+
+    .. method:: modifyProject
+
+        Update a project
+
+        :param char projectId: (required) 
+        :param flywheel.model.Project body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: modifyProjectFile
+
+        Modify a file's attributes
+
+        :param char projectId: (required) 
+        :param char fileName: (required) 
+        :param flywheel.model.FileEntry body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2003`, resp]
+
+    .. method:: modifyProjectFileInfo
+
+        Update info for a particular file.
+
+        :param char projectId: (required) 
+        :param char fileName: (required) 
+        :param flywheel.model.InfoUpdateInput body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: modifyProjectInfo
+
+        Update or replace info for a project.
+
+        :param char projectId: (required) 
+        :param flywheel.model.InfoUpdateInput body: (required) 
+        :return: [none, resp]
+
+    .. method:: modifyProjectNote
+
+        Update a note on project.
+
+        :param char projectId: (required) 
+        :param char noteId: (required) 
+        :param flywheel.model.Note body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: modifyProjectRule
+
+        Update a rule on a project.
+
+        :param char projectId: (required) 
+        :param char ruleId: (required) 
+        :param Rule body: (optional) 
+        :return: [none, resp]
+
+    .. method:: modifyProjectUserPermission
+
+        Update a user's permission for this project.
+
+        :param char projectId: (required) 
+        :param char userId: (required) 
+        :param Permission body: (optional) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: projectPackfileUpload
+
+        Add files to an in-progress packfile
+
+        :param char projectId: (required) 
+        :param char token: (required) 
+        :param flywheel.model.char file: (required) 
+        :return: [:class:`~flywheel.model.vector[FileEntry]`, resp]
+
+    .. method:: recalcAllProjects
+
+        Recalculate all sessions against their project templates.
+
+        Iterates all projects that have a session template. Recalculate if projects' sessions satisfy the template. Returns list of modified session ids. 
+
+        :return: [:class:`~flywheel.model.SessionTemplateRecalcOutput`, resp]
+
+    .. method:: recalcProject
+
+        Recalculate if sessions in the project satisfy the template.
+
+        Returns list of modified session ids.
+
+        :param char projectId: (required) 
+        :return: [:class:`~flywheel.model.SessionTemplateRecalcOutput`, resp]
+
+    .. method:: removeProjectRule
+
+        Remove a project rule.
+
+        :param char projectId: (required) 
+        :param char ruleId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse200`, resp]
+
+    .. method:: removeProjectTemplate
+
+        Remove the session template for a project.
+
+        :param char projectId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse200`, resp]
+
+    .. method:: renameProjectTag
+
+        Rename a tag.
+
+        :param char projectId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :param Tag body: (optional) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: replaceProjectFile
+
+        Replace a file
+
+        :param char projectId: (required) 
+        :param char fileName: (required) 
+        :return: [none, resp]
+
+    .. method:: setProjectTemplate
+
+        Set the session template for a project.
+
+        :param char projectId: (required) 
+        :param ProjectTemplate body: (optional) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: startProjectPackfileUpload
+
+        Start a packfile upload to project
+
+        :param char projectId: (required) 
+        :return: [:class:`~flywheel.model.PackfileStart`, resp]
+
+    .. method:: uploadFileToProject
+
+        Upload a file to project.
+
+        :param char projectId: (required) 
+        :param flywheel.model.char file: (required) The file to upload
+        :return: [none, resp]
+
+ReportsApi Class
+-------------------------------------------------------------------------------
+ReportsApi API Provider
+
+.. class:: ReportsApi
+
+    .. method:: getProjectReport
+
+        :param char projects: (optional) Specify multiple times to include projects in the report
+        :param char startDate: (optional) Report start date
+        :param char endDate: (optional) Report end date
+        :return: [:class:`~flywheel.model.ReportProject`, resp]
+
+    .. method:: getSiteReport
+
+        :return: [:class:`~flywheel.model.ReportSite`, resp]
+
+RulesApi Class
+-------------------------------------------------------------------------------
+RulesApi API Provider
+
+.. class:: RulesApi
+
+    .. method:: addSiteRule
+
+        Create a new site rule.
+
+        :param Rule body: (optional) 
+        :return: [none, resp]
+
+    .. method:: getSiteRule
+
+        Get a site rule.
+
+        :param char ruleId: (required) 
+        :return: [:class:`~flywheel.model.Rule`, resp]
+
+    .. method:: getSiteRules
+
+        List all site rules.
+
+        :return: [:class:`~flywheel.model.vector[Rule]`, resp]
+
+    .. method:: modifySiteRule
+
+        Update a site rule.
+
+        :param char ruleId: (required) 
+        :param Rule body: (optional) 
+        :return: [none, resp]
+
+    .. method:: removeSiteRule
+
+        Remove a site rule.
+
+        :param char ruleId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse200`, resp]
+
+SessionsApi Class
+-------------------------------------------------------------------------------
+SessionsApi API Provider
+
+.. class:: SessionsApi
+
+    .. method:: addSession
+
+        Create a new session
+
+        :param flywheel.model.Session body: (required) 
+        :return: [:class:`~flywheel.model.ContainerNewOutput`, resp]
+
+    .. method:: addSessionAnalysis
+
+        Create an analysis and upload files.
+
+        When query param \"job\" is \"true\", send JSON to create an analysis and job.  Otherwise, multipart/form-data to upload files and create an analysis. 
+
+        :param char sessionId: (required) 
+        :param flywheel.model.AnalysisInputAny body: (required) 
+        :param logical job: (optional) Return job as an object instead of an id
+        :return: [:class:`~flywheel.model.ContainerNewOutput`, resp]
+
+    .. method:: addSessionAnalysisNote
+
+        Add a note to session analysis.
+
+        :param char sessionId: (required) 
+        :param char analysisId: (required) 
+        :param flywheel.model.Note body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: addSessionNote
+
+        Add a note to session.
+
+        :param char sessionId: (required) 
+        :param flywheel.model.Note body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: addSessionTag
+
+        Add a tag to session.
+
+        Progates changes to projects, sessions and acquisitions
+
+        :param char sessionId: (required) 
+        :param flywheel.model.Tag body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteSession
+
+        Delete a session
+
+        Read-write project permissions are required to delete a session. </br>Admin project permissions are required if the session or it's acquisitions contain data uploaded by sources other than users and jobs.
+
+        :param char sessionId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse200`, resp]
+
+    .. method:: deleteSessionAnalysis
+
+        Delete an anaylsis
+
+        :param char sessionId: (required) 
+        :param char analysisId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse200`, resp]
+
+    .. method:: deleteSessionAnalysisNote
+
+        Remove a note from session analysis.
+
+        :param char sessionId: (required) 
+        :param char analysisId: (required) 
+        :param char noteId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteSessionFile
+
+        Delete a file
+
+        A user with read-write or higher permissions on the container may delete files that were uploaded by users or were the output of jobs. (Specifically, files whose `origin.type` is either `job` or `user`.) <br/> A user with admin permissions on the container may delete any file. 
+
+        :param char sessionId: (required) 
+        :param char fileName: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteSessionNote
+
+        Remove a note from session
+
+        :param char sessionId: (required) 
+        :param char noteId: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: deleteSessionTag
+
+        Delete a tag
+
+        :param char sessionId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: downloadFileFromSession
+
+        Download a file.
+
+        Files can be downloaded directly from this endpoint with a valid \"Authorization\" header or via a ticket id.  To generate a ticket:   - Make a request with an empty \"ticket\" parameter and a valid \"Authorization\" header. The server will respond with a generated ticket id.   - Make another request with the received ticket id in the \"ticket\" parameter. A valid \"Authorization\" header is no longer required.  When \"view\" is true, [RFC7233](https://tools.ietf.org/html/rfc7233) range request headers are supported. 
+
+        :param char sessionId: (required) 
+        :param char fileName: (required) 
+        :param logical view: (optional) If true, the proper \"Content-Type\" header based on the file's mimetype is set on response If false, the \"Content-Type\" header is set to \"application/octet-stream\" 
+        :param logical info: (optional) If the file is a zipfile, return a json response of zipfile member information
+        :param char member: (optional) The filename of a zipfile member to download rather than the entire file
+        :return: [:class:`~flywheel.model.DownloadTicket`, resp]
+
+    .. method:: getSessionDownloadTicket
+
+        Download a file.
+
+        Files can be downloaded directly from this endpoint with a valid \"Authorization\" header or via a ticket id.  To generate a ticket:   - Make a request with an empty \"ticket\" parameter and a valid \"Authorization\" header. The server will respond with a generated ticket id.   - Make another request with the received ticket id in the \"ticket\" parameter. A valid \"Authorization\" header is no longer required.  When \"view\" is true, [RFC7233](https://tools.ietf.org/html/rfc7233) range request headers are supported. 
+
+        :param char sessionId: (required) 
+        :param char fileName: (required) 
+        :param char ticket: (optional) The generated ticket id for the download, or present but empty to generate a ticket id
+        :param logical view: (optional) If true, the proper \"Content-Type\" header based on the file's mimetype is set on response If false, the \"Content-Type\" header is set to \"application/octet-stream\" 
+        :param logical info: (optional) If the file is a zipfile, return a json response of zipfile member information
+        :param char member: (optional) The filename of a zipfile member to download rather than the entire file
+        :return: [:class:`~flywheel.model.DownloadTicket`, resp]
+
+    .. method:: downloadSessionAnalysisInputs
+
+        Download analysis inputs.
+
+        If \"ticket\" query param is included and not empty, download inputs. If \"ticket\" query param is included and empty, create a ticket for all inputs in the anlaysis If no \"ticket\" query param is included, server error 500 
+
+        :param char sessionId: (required) 
+        :param char analysisId: (required) 
+        :param char ticket: (optional) ticket id of the inputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadSessionAnalysisInputsByFilename
+
+        Download anaylsis inputs with filter.
+
+        If \"ticket\" query param is included and not empty, download inputs. If \"ticket\" query param is included and empty, create a ticket for matching inputs in the anlaysis. If no \"ticket\" query param is included, inputs will be downloaded directly. 
+
+        :param char sessionId: (required) 
+        :param char analysisId: (required) 
+        :param char filename: (required) regex to select inputs for download
+        :param char ticket: (optional) ticket id of the inputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadSessionAnalysisOutputs
+
+        Download analysis outputs.
+
+        If \"ticket\" query param is included and not empty, download outputs. If \"ticket\" query param is included and empty, create a ticket for all outputs in the anlaysis If no \"ticket\" query param is included, server error 500 
+
+        :param char sessionId: (required) 
+        :param char analysisId: (required) 
+        :param char ticket: (optional) ticket id of the outputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: downloadSessionAnalysisOutputsByFilename
+
+        Download anaylsis outputs with filter.
+
+        If \"ticket\" query param is included and not empty, download outputs. If \"ticket\" query param is included and empty, create a ticket for matching outputs in the anlaysis. If no \"ticket\" query param is included, outputs will be downloaded directly. 
+
+        :param char sessionId: (required) 
+        :param char analysisId: (required) 
+        :param char filename: (required) regex to select outputs for download
+        :param char ticket: (optional) ticket id of the outputs to download
+        :return: [:class:`~flywheel.model.AnalysisFilesCreateTicketOutput`, resp]
+
+    .. method:: getAllSessions
+
+        Get a list of sessions
+
+        :return: [:class:`~flywheel.model.vector[Session]`, resp]
+
+    .. method:: getSession
+
+        Get a single session
+
+        :param char sessionId: (required) 
+        :return: [:class:`~flywheel.model.Session`, resp]
+
+    .. method:: getSessionAcquisitions
+
+        List acquisitions in a session
+
+        :param char sessionId: (required) 
+        :return: [:class:`~flywheel.model.vector[Acquisition]`, resp]
+
+    .. method:: getSessionAnalyses
+
+        Get analyses for session.
+
+        Returns analyses that directly belong to this resource.
+
+        :param char sessionId: (required) 
+        :return: [:class:`~flywheel.model.vector[AnalysisListEntry]`, resp]
+
+    .. method:: getSessionAnalysis
+
+        Get an analysis.
+
+        :param char sessionId: (required) 
+        :param char analysisId: (required) 
+        :param logical inflateJob: (optional) Return job as an object instead of an id
+        :return: [:class:`~flywheel.model.AnalysisOutput`, resp]
+
+    .. method:: getSessionFileInfo
+
+        Get info for a particular file.
+
+        :param char sessionId: (required) 
+        :param char fileName: (required) 
+        :return: [:class:`~flywheel.model.FileEntry`, resp]
+
+    .. method:: getSessionJobs
+
+        Return any jobs that use inputs from this session
+
+        :param char sessionId: (required) 
+        :param char states: (optional) filter results by job state
+        :param char tags: (optional) filter results by job tags
+        :return: [:class:`~flywheel.model.SessionJobsOutput`, resp]
+
+    .. method:: getSessionNote
+
+        Get a note on session.
+
+        :param char sessionId: (required) 
+        :param char noteId: (required) 
+        :return: [:class:`~flywheel.model.Note`, resp]
+
+    .. method:: getSessionTag
+
+        Get the value of a tag, by name.
+
+        :param char sessionId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :return: [:class:`~flywheel.model.Tag`, resp]
+
+    .. method:: modifySession
+
+        Update a session
+
+        :param char sessionId: (required) 
+        :param flywheel.model.Session body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: modifySessionFile
+
+        Modify a file's attributes
+
+        :param char sessionId: (required) 
+        :param char fileName: (required) 
+        :param flywheel.model.FileEntry body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2003`, resp]
+
+    .. method:: modifySessionFileInfo
+
+        Update info for a particular file.
+
+        :param char sessionId: (required) 
+        :param char fileName: (required) 
+        :param flywheel.model.InfoUpdateInput body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: modifySessionInfo
+
+        Update or replace info for a session.
+
+        :param char sessionId: (required) 
+        :param flywheel.model.InfoUpdateInput body: (required) 
+        :return: [none, resp]
+
+    .. method:: modifySessionNote
+
+        Update a note on session.
+
+        :param char sessionId: (required) 
+        :param char noteId: (required) 
+        :param flywheel.model.Note body: (required) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: renameSessionTag
+
+        Rename a tag.
+
+        :param char sessionId: (required) 
+        :param char tagValue: (required) The tag to interact with
+        :param Tag body: (optional) 
+        :return: [:class:`~flywheel.model.InlineResponse2001`, resp]
+
+    .. method:: replaceSessionFile
+
+        Replace a file
+
+        :param char sessionId: (required) 
+        :param char fileName: (required) 
+        :return: [none, resp]
+
+    .. method:: uploadFileToSession
+
+        Upload a file to session.
+
+        :param char sessionId: (required) 
+        :param flywheel.model.char file: (required) The file to upload
+        :return: [none, resp]
+
+UsersApi Class
+-------------------------------------------------------------------------------
+UsersApi API Provider
+
+.. class:: UsersApi
+
+    .. method:: addUser
+
+        Add a new user
+
+        :param flywheel.model.User body: (required) 
+        :return: [:class:`~flywheel.model.CommonObjectCreated`, resp]
+
+    .. method:: deleteUser
+
+        Delete a user
+
+        :param char userId: (required) 
+        :return: [:class:`~flywheel.model.CommonDeletedCount`, resp]
+
+    .. method:: getAllUsers
+
+        Return a list of all users
+
+        :return: [:class:`~flywheel.model.vector[User]`, resp]
+
+    .. method:: getCurrentUser
+
+        Get information about the current user
+
+        :return: [:class:`~flywheel.model.User`, resp]
+
+    .. method:: getCurrentUserAvatar
+
+        Get the avatar of the current user
+
+        :return: [none, resp]
+
+    .. method:: getUser
+
+        Get information about the specified user
+
+        :param char userId: (required) 
+        :return: [:class:`~flywheel.model.User`, resp]
+
+    .. method:: getUserAcquisitions
+
+        Get all acquisitions that belong to the given user.
+
+        :param char userId: (required) 
+        :return: [:class:`~flywheel.model.vector[Acquisition]`, resp]
+
+    .. method:: getUserAvatar
+
+        Get the avatar of the specified user
+
+        :param char userId: (required) 
+        :return: [none, resp]
+
+    .. method:: getUserCollections
+
+        Get all collections that belong to the given user.
+
+        :param char userId: (required) 
+        :return: [:class:`~flywheel.model.vector[Collection]`, resp]
+
+    .. method:: getUserGroups
+
+        List all groups the specified user is a member of
+
+        :param char userId: (required) 
+        :return: [:class:`~flywheel.model.vector[Group]`, resp]
+
+    .. method:: getUserProjects
+
+        Get all projects that belong to the given user.
+
+        :param char userId: (required) 
+        :return: [:class:`~flywheel.model.vector[Project]`, resp]
+
+    .. method:: getUserSessions
+
+        Get all sessions that belong to the given user.
+
+        :param char userId: (required) 
+        :return: [:class:`~flywheel.model.vector[Session]`, resp]
+
+    .. method:: modifyUser
+
+        Update the specified user
+
+        :param char userId: (required) 
+        :param flywheel.model.User body: (required) Accepts an object matching the User type except all fields are optional 
+        :return: [:class:`~flywheel.model.CommonModifiedCount`, resp]
+

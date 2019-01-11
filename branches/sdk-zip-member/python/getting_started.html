@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting Started with Flywheel SDK &mdash; Flywheel SDK  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Model" href="data_model.html" />
+    <link rel="prev" title="Flywheel SDK Documentation" href="index.html" /> 
+
+  
+  <script src="../../../static/theme/sphinx_rtd/0.3.1/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Flywheel SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started with Flywheel SDK</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#license">License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-key">API Key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#making-api-calls">Making API Calls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-cli-credentials">Using CLI Credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#finding-objects">Finding Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-objects-new">Working with Objects [NEW]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-finders-new">Working with Finders [NEW]</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#filter-syntax">Filter Syntax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sorting">Sorting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dealing-with-files">Dealing with Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#working-with-zip-members">Working with Zip Members</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#handling-exceptions">Handling Exceptions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_views.html">Flywheel Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flywheel.html">flywheel package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Flywheel SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Getting Started with Flywheel SDK</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started-with-flywheel-sdk">
+<h1>Getting Started with Flywheel SDK<a class="headerlink" href="#getting-started-with-flywheel-sdk" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The Flywheel SDK is a python toolbox that provides programmatic
+access to the Flywheel API endpoints.</p>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>Flywheel SDK has an MIT-based <a class="reference external" href="https://github.com/flywheel-io/core/blob/master/LICENSE">license</a>.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The latest python package can be installed using pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install flywheel-sdk
+</pre></div>
+</div>
+<p>The python wheel can also be downloaded from the <a class="reference external" href="https://github.com/flywheel-io/core/releases">Releases Page</a>.</p>
+</div>
+<div class="section" id="api-key">
+<h2>API Key<a class="headerlink" href="#api-key" title="Permalink to this headline">¶</a></h2>
+<p>The SDK requires an API key. You can find and generate your key on the Flywheel profile page. It will look like this:</p>
+<img alt="../../../static/images/api-key.png" src="../../../static/images/api-key.png" />
+</div>
+<div class="section" id="making-api-calls">
+<h2>Making API Calls<a class="headerlink" href="#making-api-calls" title="Permalink to this headline">¶</a></h2>
+<p>In order to make API calls, you will need to create an instance of the Flywheel client:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># import flywheel package</span>
+<span class="kn">import</span> <span class="nn">flywheel</span>
+
+<span class="c1"># Create client</span>
+<span class="n">fw</span> <span class="o">=</span> <span class="n">flywheel</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span><span class="s1">&#39;my-key&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once you have a client instance, you can interact with the system. For instance, you could get information about yourself:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">get_current_user</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;I am </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">firstname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lastname</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-cli-credentials">
+<h2>Using CLI Credentials<a class="headerlink" href="#using-cli-credentials" title="Permalink to this headline">¶</a></h2>
+<p>If you’ve logged in using the <a class="reference external" href="https://docs.flywheel.io/display/EM/CLI+-+Installation">CLI</a>, you can create a client
+instance without using an API key. This is useful when sharing SDK scripts for others to use.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create client, using CLI credentials</span>
+<span class="n">fw</span> <span class="o">=</span> <span class="n">flywheel</span><span class="o">.</span><span class="n">Client</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="finding-objects">
+<h2>Finding Objects<a class="headerlink" href="#finding-objects" title="Permalink to this headline">¶</a></h2>
+<p>With the exception of Groups, all containers and objects within Flywheel are referenced using Unique IDs.
+Groups are the only object that have a human-readable id (e.g. <code class="docutils literal notranslate"><span class="pre">flywheel</span></code>).</p>
+<p>Finding an Object when you are only familiar with the label can be difficult. One method that may
+help is the <a class="reference internal" href="flywheel.html#flywheel.flywheel.Flywheel.resolve" title="flywheel.flywheel.Flywheel.resolve"><code class="xref py py-meth docutils literal notranslate"><span class="pre">resolve()</span></code></a> method.</p>
+<p>Resolve takes a path (by label) to an Object in the system, and if found, returns the full path to that Object,
+along with children. For example, to find the project labeled <code class="docutils literal notranslate"><span class="pre">Anxiety</span> <span class="pre">Study</span></code> that belongs to the <code class="docutils literal notranslate"><span class="pre">flywheel</span></code>
+group, I would call resolve with: <code class="docutils literal notranslate"><span class="pre">'flywheel/Anxiety</span> <span class="pre">Study'</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Resolve project by id</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="s1">&#39;flywheel/Anxiety Study&#39;</span><span class="p">)</span>
+
+<span class="c1"># Extract the resolved project id</span>
+<span class="n">project</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="c1"># Print the ids and labels of the path elements</span>
+<span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">el</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+
+<span class="c1"># Print the children of project:</span>
+<span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">el</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>In a similar vein to resolve, <a class="reference internal" href="flywheel.html#flywheel.flywheel.Flywheel.lookup" title="flywheel.flywheel.Flywheel.lookup"><code class="xref py py-meth docutils literal notranslate"><span class="pre">lookup()</span></code></a> will directly resolve a container by path. For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Lookup project by id</span>
+<span class="n">project</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;flywheel/Anxiety Study&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, if the ID of the Object is known, then it can be retrieved directly using the <a class="reference internal" href="flywheel.html#flywheel.flywheel.Flywheel.get" title="flywheel.flywheel.Flywheel.get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">flywheel.flywheel.Flywheel.get()</span></code></a> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get session by id</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;5bed87475b0ab53e50d03e0c&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="working-with-objects-new">
+<h2>Working with Objects [NEW]<a class="headerlink" href="#working-with-objects-new" title="Permalink to this headline">¶</a></h2>
+<p>Most Objects in the Flywheel SDK provide methods for common operations. For example, to update properties on an object,
+you can simply call the <code class="docutils literal notranslate"><span class="pre">update</span></code> method, passing in a dictionary or key value pairs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Update a project&#39;s label</span>
+<span class="n">project</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;New Project Label&#39;</span><span class="p">)</span>
+
+<span class="c1"># Update a subject&#39;s type and sex</span>
+<span class="n">subject</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;human&#39;</span><span class="p">,</span> <span class="s1">&#39;sex&#39;</span><span class="p">:</span> <span class="s1">&#39;female&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>It’s important to note that calling <code class="docutils literal notranslate"><span class="pre">update</span></code> will not update your local copy of the object! However, you can
+quickly refresh an object by calling reload:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reload a session</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="working-with-finders-new">
+<h2>Working with Finders [NEW]<a class="headerlink" href="#working-with-finders-new" title="Permalink to this headline">¶</a></h2>
+<p>Another way to find objects is via Finders provided at the top level, and on objects. Finders allow locating objects
+via arbitrary filtering. Depending on which version of a finder method you call, you can retrieve all matching objects,
+or the first matching object. Finally, if you want to walk over a large number of objects, finders support iteration.</p>
+<div class="section" id="filter-syntax">
+<h3>Filter Syntax<a class="headerlink" href="#filter-syntax" title="Permalink to this headline">¶</a></h3>
+<p>Filter strings are specified as the first argument to a find function. Multiple filters can be separated by commas.
+Filtering can generally be done on any property on an object, using dotted notation for sub-properties.
+Type conversion happens automatically. To treat a value as a string, wrap it in quotes: e.g. <code class="docutils literal notranslate"><span class="pre">label=&quot;My</span> <span class="pre">Project&quot;</span></code>.</p>
+<p>Types supported are:</p>
+<ul class="simple">
+<li>Dates in the format <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code></li>
+<li>Timestamps in the format <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DDTHH:mm:ss</span></code></li>
+<li>Numeric values (e.g. <code class="docutils literal notranslate"><span class="pre">42</span></code> or <code class="docutils literal notranslate"><span class="pre">15.7</span></code>)</li>
+<li>The literal value <code class="docutils literal notranslate"><span class="pre">null</span></code></li>
+</ul>
+<p>Operations supported are:</p>
+<ul class="simple">
+<li>Comparison operators: <code class="docutils literal notranslate"><span class="pre">&lt;,</span> <span class="pre">&lt;=,</span> <span class="pre">=,</span> <span class="pre">!=,</span> <span class="pre">&gt;=,</span> <span class="pre">&gt;</span></code></li>
+<li>Regular expression match: <code class="docutils literal notranslate"><span class="pre">=~</span></code></li>
+</ul>
+</div>
+<div class="section" id="sorting">
+<h3>Sorting<a class="headerlink" href="#sorting" title="Permalink to this headline">¶</a></h3>
+<p>In addition to filtering, sorting is supported in the sytax: <code class="docutils literal notranslate"><span class="pre">&lt;fieldname&gt;:&lt;ordering&gt;</span></code>.
+Where <code class="docutils literal notranslate"><span class="pre">fieldname</span></code> can be any property, and <code class="docutils literal notranslate"><span class="pre">ordering</span></code> is either <code class="docutils literal notranslate"><span class="pre">asc</span></code> or <code class="docutils literal notranslate"><span class="pre">desc</span></code>
+for ascending or descending order, respectively.</p>
+</div>
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Retrieve all projects (with a default limit)</span>
+<span class="n">all_projects</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">projects</span><span class="p">()</span>
+
+<span class="c1"># Find the first project with a label of &#39;My Project&#39;</span>
+<span class="n">project</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">projects</span><span class="o">.</span><span class="n">find_first</span><span class="p">(</span><span class="s1">&#39;label=My Project&#39;</span><span class="p">);</span>
+
+<span class="c1"># Find all sessions in project created after 2018-10-31</span>
+<span class="n">sessions</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;created&gt;2018-10-31&#39;</span><span class="p">);</span>
+
+<span class="c1"># Iterate over all failed jobs</span>
+<span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">fw</span><span class="o">.</span><span class="n">jobs</span><span class="o">.</span><span class="n">iter_find</span><span class="p">(</span><span class="s1">&#39;state=failed&#39;</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Job: {}, Gear: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">job</span><span class="o">.</span><span class="n">gear_info</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+<span class="c1"># Iterate over all sessions belonging to project</span>
+<span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">project</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">iter</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="dealing-with-files">
+<span id="id2"></span><h2>Dealing with Files<a class="headerlink" href="#dealing-with-files" title="Permalink to this headline">¶</a></h2>
+<p>Often times you’ll find yourself wanting to upload or download file data to one of Flywheel’s containers. When uploading,
+you can either specify the path to the input file, or you can specify some in-memory data to upload using the FileSpec object.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Upload the file at /tmp/hello.txt</span>
+<span class="n">project</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span><span class="s1">&#39;/tmp/hello.txt&#39;</span><span class="p">)</span>
+
+<span class="c1"># Upload the data &#39;Hello World!&#39;</span>
+<span class="n">file_spec</span> <span class="o">=</span> <span class="n">flywheel</span><span class="o">.</span><span class="n">FileSpec</span><span class="p">(</span><span class="s1">&#39;hello.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;Hello World!</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">)</span>
+<span class="n">project</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span><span class="n">file_spec</span><span class="p">)</span>
+
+<span class="c1"># Some endpoints allow multiple file uploads:</span>
+<span class="n">analysis</span><span class="o">.</span><span class="n">upload_output</span><span class="p">([</span><span class="s1">&#39;/tmp/hello1.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;/tmp/hello2.txt&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>When downloading, you specify the destination file, or you can download directly to memory</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download file to /tmp/hello.txt</span>
+<span class="n">project</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="s1">&#39;hello.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;/tmp/hello.txt&#39;</span><span class="p">)</span>
+
+<span class="c1"># Download file contents directly to memory</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s1">&#39;hello.txt&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="working-with-zip-members">
+<h3>Working with Zip Members<a class="headerlink" href="#working-with-zip-members" title="Permalink to this headline">¶</a></h3>
+<p>Occasionally you may want to see the contents of a zip file, and possibly download a single member without downloading
+the entire zipfile. There are a few operations provided to enable this. For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get information about a zip file</span>
+<span class="n">zip_info</span> <span class="o">=</span> <span class="n">acquisition</span><span class="o">.</span><span class="n">get_file_zip_info</span><span class="p">(</span><span class="s1">&#39;my-archive.zip&#39;</span><span class="p">)</span>
+
+<span class="c1"># Download the first zip entry to /tmp/{entry_name}</span>
+<span class="n">entry_name</span> <span class="o">=</span> <span class="n">zip_info</span><span class="o">.</span><span class="n">members</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">path</span>
+<span class="n">out_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;/tmp&#39;</span><span class="p">,</span> <span class="n">entry_name</span><span class="p">)</span>
+<span class="n">acquisition</span><span class="o">.</span><span class="n">download_file_zip_member</span><span class="p">(</span><span class="s1">&#39;my-archive.zip&#39;</span><span class="p">,</span> <span class="n">entry_name</span><span class="p">,</span> <span class="n">out_path</span><span class="p">)</span>
+
+<span class="c1"># Read the &quot;readme.txt&quot; zip entry directly to memory</span>
+<span class="n">zip_data</span> <span class="o">=</span> <span class="n">acquisition</span><span class="o">.</span><span class="n">read_file_zip_member</span><span class="p">(</span><span class="s1">&#39;my-archive.zip&#39;</span><span class="p">,</span> <span class="s1">&#39;readme.txt&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="handling-exceptions">
+<h2>Handling Exceptions<a class="headerlink" href="#handling-exceptions" title="Permalink to this headline">¶</a></h2>
+<p>When an error is encountered while accessing an endpoint, an <a class="reference internal" href="flywheel.html#flywheel.rest.ApiException" title="flywheel.rest.ApiException"><code class="xref py py-class docutils literal notranslate"><span class="pre">flywheel.rest.ApiException</span></code></a> is thrown.
+The ApiException will typically have a <code class="docutils literal notranslate"><span class="pre">status</span></code> which is the HTTP Status Code (e.g. 404) and a <code class="docutils literal notranslate"><span class="pre">reason</span></code>
+(e.g. Not Found).</p>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+  <span class="n">project</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">get_project</span><span class="p">(</span><span class="s1">&#39;NON_EXISTENT_ID&#39;</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">flywheel</span><span class="o">.</span><span class="n">ApiException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+  <span class="k">print</span><span class="p">(</span><span class="s1">&#39;API Error: </span><span class="si">%d</span><span class="s1"> -- </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">reason</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="data_model.html" class="btn btn-neutral float-right" title="Data Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Flywheel SDK Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018 Flywheel All rights reserved.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/jquery.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/underscore.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/doctools.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

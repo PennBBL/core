@@ -1,0 +1,435 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Examples &mdash; Flywheel SDK  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Flywheel Views" href="data_views.html" />
+    <link rel="prev" title="Data Model" href="data_model.html" /> 
+
+  
+  <script src="../../../static/theme/sphinx_rtd/0.3.1/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Flywheel SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started with Flywheel SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#groups">Groups</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-group">Add Group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-groups">List Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modify-group-tags">Modify Group Tags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-projects-in-group">List Projects in Group</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#projects">Projects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-project">Add Project</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-projects">List Projects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-sessions-in-project">List Sessions in Project</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#sessions">Sessions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-session">Add Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-sessions">List Sessions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-acquisitions-in-session">List Acquisitions in Session</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#acquisitions">Acquisitions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-acquisition">Add Acquisition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-acquisitions">List Acquisitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-files-in-acquisition">List Files in Acquisition</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#analyses">Analyses</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-analysis">Add Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-session-analyses">List Session Analyses</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_views.html">Flywheel Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flywheel.html">flywheel package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Flywheel SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Examples</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>This page provides some brief, minimal examples for common tasks with the SDK.</p>
+<div class="section" id="groups">
+<h2>Groups<a class="headerlink" href="#groups" title="Permalink to this headline">¶</a></h2>
+<p>For managing permissions, see <a class="reference internal" href="data_model.html#data-model-permissions"><span class="std std-ref">Permissions</span></a>.</p>
+<div class="section" id="add-group">
+<h3>Add Group<a class="headerlink" href="#add-group" title="Permalink to this headline">¶</a></h3>
+<p>Create a new group, with an id of <code class="docutils literal notranslate"><span class="pre">my_group</span></code> and a label of <code class="docutils literal notranslate"><span class="pre">My</span> <span class="pre">Test</span> <span class="pre">Group</span></code>:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">groupId</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">addGroup</span><span class="p">(</span><span class="n">struct</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="s">&#39;my_group&#39;</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">,</span> <span class="s">&#39;My Test Group&#39;</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-groups">
+<h3>List Groups<a class="headerlink" href="#list-groups" title="Permalink to this headline">¶</a></h3>
+<p>List all groups that I have access to:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">groups</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">getAllGroups</span><span class="p">();</span>
+
+<span class="k">for</span> <span class="nb">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;%s: %s\n&#39;</span><span class="p">,</span> <span class="n">groups</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">id</span><span class="p">,</span> <span class="n">groups</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">label</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="modify-group-tags">
+<h3>Modify Group Tags<a class="headerlink" href="#modify-group-tags" title="Permalink to this headline">¶</a></h3>
+<p>Add tags named <code class="docutils literal notranslate"><span class="pre">Control</span></code> and <code class="docutils literal notranslate"><span class="pre">Study</span></code> to a group identified by <code class="docutils literal notranslate"><span class="pre">groupId</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">fw</span><span class="p">.</span><span class="n">addGroupTag</span><span class="p">(</span><span class="n">groupId</span><span class="p">,</span> <span class="s">&#39;Control&#39;</span><span class="p">);</span>
+<span class="n">fw</span><span class="p">.</span><span class="n">addGroupTag</span><span class="p">(</span><span class="n">groupId</span><span class="p">,</span> <span class="s">&#39;Study&#39;</span><span class="p">);</span>
+
+<span class="n">group</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">getGroup</span><span class="p">(</span><span class="n">groupId</span><span class="p">);</span>
+<span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;%s\n&#39;</span><span class="p">,</span> <span class="n">strjoin</span><span class="p">(</span><span class="n">group</span><span class="p">.</span><span class="n">tags</span><span class="p">,</span> <span class="s">&#39;, &#39;</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-projects-in-group">
+<h3>List Projects in Group<a class="headerlink" href="#list-projects-in-group" title="Permalink to this headline">¶</a></h3>
+<p>List all of the projects belonging to group identified by <code class="docutils literal notranslate"><span class="pre">groupId</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">projects</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">getGroupProjects</span><span class="p">(</span><span class="n">groupId</span><span class="p">);</span>
+
+<span class="k">for</span> <span class="nb">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">projects</span><span class="p">)</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;%s: %s\n&#39;</span><span class="p">,</span> <span class="n">projects</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">id</span><span class="p">,</span> <span class="n">projects</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">label</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="projects">
+<h2>Projects<a class="headerlink" href="#projects" title="Permalink to this headline">¶</a></h2>
+<p>For managing tags, files, notes or info, see <a class="reference internal" href="data_model.html#data-model-containers"><span class="std std-ref">Containers</span></a>.</p>
+<p>For managing permissions, see <a class="reference internal" href="data_model.html#data-model-permissions"><span class="std std-ref">Permissions</span></a>.</p>
+<div class="section" id="add-project">
+<h3>Add Project<a class="headerlink" href="#add-project" title="Permalink to this headline">¶</a></h3>
+<p>Create a new project that belongs to <code class="docutils literal notranslate"><span class="pre">groupId</span></code> with a label of <code class="docutils literal notranslate"><span class="pre">My</span> <span class="pre">Test</span> <span class="pre">Project</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">projectId</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">addProject</span><span class="p">(</span><span class="n">struct</span><span class="p">(</span><span class="s">&#39;group&#39;</span><span class="p">,</span> <span class="n">groupId</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">,</span> <span class="s">&#39;My Test Project&#39;</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-projects">
+<h3>List Projects<a class="headerlink" href="#list-projects" title="Permalink to this headline">¶</a></h3>
+<p>List all of the projects that I have access to:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">projects</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">getAllProjects</span><span class="p">();</span>
+
+<span class="k">for</span> <span class="nb">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">projects</span><span class="p">)</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;%s: %s\n&#39;</span><span class="p">,</span> <span class="n">projects</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">id</span><span class="p">,</span> <span class="n">projects</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">label</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-sessions-in-project">
+<h3>List Sessions in Project<a class="headerlink" href="#list-sessions-in-project" title="Permalink to this headline">¶</a></h3>
+<p>List all of the sessions belonging to project identified by <code class="docutils literal notranslate"><span class="pre">projectId</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sessions</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">getProjectSessions</span><span class="p">(</span><span class="n">projectId</span><span class="p">);</span>
+
+<span class="k">for</span> <span class="nb">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">sessions</span><span class="p">)</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;%s: %s\n&#39;</span><span class="p">,</span> <span class="n">sessions</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">id</span><span class="p">,</span> <span class="n">sessions</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">label</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="sessions">
+<h2>Sessions<a class="headerlink" href="#sessions" title="Permalink to this headline">¶</a></h2>
+<p>For managing tags, files, notes or info, see <a class="reference internal" href="data_model.html#data-model-containers"><span class="std std-ref">Containers</span></a>.</p>
+<div class="section" id="add-session">
+<h3>Add Session<a class="headerlink" href="#add-session" title="Permalink to this headline">¶</a></h3>
+<p>Create a new session that belongs to <code class="docutils literal notranslate"><span class="pre">projectId</span></code> with a label of <code class="docutils literal notranslate"><span class="pre">Session</span> <span class="pre">01</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sessionId</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">addSession</span><span class="p">(</span><span class="n">struct</span><span class="p">(</span><span class="s">&#39;project&#39;</span><span class="p">,</span> <span class="n">projectId</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">,</span> <span class="s">&#39;Session 01&#39;</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-sessions">
+<h3>List Sessions<a class="headerlink" href="#list-sessions" title="Permalink to this headline">¶</a></h3>
+<p>List all of the sessions that I have access to:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sessions</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">getAllSessions</span><span class="p">();</span>
+
+<span class="k">for</span> <span class="nb">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">sessions</span><span class="p">)</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;%s: %s\n&#39;</span><span class="p">,</span> <span class="n">sessions</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">id</span><span class="p">,</span> <span class="n">sessions</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">label</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-acquisitions-in-session">
+<h3>List Acquisitions in Session<a class="headerlink" href="#list-acquisitions-in-session" title="Permalink to this headline">¶</a></h3>
+<p>List all of the acquisitions belonging to session identified by <code class="docutils literal notranslate"><span class="pre">sessionId</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">acquisitions</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">getSessionAcquisitions</span><span class="p">(</span><span class="n">sessionId</span><span class="p">);</span>
+
+<span class="k">for</span> <span class="nb">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">acquisitions</span><span class="p">)</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;%s: %s\n&#39;</span><span class="p">,</span> <span class="n">acquisitions</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">id</span><span class="p">,</span> <span class="n">acquisitions</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">label</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="acquisitions">
+<h2>Acquisitions<a class="headerlink" href="#acquisitions" title="Permalink to this headline">¶</a></h2>
+<p>For managing tags, files, notes or info, see <a class="reference internal" href="data_model.html#data-model-containers"><span class="std std-ref">Containers</span></a>.</p>
+<p>For uploading and downloading files, see <a class="reference internal" href="getting_started.html#dealing-with-files"><span class="std std-ref">Dealing with Files</span></a>.</p>
+<div class="section" id="add-acquisition">
+<h3>Add Acquisition<a class="headerlink" href="#add-acquisition" title="Permalink to this headline">¶</a></h3>
+<p>Create a new acquisition that belongs to <code class="docutils literal notranslate"><span class="pre">sessionId</span></code> with a label of <code class="docutils literal notranslate"><span class="pre">Localizer</span></code>,
+and upload a file.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">acquisitionId</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">addAcquisition</span><span class="p">(</span><span class="n">struct</span><span class="p">(</span><span class="s">&#39;session&#39;</span><span class="p">,</span> <span class="n">sessionId</span><span class="p">,</span> <span class="s">&#39;label&#39;</span><span class="p">,</span> <span class="s">&#39;Localizer&#39;</span><span class="p">));</span>
+
+<span class="n">fw</span><span class="p">.</span><span class="n">uploadFileToAcquisition</span><span class="p">(</span><span class="n">acquisitionId</span><span class="p">,</span> <span class="s">&#39;localizer.nii.gz&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-acquisitions">
+<h3>List Acquisitions<a class="headerlink" href="#list-acquisitions" title="Permalink to this headline">¶</a></h3>
+<p>List all of the acquisitions that I have access to:
+(Not recommended)</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">acquisitions</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">getAllAcquisitions</span><span class="p">();</span>
+
+<span class="k">for</span> <span class="nb">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">acquisitions</span><span class="p">)</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;%s: %s\n&#39;</span><span class="p">,</span> <span class="n">acquisitions</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">id</span><span class="p">,</span> <span class="n">acquisitions</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">label</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-files-in-acquisition">
+<h3>List Files in Acquisition<a class="headerlink" href="#list-files-in-acquisition" title="Permalink to this headline">¶</a></h3>
+<p>List all of the files on an acquisition identified by <code class="docutils literal notranslate"><span class="pre">acquisitionId</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">acquisition</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">getAcquisition</span><span class="p">(</span><span class="n">acquisitionId</span><span class="p">);</span>
+
+<span class="k">for</span> <span class="nb">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">acquisition</span><span class="p">.</span><span class="n">files</span><span class="p">)</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;%s: %s\n&#39;</span><span class="p">,</span> <span class="n">acquisition</span><span class="p">.</span><span class="n">files</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">name</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="analyses">
+<h2>Analyses<a class="headerlink" href="#analyses" title="Permalink to this headline">¶</a></h2>
+<p>NOTE: Analyses are available on Projects, Subjects, Sessions and Acquisitions.</p>
+<p>For managing tags, files, notes or info, see <a class="reference internal" href="data_model.html#data-model-containers"><span class="std std-ref">Containers</span></a>.</p>
+<p>For uploading and downloading files, see <a class="reference internal" href="getting_started.html#dealing-with-files"><span class="std std-ref">Dealing with Files</span></a>.</p>
+<div class="section" id="add-analysis">
+<h3>Add Analysis<a class="headerlink" href="#add-analysis" title="Permalink to this headline">¶</a></h3>
+<p>Create a new analysis on session identified by <code class="docutils literal notranslate"><span class="pre">sessionId</span></code> referencing an input file from an
+acquisition, then upload a file.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">file_ref</span> <span class="p">=</span> <span class="n">struct</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="n">acquisitionId</span><span class="p">,</span> <span class="s">&#39;type&#39;</span><span class="p">,</span> <span class="s">&#39;acquisition&#39;</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;localizer.nii.gz&#39;</span><span class="p">);</span>
+<span class="n">analysis</span> <span class="p">=</span> <span class="n">struct</span><span class="p">(</span><span class="s">&#39;label&#39;</span><span class="p">,</span> <span class="s">&#39;Localizer Analysis&#39;</span><span class="p">,</span> <span class="s">&#39;inputs&#39;</span><span class="p">,</span> <span class="p">{{</span><span class="n">file_ref</span><span class="p">}});</span>
+
+<span class="n">analysisId</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">addSessionAnalysis</span><span class="p">(</span><span class="n">sessionId</span><span class="p">,</span> <span class="n">analysis</span><span class="p">);</span>
+
+<span class="n">fw</span><span class="p">.</span><span class="n">uploadOutputToAnalysis</span><span class="p">(</span><span class="n">analysisId</span><span class="p">,</span> <span class="s">&#39;my-analysis.csv&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-session-analyses">
+<h3>List Session Analyses<a class="headerlink" href="#list-session-analyses" title="Permalink to this headline">¶</a></h3>
+<p>List all of the analyses belonging to session identified by <code class="docutils literal notranslate"><span class="pre">sessionId</span></code>.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">analyses</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">getSessionAnalyses</span><span class="p">(</span><span class="n">sessionId</span><span class="p">);</span>
+
+<span class="k">for</span> <span class="nb">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">analyses</span><span class="p">)</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;%s: %s\n&#39;</span><span class="p">,</span> <span class="n">analyses</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">id</span><span class="p">,</span> <span class="n">analyses</span><span class="p">{</span><span class="nb">i</span><span class="p">}.</span><span class="n">label</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="data_views.html" class="btn btn-neutral float-right" title="Flywheel Views" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="data_model.html" class="btn btn-neutral" title="Data Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018 Flywheel All rights reserved.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/jquery.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/underscore.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

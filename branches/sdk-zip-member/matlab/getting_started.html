@@ -1,0 +1,481 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting Started with Flywheel SDK &mdash; Flywheel SDK  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Model" href="data_model.html" />
+    <link rel="prev" title="Flywheel Documentation" href="index.html" /> 
+
+  
+  <script src="../../../static/theme/sphinx_rtd/0.3.1/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Flywheel SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started with Flywheel SDK</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#license">License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-key">API Key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#making-api-calls">Making API Calls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-cli-credentials">Using CLI Credentials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-help">Getting Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#finding-objects">Finding Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-objects-new">Working with Objects [NEW]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-finders-new">Working with Finders [NEW]</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#filter-syntax">Filter Syntax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sorting">Sorting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dealing-with-files">Dealing with Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#working-with-zip-members">Working with Zip Members</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#handling-exceptions">Handling Exceptions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_views.html">Flywheel Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flywheel.html">flywheel package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Flywheel SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Getting Started with Flywheel SDK</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started-with-flywheel-sdk">
+<h1>Getting Started with Flywheel SDK<a class="headerlink" href="#getting-started-with-flywheel-sdk" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>The Flywheel SDK is a matlab toolbox that provides programmatic
+access to the Flywheel API endpoints.</p>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>Flywheel SDK has an MIT-based <a class="reference external" href="https://github.com/flywheel-io/core/blob/master/LICENSE">license</a>.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The latest Matlab Toolbox can be downloaded from the <a class="reference external" href="https://github.com/flywheel-io/core/releases">Releases Page</a>.
+Installation can be done one of two ways, depending on your Operating System. For OSX and Windows you should be able
+to double-click the downloaded toolbox in order to perform the installation.</p>
+<p>If your Operating System does not support double-click installation of toolboxes, you can install from within the matlab console.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">toolboxFile</span> <span class="p">=</span> <span class="s">&#39;/path/to/flywheel-sdk-version.mltbx&#39;</span><span class="p">;</span>
+<span class="n">installedToolbox</span> <span class="p">=</span> <span class="n">matlab</span><span class="p">.</span><span class="n">addons</span><span class="p">.</span><span class="n">toolbox</span><span class="p">.</span><span class="n">installToolbox</span><span class="p">(</span><span class="n">toolboxFile</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="api-key">
+<h2>API Key<a class="headerlink" href="#api-key" title="Permalink to this headline">¶</a></h2>
+<p>The SDK requires an API key. You can find and generate your key on the Flywheel profile page. It will look like this:</p>
+<img alt="../../../static/images/api-key.png" src="../../../static/images/api-key.png" />
+</div>
+<div class="section" id="making-api-calls">
+<h2>Making API Calls<a class="headerlink" href="#making-api-calls" title="Permalink to this headline">¶</a></h2>
+<p>In order to make API calls, you will need to create an instance of the Flywheel client:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Create client</span>
+<span class="n">fw</span> <span class="p">=</span> <span class="n">flywheel</span><span class="p">.</span><span class="n">Client</span><span class="p">(</span><span class="s">&#39;my-key&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once you have a client instance, you can interact with the system. For instance, you could get information about yourself:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">self</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">getCurrentUser</span><span class="p">();</span>
+<span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;I am %s %s\n&#39;</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">firstname</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">lastname</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-cli-credentials">
+<h2>Using CLI Credentials<a class="headerlink" href="#using-cli-credentials" title="Permalink to this headline">¶</a></h2>
+<p>If you’ve logged in using the <a class="reference external" href="https://docs.flywheel.io/display/EM/CLI+-+Installation">CLI</a>, you can create a client
+instance without using an API key. This is useful when sharing SDK scripts for others to use.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Create client, using CLI credentials</span>
+<span class="n">fw</span> <span class="p">=</span> <span class="n">flywheel</span><span class="p">.</span><span class="n">Client</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="getting-help">
+<h2>Getting Help<a class="headerlink" href="#getting-help" title="Permalink to this headline">¶</a></h2>
+<p>You can query the client or objects returned by api calls for additional information:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">help</span><span class="p">(</span><span class="n">fw</span><span class="p">);</span> <span class="c">% Display available functions</span>
+<span class="nb">disp</span><span class="p">(</span><span class="n">self</span><span class="p">);</span> <span class="c">% Print the properties in the &#39;self&#39; object</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="finding-objects">
+<h2>Finding Objects<a class="headerlink" href="#finding-objects" title="Permalink to this headline">¶</a></h2>
+<p>With the exception of Groups, all containers and objects within Flywheel are referenced using Unique IDs.
+Groups are the only object that have a human-readable id (e.g. <code class="docutils literal notranslate"><span class="pre">flywheel</span></code>).</p>
+<p>Finding an Object when you are only familiar with the label can be difficult. One method that may
+help is the <code class="xref mat mat-meth docutils literal notranslate"><span class="pre">flywheel.Flywheel.resolve()</span></code> method.</p>
+<p>Resolve takes a path (by label) to an Object in the system, and if found, returns the full path to that Object,
+along with children. For example, to find the project labeled <code class="docutils literal notranslate"><span class="pre">Anxiety</span> <span class="pre">Study</span></code> that belongs to the <code class="docutils literal notranslate"><span class="pre">flywheel</span></code>
+group, I would call resolve with: <code class="docutils literal notranslate"><span class="pre">'flywheel/Anxiety</span> <span class="pre">Study'</span></code>:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Resolve project by id</span>
+<span class="n">result</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">resolve</span><span class="p">(</span><span class="s">&#39;flywheel/Anxiety Study&#39;</span><span class="p">);</span>
+
+<span class="c">% Extract the resolved project id</span>
+<span class="n">project</span> <span class="p">=</span> <span class="n">result</span><span class="p">.</span><span class="n">path</span><span class="p">{</span><span class="mi">2</span><span class="p">};</span>
+
+<span class="c">% Print the ids and labels of the path elements</span>
+<span class="k">for</span> <span class="n">idx</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">path</span><span class="p">)</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;%s: %s\n&#39;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">path</span><span class="p">{</span><span class="n">idx</span><span class="p">}.</span><span class="n">label</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">path</span><span class="p">{</span><span class="n">idx</span><span class="p">}.</span><span class="n">id</span><span class="p">);</span>
+<span class="k">end</span>
+
+<span class="c">% Print the children of project:</span>
+<span class="k">for</span> <span class="n">idx</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">children</span><span class="p">)</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;%s: %s\n&#39;</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">children</span><span class="p">{</span><span class="n">idx</span><span class="p">}.</span><span class="n">label</span><span class="p">,</span> <span class="n">result</span><span class="p">.</span><span class="n">children</span><span class="p">{</span><span class="n">idx</span><span class="p">}.</span><span class="n">id</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<p>In a similar vein to resolve, <code class="xref mat mat-meth docutils literal notranslate"><span class="pre">flywheel.Flywheel.lookup()</span></code> will directly resolve a container by path. For example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Lookup project by id</span>
+<span class="n">project</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">lookup</span><span class="p">(</span><span class="s">&#39;flywheel/Anxiety Study&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Finally, if the ID of the Object is known, then it can be retrieved directly using the <code class="xref mat mat-meth docutils literal notranslate"><span class="pre">flywheel.Flywheel.get()</span></code> method.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Get session by id</span>
+<span class="n">session</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;5bed87475b0ab53e50d03e0c&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="working-with-objects-new">
+<h2>Working with Objects [NEW]<a class="headerlink" href="#working-with-objects-new" title="Permalink to this headline">¶</a></h2>
+<p>Most Objects in the Flywheel SDK provide methods for common operations. For example, to update properties on an object,
+you can simply call the <code class="docutils literal notranslate"><span class="pre">update</span></code> method, passing in a dictionary or key value pairs:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Update a project&#39;s label</span>
+<span class="n">project</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="s">&#39;label&#39;</span><span class="p">,</span> <span class="s">&#39;New Project Label&#39;</span><span class="p">);</span>
+
+<span class="c">% Update a subject&#39;s type and sex</span>
+<span class="n">subject</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">struct</span><span class="p">(</span><span class="s">&#39;type&#39;</span><span class="p">,</span> <span class="s">&#39;human&#39;</span><span class="p">,</span> <span class="s">&#39;sex&#39;</span><span class="p">,</span> <span class="s">&#39;female&#39;</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>It’s important to note that calling <code class="docutils literal notranslate"><span class="pre">update</span></code> will not update your local copy of the object! However, you can
+quickly refresh an object by calling reload:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Reload a session</span>
+<span class="n">session</span> <span class="p">=</span> <span class="n">session</span><span class="p">.</span><span class="n">reload</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="working-with-finders-new">
+<h2>Working with Finders [NEW]<a class="headerlink" href="#working-with-finders-new" title="Permalink to this headline">¶</a></h2>
+<p>Another way to find objects is via Finders provided at the top level, and on objects. Finders allow locating objects
+via arbitrary filtering. Depending on which version of a finder method you call, you can retrieve all matching objects,
+or the first matching object. Finally, if you want to walk over a large number of objects, finders support iteration.</p>
+<div class="section" id="filter-syntax">
+<h3>Filter Syntax<a class="headerlink" href="#filter-syntax" title="Permalink to this headline">¶</a></h3>
+<p>Filter strings are specified as the first argument to a find function. Multiple filters can be separated by commas.
+Filtering can generally be done on any property on an object, using dotted notation for sub-properties.
+Type conversion happens automatically. To treat a value as a string, wrap it in quotes: e.g. <code class="docutils literal notranslate"><span class="pre">label=&quot;My</span> <span class="pre">Project&quot;</span></code>.</p>
+<p>Types supported are:</p>
+<ul class="simple">
+<li>Dates in the format <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code></li>
+<li>Timestamps in the format <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DDTHH:mm:ss</span></code></li>
+<li>Numeric values (e.g. <code class="docutils literal notranslate"><span class="pre">42</span></code> or <code class="docutils literal notranslate"><span class="pre">15.7</span></code>)</li>
+<li>The literal value <code class="docutils literal notranslate"><span class="pre">null</span></code></li>
+</ul>
+<p>Operations supported are:</p>
+<ul class="simple">
+<li>Comparison operators: <code class="docutils literal notranslate"><span class="pre">&lt;,</span> <span class="pre">&lt;=,</span> <span class="pre">=,</span> <span class="pre">!=,</span> <span class="pre">&gt;=,</span> <span class="pre">&gt;</span></code></li>
+<li>Regular expression match: <code class="docutils literal notranslate"><span class="pre">=~</span></code></li>
+</ul>
+</div>
+<div class="section" id="sorting">
+<h3>Sorting<a class="headerlink" href="#sorting" title="Permalink to this headline">¶</a></h3>
+<p>In addition to filtering, sorting is supported in the sytax: <code class="docutils literal notranslate"><span class="pre">&lt;fieldname&gt;:&lt;ordering&gt;</span></code>.
+Where <code class="docutils literal notranslate"><span class="pre">fieldname</span></code> can be any property, and <code class="docutils literal notranslate"><span class="pre">ordering</span></code> is either <code class="docutils literal notranslate"><span class="pre">asc</span></code> or <code class="docutils literal notranslate"><span class="pre">desc</span></code>
+for ascending or descending order, respectively.</p>
+</div>
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Retrieve all projects (with a default limit)</span>
+<span class="n">allProjects</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">projects</span><span class="p">();</span>
+
+<span class="c">% Find the first project with a label of &#39;My Project&#39;</span>
+<span class="n">project</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">projects</span><span class="p">.</span><span class="n">findFirst</span><span class="p">(</span><span class="s">&#39;label=My Project&#39;</span><span class="p">);</span>
+
+<span class="c">% Find all sessions in project created after 2018-10-31</span>
+<span class="n">sessions</span> <span class="p">=</span> <span class="n">project</span><span class="p">.</span><span class="n">sessions</span><span class="p">.</span><span class="nb">find</span><span class="p">(</span><span class="s">&#39;created&gt;2018-10-31&#39;</span><span class="p">);</span>
+
+<span class="c">% Iterate over all failed jobs</span>
+<span class="n">itr</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">jobs</span><span class="p">.</span><span class="n">iterFind</span><span class="p">(</span><span class="s">&#39;state=failed&#39;</span><span class="p">);</span>
+<span class="k">while</span> <span class="n">itr</span><span class="p">.</span><span class="n">hasNext</span><span class="p">()</span>
+        <span class="n">job</span> <span class="p">=</span> <span class="n">itr</span><span class="p">.</span><span class="n">next</span><span class="p">();</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;Job: %s, Gear: %s\n&#39;</span><span class="p">,</span> <span class="n">job</span><span class="p">.</span><span class="n">id</span><span class="p">,</span> <span class="n">job</span><span class="p">.</span><span class="n">gearInfo</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
+<span class="k">end</span>
+
+<span class="c">% Iterate over all sessions belonging to project</span>
+<span class="n">iter</span> <span class="p">=</span> <span class="n">project</span><span class="p">.</span><span class="n">sessions</span><span class="p">.</span><span class="n">iter</span><span class="p">();</span>
+<span class="k">while</span> <span class="n">iter</span><span class="p">.</span><span class="n">hasNext</span><span class="p">()</span>
+        <span class="n">session</span> <span class="p">=</span> <span class="n">iter</span><span class="p">.</span><span class="n">next</span><span class="p">();</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;%s\n&#39;</span><span class="p">,</span> <span class="n">session</span><span class="p">.</span><span class="n">label</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="dealing-with-files">
+<span id="id2"></span><h2>Dealing with Files<a class="headerlink" href="#dealing-with-files" title="Permalink to this headline">¶</a></h2>
+<p>Often times you’ll find yourself wanting to upload or download file data to one of Flywheel’s containers. When uploading,
+you can either specify the path to the input file, or you can specify some in-memory data to upload using the FileSpec object.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Upload the file at /tmp/hello.txt</span>
+<span class="n">project</span><span class="p">.</span><span class="n">uploadFile</span><span class="p">(</span><span class="s">&#39;/tmp/hello.txt&#39;</span><span class="p">);</span>
+
+<span class="c">% Upload the data &#39;Hello World!&#39;</span>
+<span class="n">fileSpec</span> <span class="p">=</span> <span class="n">flywheel</span><span class="p">.</span><span class="n">FileSpec</span><span class="p">(</span><span class="s">&#39;hello.txt&#39;</span><span class="p">,</span> <span class="s">&#39;Hello World!\n&#39;</span><span class="p">,</span> <span class="s">&#39;text/plain&#39;</span><span class="p">);</span>
+<span class="n">project</span><span class="p">.</span><span class="n">uploadFile</span><span class="p">(</span><span class="n">fileSpec</span><span class="p">);</span>
+
+<span class="c">% Some endpoints allow multiple file uploads:</span>
+<span class="n">analysis</span><span class="p">.</span><span class="n">uploadOutput</span><span class="p">({</span><span class="s">&#39;/tmp/hello1.txt&#39;</span><span class="p">,</span> <span class="s">&#39;/tmp/hello2.txt&#39;</span><span class="p">});</span>
+</pre></div>
+</div>
+<p>When downloading, you specify the destination file, or you can download directly to memory.
+Supported <code class="docutils literal notranslate"><span class="pre">OutputType</span></code> values are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">int8</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">int16</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">int32</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">int64</span></code></li>
+<li><code class="docutils literal notranslate"><span class="pre">double</span></code> (default)</li>
+<li><code class="docutils literal notranslate"><span class="pre">char</span></code></li>
+</ul>
+</div></blockquote>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Download file to /tmp/hello.txt</span>
+<span class="n">project</span><span class="p">.</span><span class="n">downloadFile</span><span class="p">(</span><span class="s">&#39;hello.txt&#39;</span><span class="p">,</span> <span class="s">&#39;/tmp/hello.txt&#39;</span><span class="p">);</span>
+
+<span class="c">% Download file directly to memory as an array of doubles</span>
+<span class="n">data</span> <span class="p">=</span> <span class="n">project</span><span class="p">.</span><span class="n">readFile</span><span class="p">(</span><span class="s">&#39;hello.txt&#39;</span><span class="p">);</span>
+
+<span class="c">% Download file directly to memory as a char cell array</span>
+<span class="n">data</span> <span class="p">=</span> <span class="n">project</span><span class="p">.</span><span class="n">readFile</span><span class="p">(</span><span class="s">&#39;hello.txt&#39;</span><span class="p">,</span> <span class="s">&#39;OutputType&#39;</span><span class="p">,</span> <span class="s">&#39;char&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<div class="section" id="working-with-zip-members">
+<h3>Working with Zip Members<a class="headerlink" href="#working-with-zip-members" title="Permalink to this headline">¶</a></h3>
+<p>Occasionally you may want to see the contents of a zip file, and possibly download a single member without downloading
+the entire zipfile. There are a few operations provided to enable this. For example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Get information about a zip file</span>
+<span class="n">zipInfo</span> <span class="p">=</span> <span class="n">acquisition</span><span class="p">.</span><span class="n">getZipInfo</span><span class="p">(</span><span class="s">&#39;my-archive.zip&#39;</span><span class="p">);</span>
+
+<span class="c">% Download the first zip entry to /tmp/{entry_name}</span>
+<span class="n">entryName</span> <span class="p">=</span> <span class="n">zipInfo</span><span class="p">.</span><span class="n">members</span><span class="p">{</span><span class="mi">1</span><span class="p">}.</span><span class="n">path</span><span class="p">;</span>
+<span class="n">outPath</span> <span class="p">=</span> <span class="n">fullfile</span><span class="p">(</span><span class="s">&#39;/tmp&#39;</span><span class="p">,</span> <span class="n">entryName</span><span class="p">);</span>
+<span class="n">acquisition</span><span class="p">.</span><span class="n">downloadFileZipMember</span><span class="p">(</span><span class="s">&#39;my-archive.zip&#39;</span><span class="p">,</span> <span class="n">entryName</span><span class="p">,</span> <span class="n">outPath</span><span class="p">);</span>
+
+<span class="c">% Read the &quot;readme.txt&quot; zip entry directly to memory</span>
+<span class="n">zipData</span> <span class="p">=</span> <span class="n">acquisition</span><span class="p">.</span><span class="n">readFileZipMember</span><span class="p">(</span><span class="s">&#39;my-archive.zip&#39;</span><span class="p">,</span> <span class="s">&#39;readme.txt&#39;</span><span class="p">,</span> <span class="s">&#39;OutputType&#39;</span><span class="p">,</span> <span class="s">&#39;char&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="handling-exceptions">
+<h2>Handling Exceptions<a class="headerlink" href="#handling-exceptions" title="Permalink to this headline">¶</a></h2>
+<p>When an error is encountered while accessing an endpoint, an exception is thrown. The exception message
+will have more details.</p>
+<p>For example:</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="k">try</span>
+  <span class="n">project</span> <span class="p">=</span> <span class="n">fw</span><span class="p">.</span><span class="n">getProject</span><span class="p">(</span><span class="s">&#39;NON_EXISTENT_ID&#39;</span><span class="p">);</span>
+<span class="k">catch</span> <span class="n">ME</span>
+  <span class="n">fprintf</span><span class="p">(</span><span class="s">&#39;API Error: %s\n&#39;</span><span class="p">,</span> <span class="n">ME</span><span class="p">.</span><span class="n">message</span><span class="p">);</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="data_model.html" class="btn btn-neutral float-right" title="Data Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Flywheel Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018 Flywheel All rights reserved.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/jquery.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/underscore.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/doctools.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

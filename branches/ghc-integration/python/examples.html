@@ -1,0 +1,668 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Examples &mdash; Flywheel SDK  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../static/theme/sphinx_rtd/0.3.1/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Flywheel Views" href="data_views.html" />
+    <link rel="prev" title="Data Model" href="data_model.html" /> 
+
+  
+  <script src="../../../static/theme/sphinx_rtd/0.3.1/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Flywheel SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started with Flywheel SDK</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#groups">Groups</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-group">Add Group</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-groups">List Groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modify-group-tags">Modify Group Tags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-projects-in-group">List Projects in Group</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#projects">Projects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-project">Add Project</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-projects">List Projects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-subjects-in-project">List Subjects in Project</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-sessions-in-project">List Sessions in Project</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#subjects">Subjects</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-subject">Add Subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-subjects">List Subjects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-sessions-in-subject">List Sessions in Subject</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modify-subject">Modify Subject</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#sessions">Sessions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-session">Add Session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-sessions">List Sessions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-acquisitions-in-session">List Acquisitions in Session</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#acquisitions">Acquisitions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-acquisition">Add Acquisition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-acquisitions">List Acquisitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-files-in-acquisition">List Files in Acquisition</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#analyses">Analyses</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-analysis">Add Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#list-session-analyses">List Session Analyses</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#archive-downloads">Archive Downloads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#jobs-and-analyses">Jobs And Analyses</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scheduling-jobs">Scheduling Jobs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#what-gear-to-run">1. What gear to run?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-type-of-job">2. What type of job?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-are-the-inputs">3. What are the inputs?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#where-should-outputs-go">4. Where should outputs go?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-configuration-is-desired">5. What configuration is desired?</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#utility-job-example">Utility Job Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#analysis-job-example">Analysis Job Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#batch-scheduling-example">Batch Scheduling Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_views.html">Flywheel Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flywheel.html">flywheel package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Flywheel SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Examples</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>This page provides some brief, minimal examples for common tasks with the SDK.</p>
+<div class="section" id="groups">
+<h2>Groups<a class="headerlink" href="#groups" title="Permalink to this headline">¶</a></h2>
+<p>For managing permissions, see <a class="reference internal" href="data_model.html#data-model-permissions"><span class="std std-ref">Permissions</span></a>.</p>
+<div class="section" id="add-group">
+<h3>Add Group<a class="headerlink" href="#add-group" title="Permalink to this headline">¶</a></h3>
+<p>Create a new group, with an id of <code class="docutils literal notranslate"><span class="pre">my_group</span></code> and a label of <code class="docutils literal notranslate"><span class="pre">My</span> <span class="pre">Test</span> <span class="pre">Group</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">group_id</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">add_group</span><span class="p">(</span><span class="n">flywheel</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="s1">&#39;my_group&#39;</span><span class="p">,</span> <span class="s1">&#39;My Test Group&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-groups">
+<h3>List Groups<a class="headerlink" href="#list-groups" title="Permalink to this headline">¶</a></h3>
+<p>List all groups that I have access to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">fw</span><span class="o">.</span><span class="n">groups</span><span class="p">():</span>
+  <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">group</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="modify-group-tags">
+<h3>Modify Group Tags<a class="headerlink" href="#modify-group-tags" title="Permalink to this headline">¶</a></h3>
+<p>Add tags named <code class="docutils literal notranslate"><span class="pre">Control</span></code> and <code class="docutils literal notranslate"><span class="pre">Study</span></code> to a group.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">group</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">group_id</span><span class="p">)</span>
+<span class="n">group</span><span class="o">.</span><span class="n">add_tag</span><span class="p">(</span><span class="s1">&#39;Control&#39;</span><span class="p">)</span>
+<span class="n">group</span><span class="o">.</span><span class="n">add_tag</span><span class="p">(</span><span class="s1">&#39;Study&#39;</span><span class="p">)</span>
+
+<span class="n">group</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">reload</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">tags</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-projects-in-group">
+<h3>List Projects in Group<a class="headerlink" href="#list-projects-in-group" title="Permalink to this headline">¶</a></h3>
+<p>List all of the projects belonging to group.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">project</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">projects</span><span class="p">():</span>
+  <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">project</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="projects">
+<h2>Projects<a class="headerlink" href="#projects" title="Permalink to this headline">¶</a></h2>
+<p>For managing tags, files, notes or info, see <a class="reference internal" href="data_model.html#data-model-containers"><span class="std std-ref">Containers</span></a>.</p>
+<p>For managing permissions, see <a class="reference internal" href="data_model.html#data-model-permissions"><span class="std std-ref">Permissions</span></a>.</p>
+<div class="section" id="add-project">
+<h3>Add Project<a class="headerlink" href="#add-project" title="Permalink to this headline">¶</a></h3>
+<p>Create a new project that belongs to <code class="docutils literal notranslate"><span class="pre">group_id</span></code> with a label of <code class="docutils literal notranslate"><span class="pre">My</span> <span class="pre">Test</span> <span class="pre">Project</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">project</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">add_project</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;My Test Project&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-projects">
+<h3>List Projects<a class="headerlink" href="#list-projects" title="Permalink to this headline">¶</a></h3>
+<p>List all of the projects that I have access to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">project</span> <span class="ow">in</span> <span class="n">fw</span><span class="o">.</span><span class="n">projects</span><span class="p">():</span>
+  <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">project</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-subjects-in-project">
+<h3>List Subjects in Project<a class="headerlink" href="#list-subjects-in-project" title="Permalink to this headline">¶</a></h3>
+<p>List all subjects belonging to project.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">project</span><span class="o">.</span><span class="n">subjects</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">subject</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-sessions-in-project">
+<h3>List Sessions in Project<a class="headerlink" href="#list-sessions-in-project" title="Permalink to this headline">¶</a></h3>
+<p>List all of the sessions belonging to project.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">project</span><span class="o">.</span><span class="n">sessions</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="subjects">
+<h2>Subjects<a class="headerlink" href="#subjects" title="Permalink to this headline">¶</a></h2>
+<p>For managing tags, files, notes or info, see <a class="reference internal" href="data_model.html#data-model-containers"><span class="std std-ref">Containers</span></a>.</p>
+<div class="section" id="add-subject">
+<h3>Add Subject<a class="headerlink" href="#add-subject" title="Permalink to this headline">¶</a></h3>
+<p>Create a new subject with a label of <code class="docutils literal notranslate"><span class="pre">Subject</span> <span class="pre">01</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">subject</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">addSubject</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Subject 01&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-subjects">
+<h3>List Subjects<a class="headerlink" href="#list-subjects" title="Permalink to this headline">¶</a></h3>
+<p>List all of the subjects that I have access to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">fw</span><span class="o">.</span><span class="n">subjects</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">subject</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">subject</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-sessions-in-subject">
+<h3>List Sessions in Subject<a class="headerlink" href="#list-sessions-in-subject" title="Permalink to this headline">¶</a></h3>
+<p>List all of the sessions belonging to subject.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">subject</span><span class="o">.</span><span class="n">sessions</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="modify-subject">
+<h3>Modify Subject<a class="headerlink" href="#modify-subject" title="Permalink to this headline">¶</a></h3>
+<p>Update the details of a subject</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">subject</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">firstname</span><span class="o">=</span><span class="s1">&#39;John&#39;</span><span class="p">,</span>
+        <span class="n">lastname</span><span class="o">=</span><span class="s1">&#39;Doe&#39;</span><span class="p">,</span>
+        <span class="n">cohort</span><span class="o">=</span><span class="s1">&#39;Study&#39;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;human&#39;</span><span class="p">,</span>
+        <span class="n">sex</span><span class="o">=</span><span class="s1">&#39;male&#39;</span><span class="p">,</span>
+        <span class="n">race</span><span class="o">=</span><span class="s1">&#39;Unknown or Not Reported&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="sessions">
+<h2>Sessions<a class="headerlink" href="#sessions" title="Permalink to this headline">¶</a></h2>
+<p>For managing tags, files, notes or info, see <a class="reference internal" href="data_model.html#data-model-containers"><span class="std std-ref">Containers</span></a>.</p>
+<div class="section" id="add-session">
+<h3>Add Session<a class="headerlink" href="#add-session" title="Permalink to this headline">¶</a></h3>
+<p>Create a new session with a label of <code class="docutils literal notranslate"><span class="pre">Session</span> <span class="pre">01</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">session</span> <span class="o">=</span> <span class="n">subject</span><span class="o">.</span><span class="n">add_session</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Session 01&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-sessions">
+<h3>List Sessions<a class="headerlink" href="#list-sessions" title="Permalink to this headline">¶</a></h3>
+<p>List all of the sessions that I have access to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">session</span> <span class="ow">in</span> <span class="n">fw</span><span class="o">.</span><span class="n">sessions</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-acquisitions-in-session">
+<h3>List Acquisitions in Session<a class="headerlink" href="#list-acquisitions-in-session" title="Permalink to this headline">¶</a></h3>
+<p>List all of the acquisitions belonging to session.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">acquisition</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">acquisitions</span><span class="p">():</span>
+  <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">acquisition</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">acquisition</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="acquisitions">
+<h2>Acquisitions<a class="headerlink" href="#acquisitions" title="Permalink to this headline">¶</a></h2>
+<p>For managing tags, files, notes or info, see <a class="reference internal" href="data_model.html#data-model-containers"><span class="std std-ref">Containers</span></a>.</p>
+<p>For uploading and downloading files, see <a class="reference internal" href="getting_started.html#dealing-with-files"><span class="std std-ref">Dealing with Files</span></a>.</p>
+<div class="section" id="add-acquisition">
+<h3>Add Acquisition<a class="headerlink" href="#add-acquisition" title="Permalink to this headline">¶</a></h3>
+<p>Create a new acquisition with a label of <code class="docutils literal notranslate"><span class="pre">Localizer</span></code>, and upload a file.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">acquisition</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">add_acquisition</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Localizer&#39;</span><span class="p">)</span>
+
+<span class="n">acquisition</span><span class="o">.</span><span class="n">upload_file</span><span class="p">(</span><span class="s1">&#39;localizer.nii.gz&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-acquisitions">
+<h3>List Acquisitions<a class="headerlink" href="#list-acquisitions" title="Permalink to this headline">¶</a></h3>
+<p>List all of the acquisitions that I have access to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">acquisition</span> <span class="ow">in</span> <span class="n">fw</span><span class="o">.</span><span class="n">acquisitions</span><span class="o">.</span><span class="n">iter</span><span class="p">();</span>
+  <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">acquisition</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">acquisition</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-files-in-acquisition">
+<h3>List Files in Acquisition<a class="headerlink" href="#list-files-in-acquisition" title="Permalink to this headline">¶</a></h3>
+<p>List all of the files on an acquisition.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="nb">file</span> <span class="ow">in</span> <span class="n">acquisition</span><span class="o">.</span><span class="n">files</span><span class="p">:</span>
+  <span class="k">print</span><span class="p">(</span><span class="nb">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="analyses">
+<h2>Analyses<a class="headerlink" href="#analyses" title="Permalink to this headline">¶</a></h2>
+<p>NOTE: Analyses are available on Projects, Subjects, Sessions and Acquisitions.</p>
+<p>For managing tags, files, notes or info, see <a class="reference internal" href="data_model.html#data-model-containers"><span class="std std-ref">Containers</span></a>.</p>
+<p>For uploading and downloading files, see <a class="reference internal" href="getting_started.html#dealing-with-files"><span class="std std-ref">Dealing with Files</span></a>.</p>
+<div class="section" id="add-analysis">
+<h3>Add Analysis<a class="headerlink" href="#add-analysis" title="Permalink to this headline">¶</a></h3>
+<p>Create a new analysis on session referencing an input file from an
+acquisition, then upload a file.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">file_ref</span> <span class="o">=</span> <span class="n">acquisition</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="s1">&#39;localizer.nii.gz&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ref</span><span class="p">()</span>
+<span class="n">analysis</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">add_analysis</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Localizer Analysis&#39;</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">file_ref</span><span class="p">])</span>
+
+<span class="n">analysis</span><span class="o">.</span><span class="n">upload_output</span><span class="p">(</span><span class="s1">&#39;my-analysis.csv&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="list-session-analyses">
+<h3>List Session Analyses<a class="headerlink" href="#list-session-analyses" title="Permalink to this headline">¶</a></h3>
+<p>List all of the analyses belonging to session.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">analysis</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">analyses</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">analysis</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">analysis</span><span class="o">.</span><span class="n">label</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="archive-downloads">
+<h2>Archive Downloads<a class="headerlink" href="#archive-downloads" title="Permalink to this headline">¶</a></h2>
+<p>Occasionally it’s desirable to download all files of a given type from
+one or more containers. Flywheel provides this capability in the form of
+tarfile downloads. An archive can be downloaded from a single container,
+or a list of containers, and can include or exclude given file types.</p>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">project</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;flywheel/Test Project&#39;</span><span class="p">)</span>
+
+<span class="c1"># Download all NIfTI files in the project</span>
+<span class="n">project</span><span class="o">.</span><span class="n">download_tar</span><span class="p">(</span><span class="s1">&#39;test-project.tar&#39;</span><span class="p">,</span> <span class="n">include_types</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nifti&#39;</span><span class="p">])</span>
+
+<span class="c1"># Download all non-DICOM data from sessions created since 2018-10-31</span>
+<span class="n">sessions</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">sessions</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;created&gt;2018-10-31&#39;</span><span class="p">)</span>
+<span class="n">fw</span><span class="o">.</span><span class="n">download_tar</span><span class="p">(</span><span class="n">sessions</span><span class="p">,</span> <span class="s1">&#39;session-files.tar&#39;</span><span class="p">,</span> <span class="n">exclude_types</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;dicom&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="jobs-and-analyses">
+<h2>Jobs And Analyses<a class="headerlink" href="#jobs-and-analyses" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="scheduling-jobs">
+<h3>Scheduling Jobs<a class="headerlink" href="#scheduling-jobs" title="Permalink to this headline">¶</a></h3>
+<p>Running a gear requires a few questions to be answered:</p>
+<div class="section" id="what-gear-to-run">
+<h4>1. What gear to run?<a class="headerlink" href="#what-gear-to-run" title="Permalink to this headline">¶</a></h4>
+<p>A gear can be located by name and (if desired) version using the resolver.
+Calling <code class="docutils literal notranslate"><span class="pre">print_details</span></code> will print a textual description of the gear,
+including inputs and configuration values, and will help answer the remaining
+questions.</p>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the latest version of the example gear</span>
+<span class="n">gear</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;gears/flywheel-example-gear&#39;</span><span class="p">)</span>
+
+<span class="c1"># Get a specific version of the example gear</span>
+<span class="n">gear</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;gears/flywheel-example-gear/0.0.4&#39;</span><span class="p">)</span>
+
+<span class="c1"># Print details about the gear</span>
+<span class="n">gear</span><span class="o">.</span><span class="n">print_details</span><span class="p">()</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Flywheel Example Gear</p>
+<p>Sample gear to demonstrate a simple use case of outputting the name of each input file.</p>
+<p>Name:           flywheel-example-gear
+Version:        0.0.4
+Category:       converter
+Author:         Flywheel &lt;<a class="reference external" href="mailto:support&#37;&#52;&#48;flywheel&#46;io">support<span>&#64;</span>flywheel<span>&#46;</span>io</a>&gt;
+Maintainer:     Ryan Sanford &lt;<a class="reference external" href="mailto:ryansanford&#37;&#52;&#48;flywheel&#46;io">ryansanford<span>&#64;</span>flywheel<span>&#46;</span>io</a>&gt;
+URL:            <a class="reference external" href="https://flywheel.io/">https://flywheel.io/</a>
+Source:         <a class="reference external" href="https://github.com/flywheel-apps/example-gear">https://github.com/flywheel-apps/example-gear</a></p>
+<dl class="docutils">
+<dt>Inputs:</dt>
+<dd><dl class="first last docutils">
+<dt>dicom (file, required)</dt>
+<dd>Type: dicom
+Any dicom file.</dd>
+<dt>file (file, required)</dt>
+<dd>Any file.</dd>
+<dt>text (file, optional)</dt>
+<dd>Any test file that is 10 KB in size or less.</dd>
+</dl>
+</dd>
+<dt>Configuration:</dt>
+<dd><dl class="first last docutils">
+<dt>multiple (number, default: 20)</dt>
+<dd>Any two-digit multiple of ten.</dd>
+<dt>string (string, default: Example)</dt>
+<dd>Any string.</dd>
+<dt>number (number, default: 3.5)</dt>
+<dd>Any number.</dd>
+<dt>phone (string, default: 555-5555)</dt>
+<dd>Any local phone number, no country or area code.</dd>
+<dt>boolean (boolean, default: True)</dt>
+<dd>Any boolean.</dd>
+<dt>integer (integer, default: 7)</dt>
+<dd>Any integer.</dd>
+<dt>string2 (string, default: Example 2)</dt>
+<dd>Any string from 2 to 15 characters long.</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+</div>
+<div class="section" id="what-type-of-job">
+<h4>2. What type of job?<a class="headerlink" href="#what-type-of-job" title="Permalink to this headline">¶</a></h4>
+<p>There are generally two types of gears: Utility and Analysis gears.</p>
+<p>Utility gears generally perform basic data conversion and QA tasks.
+Often times they run within the context of a single container, taking
+input files and generating output files and/or metadata.</p>
+<p>Analysis gears are a bit different in that they create a new Analysis
+object when they run. A destination is still specified, but rather than
+outputs being attached directly to the destination container, a new
+analysis is attached to that container, which contains any output files.</p>
+<p>When executing analysis gears, an analysis label is required. The gear
+<code class="docutils literal notranslate"><span class="pre">category</span></code> (in the description above) determines whether or not a gear
+is an analysis gear.</p>
+</div>
+<div class="section" id="what-are-the-inputs">
+<h4>3. What are the inputs?<a class="headerlink" href="#what-are-the-inputs" title="Permalink to this headline">¶</a></h4>
+<p>Gears can specify one or more file inputs, and can designate whether those
+file inputs are optional or required. It’s not uncommon for the gear to also
+designate an input file type.</p>
+</div>
+<div class="section" id="where-should-outputs-go">
+<h4>4. Where should outputs go?<a class="headerlink" href="#where-should-outputs-go" title="Permalink to this headline">¶</a></h4>
+<p>In addition to the input files, a destination container for output files is required.
+In the case of analysis gears, the destination will be a new analysis object
+on the destination container.</p>
+</div>
+<div class="section" id="what-configuration-is-desired">
+<h4>5. What configuration is desired?<a class="headerlink" href="#what-configuration-is-desired" title="Permalink to this headline">¶</a></h4>
+<p>Finally, any configuration values that do not have default values, or
+desirable default values should be specified at job creation time.</p>
+</div>
+</div>
+<div class="section" id="utility-job-example">
+<h3>Utility Job Example<a class="headerlink" href="#utility-job-example" title="Permalink to this headline">¶</a></h3>
+<p>The Gear object provides the ability to directly start a job:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the Flywheel Example Utility gear</span>
+<span class="n">gear</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;gears/flywheel-example-gear&#39;</span><span class="p">)</span>
+
+<span class="c1"># Find the input files, acquisition will be the destination container</span>
+<span class="n">acquisition</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;flywheel/Test Project/sub-1000/session1/Scan&#39;</span><span class="p">)</span>
+<span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;dicom&#39;</span><span class="p">:</span> <span class="n">acquisition</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="s1">&#39;scan.dicom.zip&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;file&#39;</span><span class="p">:</span> <span class="n">acquisition</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="s1">&#39;hello-world.txt&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># Override some configuration values, the rest will use defaults</span>
+<span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;number&#39;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>
+        <span class="s1">&#39;string&#39;</span><span class="p">:</span> <span class="s1">&#39;Hello World!&#39;</span>
+<span class="p">}</span>
+
+<span class="c1"># Schedule the job, adding the &quot;my-job&quot; tag</span>
+<span class="n">job_id</span> <span class="o">=</span> <span class="n">gear</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="n">acquisition</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;my-job&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="analysis-job-example">
+<h3>Analysis Job Example<a class="headerlink" href="#analysis-job-example" title="Permalink to this headline">¶</a></h3>
+<p>The main difference when running an analysis is setting a label:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the afq-demo gear</span>
+<span class="n">gear</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;gears/afq-demo&#39;</span><span class="p">)</span>
+
+<span class="c1"># Find the session, which will be the destination</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;flywheel/Test Project/sub-1000/session1&#39;</span><span class="p">)</span>
+
+<span class="c1"># Determine the input files, which are on the DTI acquisition</span>
+<span class="c1"># Find the DTI acquisition, which contains the input files</span>
+<span class="n">inputs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;diffusion&#39;</span><span class="p">:</span> <span class="n">dti</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="s1">&#39;8892_14_1_dti.nii.gz&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;bvec&#39;</span><span class="p">:</span> <span class="n">dti</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="s1">&#39;8892_14_1_dti.bvec&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;bval&#39;</span><span class="p">:</span> <span class="n">dti</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="s1">&#39;8892_14_1_dti.bval&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># Set config value</span>
+<span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;qmr_metadata_bvalue&#39;</span><span class="p">:</span> <span class="mi">2000</span>
+<span class="p">}</span>
+
+<span class="c1"># Schedule the job, which returns the analysis ID</span>
+<span class="n">analysis_id</span> <span class="o">=</span> <span class="n">gear</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">analysis_label</span><span class="o">=</span><span class="s1">&#39;My AFQ Demo&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="n">session</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="batch-scheduling-example">
+<h3>Batch Scheduling Example<a class="headerlink" href="#batch-scheduling-example" title="Permalink to this headline">¶</a></h3>
+<p>It is also possible to schedule batch jobs on a group of containers.
+In this case, a job will be scheduled for each container specified that
+has matching inputs. Batch scheduling happens via a proposal process.</p>
+<p>You can also schedule batch analysis runs in this manner, by providing
+an <code class="docutils literal notranslate"><span class="pre">analysis_label</span></code>.</p>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the dcm2niix gear</span>
+<span class="n">gear</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;gears/dcm2niix&#39;</span><span class="p">)</span>
+
+<span class="c1"># Find matching acquisitions, using regular expression match on label</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">fw</span><span class="o">.</span><span class="n">lookup</span><span class="p">(</span><span class="s1">&#39;flywheel/Test Project/sub-1000/session1&#39;</span><span class="p">)</span>
+<span class="n">t1_acquisitions</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">acquisitions</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;label=~^T1&#39;</span><span class="p">)</span>
+
+<span class="c1"># Propose the batch</span>
+<span class="n">proposal</span> <span class="o">=</span> <span class="n">gear</span><span class="o">.</span><span class="n">propose_batch</span><span class="p">(</span><span class="n">t1_acquisitions</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;merge2d&#39;</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span><span class="p">})</span>
+
+<span class="c1"># Run the batch job</span>
+<span class="n">jobs</span> <span class="o">=</span> <span class="n">proposal</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="data_views.html" class="btn btn-neutral float-right" title="Flywheel Views" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="data_model.html" class="btn btn-neutral" title="Data Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018 Flywheel All rights reserved.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  false,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/jquery.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/underscore.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/doctools.js"></script>
+      <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/language_data.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../static/theme/sphinx_rtd/0.3.1/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
